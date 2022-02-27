@@ -17,6 +17,7 @@ import {AccountsReceivableMxService} from "../accountsReceivableMx/accountsRecei
 import {bignumber, chain, round} from "mathjs";
 import {AccountsVerifySheetType} from "./accountsVerifySheetType";
 import {AccountsVerifySheetMxType} from "../accountsVerifySheetMx/accountsVerifySheetMxType";
+import {codeType} from "../autoCode/codeType";
 
 @Injectable()
 export class AccountsVerifySheetService {
@@ -54,7 +55,7 @@ export class AccountsVerifySheetService {
         }
 
         return await this.mysqldbAls.sqlTransaction(async () => {
-            createDto.accountsVerifySheetCode = await this.autoCodeMxService.getAutoCode(20);
+            createDto.accountsVerifySheetCode = await this.autoCodeMxService.getAutoCode(codeType.HXD);
             const result = await this.accountsVerifySheetEntity.create(createDto);
             await this.accountsVerifySheetMxService.create(accountsVerifySheetMxList);
             return result;
@@ -119,17 +120,9 @@ export class AccountsVerifySheetService {
             })
 
             //根据账款类型更新应付账款和应付账款明细
-            //单据类型
-            /*
-            * 核销单类型
-            * [1]预收冲应收 客户A                明细A：预收  -    明细B：应收   -
-            * [2]预付冲应付 供应商A              明细A：预付  -    明细B：应付   -
-            * [3]应收冲应付 客户A   供应商A       明细A：客户A应收  - 明细B：客户A应收 -
-            * [4]应收转应收 冲客户A   客户B生成    明细A：客户A应收  -
-            * [5]应付转应付 冲供应商A 供应商B生成   明细A：供应商A应收 -
-            * */
             switch (accountsVerifySheet.sheetType) {
-                case AccountsVerifySheetType.yuShouChongYinShou:
+                // [1]预收冲应收 客户A  明细A：预收-  明细B：应收-
+                case AccountsVerifySheetType.yuShouChongYinShou: {
                     if (!accountsVerifySheet.clientid) {
                         return Promise.reject(new Error('[1]预收冲应收,缺少客户Id'));
                     }
@@ -177,7 +170,7 @@ export class AccountsVerifySheetService {
                                 actuallyReceived: 0,
                                 advancesReceived: accountsVerifySheetMx.amountsThisVerify * -1,
                                 correlationId: accountsVerifySheet.accountsVerifySheetId,
-                                correlationType: 20,
+                                correlationType: codeType.HXD,
                                 createdAt: new Date(),
                                 creater: "",
                                 inDate: accountsVerifySheet.inDate,
@@ -186,6 +179,7 @@ export class AccountsVerifySheetService {
                                 updatedAt: null,
                                 updater: ""
                             })
+                            continue;
                         }
 
                         //应收款
@@ -200,7 +194,7 @@ export class AccountsVerifySheetService {
                                 actuallyReceived: accountsVerifySheetMx.amountsThisVerify,
                                 advancesReceived: 0,
                                 correlationId: accountsVerifySheet.accountsVerifySheetId,
-                                correlationType: 20,
+                                correlationType: codeType.HXD,
                                 createdAt: new Date(),
                                 creater: "",
                                 inDate: accountsVerifySheet.inDate,
@@ -209,34 +203,386 @@ export class AccountsVerifySheetService {
                                 updatedAt: null,
                                 updater: ""
                             })
+
                             //本次冲尾数更新
-                            await this.accountsReceivableService.increaseWriteOffAmount(accountsVerifySheetMx.correlationId, accountsVerifySheetMx.amountsMantissa);
+                            if (accountsVerifySheetMx.amountsMantissa !== 0) {
+                                await this.accountsReceivableService.increaseWriteOffAmount(accountsVerifySheetMx.correlationId, accountsVerifySheetMx.amountsMantissa);
+                                await this.accountsReceivableMxService.create({
+                                    abstract: "",
+                                    accountReceivableMxId: 0,
+                                    accountsReceivableId: accountsVerifySheetMx.correlationId,
+                                    actuallyReceived: 0,
+                                    advancesReceived: 0,
+                                    correlationId: accountsVerifySheet.accountsVerifySheetId,
+                                    correlationType: codeType.HXD,
+                                    createdAt: new Date(),
+                                    creater: "",
+                                    inDate: accountsVerifySheet.inDate,
+                                    reMark: "",
+                                    receivables: accountsVerifySheetMx.amountsMantissa * -1,
+                                    updatedAt: null,
+                                    updater: ""
+                                })
+                            }
+
+                        }
+                    }
+                }
+                    break;
+                // [2]预付冲应付 供应商A              明细A：预付-    明细B：应付-
+                case AccountsVerifySheetType.yuFuChongYinFu: {
+                    if (!accountsVerifySheet.buyid) {
+                        return Promise.reject(new Error('[2]预付冲应付,缺少供应商Id'));
+                    }
+                    //本次核销预付账款
+                    let prepaymentsThisWriteOff = 0;
+
+                    //本次核销应付账款
+                    let accountsPayableThisWriteOff = 0;
+
+                    for (let i = 0; i < accountsVerifySheetMxList.length; i++) {
+                        const accountsVerifySheetMx = accountsVerifySheetMxList[i];
+
+                        //预付账款 本次核销相加
+                        if (accountsVerifySheetMx.correlationType === AccountsVerifySheetMxType.prepayments) {
+                            prepaymentsThisWriteOff = prepaymentsThisWriteOff + accountsVerifySheetMx.amountsThisVerify
+                        }
+
+                        //应付账款 本次核销相加
+                        if (accountsVerifySheetMx.correlationType === AccountsVerifySheetMxType.accountsPayable) {
+                            accountsPayableThisWriteOff = accountsPayableThisWriteOff + accountsVerifySheetMx.amountsThisVerify
+                        }
+                    }
+
+                    if (prepaymentsThisWriteOff !== accountsPayableThisWriteOff) {
+                        return Promise.reject(new Error('审核失败,核销单预付账款核销不等于应付账款核销'));
+                    }
+
+                    for (let i = 0; i < accountsVerifySheetMxList.length; i++) {
+                        const accountsVerifySheetMx = accountsVerifySheetMxList[i];
+
+                        //预付账款
+                        if (accountsVerifySheetMx.correlationType === AccountsVerifySheetMxType.prepayments) {
+                            await this.accountsPayableService.increaseWriteOffAmount(accountsVerifySheetMx.correlationId, accountsVerifySheetMx.amountsThisVerify);
+                            await this.accountsPayableMxService.create({
+                                abstract: "",
+                                accountsPayableMxId: 0,
+                                accountsPayableId: accountsVerifySheetMx.correlationId,
+                                accountPayable: 0,
+                                actuallyPayment: 0,
+                                advancesPayment: accountsVerifySheetMx.amountsThisVerify * -1,
+                                correlationId: accountsVerifySheet.accountsVerifySheetId,
+                                correlationType: codeType.HXD,
+                                inDate: accountsVerifySheet.inDate,
+                                reMark: "",
+                                creater: userName,
+                                createdAt: new Date(),
+                                updater: "",
+                                updatedAt: null,
+                            })
+                        }
+
+                        //应付账款
+                        if (accountsVerifySheetMx.correlationType === AccountsVerifySheetMxType.accountsPayable) {
+
+                            //本次核销
+                            await this.accountsPayableService.increaseWriteOffAmount(accountsVerifySheetMx.correlationId, accountsVerifySheetMx.amountsThisVerify);
+                            await this.accountsPayableMxService.create({
+                                abstract: "",
+                                accountsPayableMxId: 0,
+                                accountsPayableId: accountsVerifySheetMx.correlationId,
+                                accountPayable: 0,
+                                actuallyPayment: accountsVerifySheetMx.amountsThisVerify,
+                                advancesPayment: 0,
+                                correlationId: accountsVerifySheet.accountsVerifySheetId,
+                                correlationType: codeType.HXD,
+                                inDate: accountsVerifySheet.inDate,
+                                reMark: "",
+                                creater: userName,
+                                createdAt: new Date(),
+                                updater: "",
+                                updatedAt: null,
+                            })
+
+                            //本次冲尾数
+                            if (accountsVerifySheetMx.amountsMantissa !== 0) {
+                                await this.accountsPayableService.increaseWriteOffAmount(accountsVerifySheetMx.correlationId, accountsVerifySheetMx.amountsMantissa);
+                                await this.accountsPayableMxService.create({
+                                    abstract: "",
+                                    reMark: "",
+                                    inDate: accountsVerifySheet.inDate,
+                                    accountsPayableMxId: 0,
+                                    accountsPayableId: accountsVerifySheetMx.correlationId,
+                                    accountPayable: accountsVerifySheetMx.amountsMantissa * -1,
+                                    actuallyPayment: 0,
+                                    advancesPayment: 0,
+                                    correlationId: accountsVerifySheet.accountsVerifySheetId,
+                                    correlationType: codeType.HXD,
+                                    creater: userName,
+                                    createdAt: new Date(),
+                                    updater: "",
+                                    updatedAt: undefined,
+                                })
+                            }
+                        }
+                    }
+                }
+                    break;
+                // [3]应收冲应付 客户A   供应商A       明细A：客户A应收-  明细B：客户A应收-
+                case AccountsVerifySheetType.yinShouChongYinFu: {
+                    if (!accountsVerifySheet.clientid || !accountsVerifySheet.buyid) {
+                        return Promise.reject(new Error('[3]应收冲应付,缺少客户资料或供应商资料'));
+                    }
+
+                    //本次应收账款核销金额
+                    let accountsReceivableThisWriteOff: number = 0;
+
+                    //本次应付账款核销金额
+                    let accountsPayableThisWriteOff: number = 0;
+
+                    for (let i = 0; i < accountsVerifySheetMxList.length; i++) {
+                        const accountsVerifySheetMx = accountsVerifySheetMxList[i];
+                        if (accountsVerifySheetMx.correlationType === AccountsVerifySheetMxType.accountsReceivable) {
+                            accountsReceivableThisWriteOff = accountsReceivableThisWriteOff + accountsVerifySheetMx.amountsThisVerify;
+                        }
+
+                        if (accountsVerifySheetMx.correlationType === AccountsVerifySheetMxType.accountsPayable) {
+                            accountsPayableThisWriteOff = accountsPayableThisWriteOff + accountsVerifySheetMx.amountsThisVerify;
+                        }
+                    }
+
+                    if (accountsReceivableThisWriteOff !== accountsPayableThisWriteOff) {
+                        return Promise.reject(new Error('审核失败,核销单应收账款核销不等于应付账款核销'));
+                    }
+
+                    for (let i = 0; i < accountsVerifySheetMxList.length; i++) {
+                        const accountsVerifySheetMx = accountsVerifySheetMxList[i];
+                        //应收账款
+                        if (accountsVerifySheetMx.correlationType === AccountsVerifySheetMxType.accountsReceivable) {
+                            await this.accountsReceivableService.increaseWriteOffAmount(accountsVerifySheetMx.correlationId, accountsVerifySheetMx.amountsThisVerify);
                             await this.accountsReceivableMxService.create({
                                 abstract: "",
+                                reMark: "",
+                                accountReceivableMxId: 0,
+                                accountsReceivableId: accountsVerifySheetMx.correlationId,
+                                actuallyReceived: accountsVerifySheetMx.amountsThisVerify,
+                                advancesReceived: 0,
+                                receivables: 0,
+                                correlationId: accountsVerifySheet.accountsVerifySheetId,
+                                correlationType: codeType.HXD,
+                                inDate: accountsVerifySheet.inDate,
+                                creater: userName,
+                                createdAt: new Date(),
+                                updater: "",
+                                updatedAt: null,
+                            })
+
+                            //本次冲尾数
+                            if (accountsVerifySheetMx.amountsMantissa !== 0) {
+                                await this.accountsReceivableService.increaseWriteOffAmount(accountsVerifySheetMx.correlationId, accountsVerifySheetMx.amountsMantissa);
+                                await this.accountsReceivableMxService.create({
+                                    abstract: "",
+                                    reMark: "",
+                                    accountReceivableMxId: 0,
+                                    accountsReceivableId: accountsVerifySheetMx.correlationId,
+                                    actuallyReceived: 0,
+                                    advancesReceived: 0,
+                                    receivables: accountsVerifySheetMx.amountsMantissa * -1,
+                                    correlationId: accountsVerifySheet.accountsVerifySheetId,
+                                    correlationType: codeType.HXD,
+                                    inDate: accountsVerifySheet.inDate,
+                                    creater: userName,
+                                    createdAt: new Date(),
+                                    updater: "",
+                                    updatedAt: null,
+                                })
+                            }
+                        }
+
+                        //应付账款
+                        if (accountsVerifySheetMx.correlationType === AccountsVerifySheetMxType.accountsPayable) {
+                            //本次核销
+                            await this.accountsPayableService.increaseWriteOffAmount(accountsVerifySheetMx.correlationId, accountsVerifySheetMx.amountsThisVerify);
+                            await this.accountsPayableMxService.create({
+                                abstract: "",
+                                accountsPayableMxId: 0,
+                                accountsPayableId: accountsVerifySheetMx.correlationId,
+                                accountPayable: 0,
+                                actuallyPayment: accountsVerifySheetMx.amountsThisVerify,
+                                advancesPayment: 0,
+                                correlationId: accountsVerifySheet.accountsVerifySheetId,
+                                correlationType: codeType.HXD,
+                                inDate: accountsVerifySheet.inDate,
+                                reMark: "",
+                                creater: userName,
+                                createdAt: new Date(),
+                                updater: "",
+                                updatedAt: null,
+                            })
+
+                            //本次冲尾数
+                            if (accountsVerifySheetMx.amountsMantissa !== 0) {
+                                await this.accountsPayableService.increaseWriteOffAmount(accountsVerifySheetMx.correlationId, accountsVerifySheetMx.amountsMantissa);
+                                await this.accountsPayableMxService.create({
+                                    abstract: "",
+                                    reMark: "",
+                                    inDate: accountsVerifySheet.inDate,
+                                    accountsPayableMxId: 0,
+                                    accountsPayableId: accountsVerifySheetMx.correlationId,
+                                    accountPayable: accountsVerifySheetMx.amountsMantissa * -1,
+                                    actuallyPayment: 0,
+                                    advancesPayment: 0,
+                                    correlationId: accountsVerifySheet.accountsVerifySheetId,
+                                    correlationType: codeType.HXD,
+                                    creater: userName,
+                                    createdAt: new Date(),
+                                    updater: "",
+                                    updatedAt: undefined,
+                                })
+                            }
+                        }
+                    }
+
+                }
+                    break;
+                // [4]应收转应收 冲客户A 客户B生成 明细A：客户A应收-
+                case AccountsVerifySheetType.yinShouZhuanYinShou: {
+                    if (!accountsVerifySheet.clientid || !accountsVerifySheet.clientid_b) {
+                        return Promise.reject(new Error('[4]应收转应收,缺少客户A ID或者缺少客户B Id'));
+                    }
+
+                    //本次转移应收账款
+                    let accountsReceivableThisTransfer: number = 0;
+
+                    for (let i = 0; i < accountsVerifySheetMxList.length; i++) {
+                        const accountsVerifySheetMx = accountsVerifySheetMxList[i];
+                        if (accountsVerifySheetMx.correlationType === AccountsVerifySheetMxType.accountsReceivable) {
+                            accountsReceivableThisTransfer = accountsReceivableThisTransfer + accountsVerifySheetMx.amountsThisVerify;
+                            await this.accountsReceivableService.increaseWriteOffAmount(accountsVerifySheetMx.correlationId, accountsVerifySheetMx.amountsThisVerify);
+                            await this.accountsReceivableMxService.create({
+                                abstract: "",
+                                reMark: "",
                                 accountReceivableMxId: 0,
                                 accountsReceivableId: accountsVerifySheetMx.correlationId,
                                 actuallyReceived: 0,
                                 advancesReceived: 0,
-                                correlationId: accountsVerifySheet.accountsVerifySheetId,
-                                correlationType: 20,
-                                createdAt: new Date(),
-                                creater: "",
+                                receivables: accountsVerifySheetMx.amountsThisVerify * -1,
                                 inDate: accountsVerifySheet.inDate,
+                                correlationId: accountsVerifySheet.accountsVerifySheetId,
+                                correlationType: codeType.HXD,
+                                creater: userName,
+                                createdAt: new Date(),
+                                updater: "",
+                                updatedAt: undefined,
+                            })
+                        }
+                    }
+
+                    //创建客户B的应收账款
+                    const createAccountsReceivableResult = await this.accountsReceivableService.create({
+                        accountsReceivableId: 0,
+                        clientid: accountsVerifySheet.clientid_b,
+                        amounts: accountsReceivableThisTransfer,
+                        checkedAmounts: 0,
+                        notCheckAmounts: accountsReceivableThisTransfer,
+                        inDate: accountsVerifySheet.inDate,
+                        correlationId: accountsVerifySheet.accountsVerifySheetId,
+                        correlationType: codeType.HXD,
+                        creater: userName,
+                        createdAt: new Date(),
+                        updater: "",
+                        updatedAt: null,
+                        del_uuid: 0,
+                        deletedAt: null,
+                        deleter: "",
+                    })
+
+                    await this.accountsReceivableMxService.create({
+                        abstract: "",
+                        reMark: "",
+                        accountReceivableMxId: 0,
+                        accountsReceivableId: createAccountsReceivableResult.insertId,
+                        actuallyReceived: 0,
+                        advancesReceived: 0,
+                        receivables: accountsReceivableThisTransfer,
+                        correlationId: accountsVerifySheet.accountsVerifySheetId,
+                        correlationType: codeType.HXD,
+                        inDate: accountsVerifySheet.inDate,
+                        creater: userName,
+                        createdAt: new Date(),
+                        updater: "",
+                        updatedAt: null,
+                    })
+                }
+                    break;
+                // [5]应付转应付 冲供应商A 供应商B生成 明细A：供应商A应收-
+                case AccountsVerifySheetType.yinFuZhuanYinFu: {
+                    if (!accountsVerifySheet.buyid || !accountsVerifySheet.buyid_b) {
+                        return Promise.reject(new Error('[4]应收转应收,缺少供应商Id_A或者缺少供应商Id_B'));
+                    }
+
+                    //本次转移应收账款
+                    let accountsPayableThisTransfer: number = 0;
+
+                    for (let i = 0; i < accountsVerifySheetMxList.length; i++) {
+                        const accountsVerifySheetMx = accountsVerifySheetMxList[i];
+                        if (accountsVerifySheetMx.correlationType === AccountsVerifySheetMxType.accountsPayable) {
+                            accountsPayableThisTransfer = accountsPayableThisTransfer + accountsVerifySheetMx.amountsThisVerify;
+                            await this.accountsPayableService.increaseWriteOffAmount(accountsVerifySheetMx.correlationId, accountsVerifySheetMx.amountsThisVerify);
+                            await this.accountsPayableMxService.create({
+                                abstract: "",
                                 reMark: "",
-                                receivables: accountsVerifySheetMx.amountsMantissa,
+                                accountsPayableMxId: 0,
+                                accountsPayableId: accountsVerifySheetMx.correlationId,
+                                accountPayable: accountsVerifySheetMx.amountsThisVerify * -1,
+                                actuallyPayment: 0,
+                                advancesPayment: 0,
+                                correlationId: accountsVerifySheet.accountsVerifySheetId,
+                                correlationType: codeType.HXD,
+                                inDate: accountsVerifySheet.inDate,
+                                creater: userName,
+                                createdAt: new Date(),
                                 updatedAt: null,
                                 updater: ""
                             })
                         }
                     }
-                    break;
-                case AccountsVerifySheetType.yuFuChongYinFu:
-                    break;
-                case AccountsVerifySheetType.yinShouChongYinFu:
-                    break;
-                case AccountsVerifySheetType.yinShouZhuanYinShou:
-                    break;
-                case AccountsVerifySheetType.yinFuZhuanYinFu:
+
+                    const createAccountsPayableThisTransferResult = await this.accountsPayableService.create({
+                        accountsPayableId: 0,
+                        buyid: accountsVerifySheet.buyid_b,
+                        amounts: accountsPayableThisTransfer,
+                        checkedAmounts: 0,
+                        notCheckAmounts: accountsPayableThisTransfer,
+                        correlationId: accountsVerifySheet.accountsVerifySheetId,
+                        correlationType: codeType.HXD,
+                        inDate: accountsVerifySheet.inDate,
+                        creater: userName,
+                        createdAt: new Date(),
+                        updater: "",
+                        updatedAt: null,
+                        del_uuid: 0,
+                        deletedAt: null,
+                        deleter: "",
+                    })
+
+                    await this.accountsPayableMxService.create({
+                        abstract: "",
+                        reMark: "",
+                        accountsPayableId: createAccountsPayableThisTransferResult.insertId,
+                        accountsPayableMxId: 0,
+                        accountPayable: accountsPayableThisTransfer,
+                        actuallyPayment: 0,
+                        advancesPayment: 0,
+                        correlationId: accountsVerifySheet.accountsVerifySheetId,
+                        correlationType: codeType.HXD,
+                        inDate: accountsVerifySheet.inDate,
+                        creater: "",
+                        createdAt: new Date(),
+                        updater: "",
+                        updatedAt: null,
+                    })
+                }
                     break;
             }
 
@@ -252,6 +598,7 @@ export class AccountsVerifySheetService {
             if (accountsVerifySheet.level1Review !== 1 && accountsVerifySheet.level2Review !== 0) {
                 return Promise.reject(new Error('撤审失败,单据未审核'));
             }
+
             console.log('已审核，可以撤审');
 
             //获取明细
@@ -272,42 +619,42 @@ export class AccountsVerifySheetService {
                         //减少已核销金额
                         await this.accountsReceivableService.reduceWriteOffAmount(accountsVerifySheetMx.correlationId, thisCancelWriteOffAmount);
                         //删除本次核销单相关应付账款明细
-                        await this.accountsReceivableMxService.deleteByCorrelation(accountsVerifySheet.accountsVerifySheetId, 20);
+                        await this.accountsReceivableMxService.deleteByCorrelation(accountsVerifySheet.accountsVerifySheetId, codeType.HXD);
                         break
                     // [2]预收账款
                     case 2:
                         //减少已核销金额
                         await this.accountsReceivableService.reduceWriteOffAmount(accountsVerifySheetMx.correlationId, thisCancelWriteOffAmount);
                         //删除本次核销单相关应付账款明细
-                        await this.accountsReceivableMxService.deleteByCorrelation(accountsVerifySheet.accountsVerifySheetId, 20);
+                        await this.accountsReceivableMxService.deleteByCorrelation(accountsVerifySheet.accountsVerifySheetId, codeType.HXD);
                         break
                     // [3]其他应收
                     case 3:
                         //减少已核销金额
                         await this.accountsReceivableService.reduceWriteOffAmount(accountsVerifySheetMx.correlationId, thisCancelWriteOffAmount);
                         //删除本次核销单相关应付账款明细
-                        await this.accountsReceivableMxService.deleteByCorrelation(accountsVerifySheet.accountsVerifySheetId, 20);
+                        await this.accountsReceivableMxService.deleteByCorrelation(accountsVerifySheet.accountsVerifySheetId, codeType.HXD);
                         break
                     //[4]应付账款
                     case 4:
                         //减少已核销金额
                         await this.accountsPayableService.reduceWriteOffAmount(accountsVerifySheetMx.correlationId, thisCancelWriteOffAmount);
                         //删除本次核销单相关应收账款明细
-                        await this.accountsPayableMxService.deleteByCorrelationId(accountsVerifySheet.accountsVerifySheetId, 20);
+                        await this.accountsPayableMxService.deleteByCorrelationId(accountsVerifySheet.accountsVerifySheetId, codeType.HXD);
                         break
                     //[5]预付账款
                     case 5:
                         //减少已核销金额
                         await this.accountsPayableService.reduceWriteOffAmount(accountsVerifySheetMx.correlationId, thisCancelWriteOffAmount);
                         //删除本次核销单相关应收账款明细
-                        await this.accountsPayableMxService.deleteByCorrelationId(accountsVerifySheet.accountsVerifySheetId, 20);
+                        await this.accountsPayableMxService.deleteByCorrelationId(accountsVerifySheet.accountsVerifySheetId, codeType.HXD);
                         break
                     //[6]其他应收
                     case 6:
                         //减少已核销金额
                         await this.accountsPayableService.reduceWriteOffAmount(accountsVerifySheetMx.correlationId, thisCancelWriteOffAmount);
                         //删除本次核销单相关应收账款明细
-                        await this.accountsPayableMxService.deleteByCorrelationId(accountsVerifySheet.accountsVerifySheetId, 20);
+                        await this.accountsPayableMxService.deleteByCorrelationId(accountsVerifySheet.accountsVerifySheetId, codeType.HXD);
                         break
                     default:
                         break;
@@ -325,7 +672,7 @@ export class AccountsVerifySheetService {
                         accountsReceivableId: 0,
                         clientid: accountsVerifySheet.clientid_b,
                         correlationId: accountsVerifySheet.accountsVerifySheetId,
-                        correlationType: 20,//[20]核销单
+                        correlationType: codeType.HXD,//[20]核销单
                         startDate: "",
                         endDate: "",
                         page: 0,
@@ -345,7 +692,7 @@ export class AccountsVerifySheetService {
                         accountsPayableId: 0,
                         buyid: accountsVerifySheet.buyid_b,
                         correlationId: accountsVerifySheet.accountsVerifySheetId,
-                        correlationType: 20,//[20]核销单
+                        correlationType: codeType.HXD,//[20]核销单
                         startDate: "",
                         endDate: "",
                         page: 0,
