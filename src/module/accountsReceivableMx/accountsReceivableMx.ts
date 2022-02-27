@@ -16,7 +16,7 @@ export interface IAccountsReceivableMx {
     abstract: string;
     reMark: string;
     creater: string;
-    createdAt: string;
+    createdAt: Date | null;
     updater: string;
-    updatedAt: string;
+    updatedAt: Date | null;
 }

@@ -5,11 +5,9 @@ import {AccountsPayableMxService} from "./accountsPayableMx.service";
 import {AccountsPayableMxEntity} from "./accountsPayableMx.entity";
 
 @Module({
-    imports: [MysqldbModule],
+    imports: [MysqldbModule,AccountsPayableMxModule],
     controllers: [AccountsPayableMxController],
     providers: [AccountsPayableMxService, AccountsPayableMxEntity],
     exports: [AccountsPayableMxService]
 })
-export class AccountsPayableMxModule {
-
-}
+export class AccountsPayableMxModule {}

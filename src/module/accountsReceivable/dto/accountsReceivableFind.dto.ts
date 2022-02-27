@@ -5,7 +5,10 @@ export class AccountsReceivableFindDto {
     accountsReceivableId:number;
     @IsInt()
     clientid:number;
-
+    @IsInt()
+    correlationId: number;
+    @IsInt()
+    correlationType: number;
     @IsString()
     startDate:string;
     @IsString()

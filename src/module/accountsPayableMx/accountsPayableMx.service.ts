@@ -22,7 +22,11 @@ export class AccountsPayableMxService {
         return await this.accountsPayableMxEntity.create(accountsPayableMx);
     }
 
-    public async delete_data(correlationId: number, correlationType: number) {
-        return await this.accountsPayableMxEntity.delete_data(correlationId, correlationType);
+    public async deleteById(accountsPayableId: number) {
+        return await this.accountsPayableMxEntity.deleteById(accountsPayableId);
+    }
+
+    public async deleteByCorrelationId(correlationId: number, correlationType: number) {
+        return await this.accountsPayableMxEntity.deleteByCorrelation(correlationId, correlationType);
     }
 }

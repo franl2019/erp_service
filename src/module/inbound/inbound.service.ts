@@ -8,7 +8,7 @@ import {AddInventoryDto} from "../inventory/dto/addInventory.dto";
 import {Inbound_mxService} from "../inbound_mx/inbound_mx.service";
 import {Inbound} from "./inbound";
 import {AutoCodeMxService} from "../autoCodeMx/autoCodeMx.service";
-import {bignumber, chain} from "mathjs";
+import * as mathjs from "mathjs";
 
 @Injectable()
 export class InboundService {
@@ -213,7 +213,7 @@ export class InboundService {
             const inboundMxList = await this.inboundMxService.find(inbound.inboundid);
             let originalAmount: number = 0;
             for (let i = 0; i < inboundMxList.length; i++) {
-                const inboundMxAmount = Number(chain(bignumber(inboundMxList[i].priceqty)).multiply(bignumber(inboundMxList[i].netprice)));
+                const inboundMxAmount = Number(mathjs.chain(mathjs.bignumber(inboundMxList[i].priceqty)).multiply(mathjs.bignumber(inboundMxList[i].netprice)));
                 originalAmount = originalAmount + inboundMxAmount
             }
 

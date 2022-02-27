@@ -103,13 +103,26 @@ export class AccountsPayableMxEntity {
         }
     }
 
-    public async delete_data(correlationId: number, correlationType: number) {
+    public async deleteById(accountsPayableId: number) {
+        const conn = await this.mysqldbAls.getConnectionInAls();
+        const sql = `DELETE FROM accounts_payable_mx 
+                     WHERE 
+                        accounts_payable_mx.accountsPayableId = ?`
+        const [res] = await conn.query<ResultSetHeader>(sql, [accountsPayableId]);
+        if (res.affectedRows > 0) {
+            return res;
+        } else {
+            return Promise.reject(new Error('删除应付账款失败'))
+        }
+    }
+
+    public async deleteByCorrelation(correlationId: number,correlationType:number){
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `DELETE FROM accounts_payable_mx 
                      WHERE 
                         accounts_payable_mx.correlationId = ?
                         AND accounts_payable_mx.correlationType = ?`
-        const [res] = await conn.query<ResultSetHeader>(sql, [correlationId, correlationType]);
+        const [res] = await conn.query<ResultSetHeader>(sql, [correlationId,correlationType]);
         if (res.affectedRows > 0) {
             return res;
         } else {

@@ -10,6 +10,4 @@ import {AccountsReceivableController} from "./accountsReceivable.controller";
     controllers: [AccountsReceivableController],
     exports: [AccountsReceivableService]
 })
-export class AccountsReceivableModule {
-
-}
+export class AccountsReceivableModule {}

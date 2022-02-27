@@ -78,6 +78,12 @@ export class AccountsPayableEntity {
             params.push(findDto.accountsPayableId);
         }
 
+        if (findDto.correlationId&&findDto.correlationType) {
+            sql = sql + ` AND accounts_payable.correlationId = ?`;
+            sql = sql + ` AND accounts_payable.correlationType = ?`;
+            params.push(findDto.correlationId,findDto.correlationType);
+        }
+
         //按出仓日期范围查询
         if (findDto.startDate.length > 0 && findDto.endDate.length > 0) {
             sql = sql + ` AND DATE(accounts_payable.inDate) BETWEEN ? AND ?`;
@@ -134,23 +140,17 @@ export class AccountsPayableEntity {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `UPDATE 
                         accounts_payable 
-                     SET 
-                        accounts_payable.amounts = ?,
+                     SET
                         accounts_payable.checkedAmounts = ?,
                         accounts_payable.notCheckAmounts = ?,
-                        accounts_payable.correlationId = ?,
-                        accounts_payable.correlationType = ?,
                         accounts_payable.updater = ?,
                         accounts_payable.updatedAt = ?
                      WHERE 
                         accounts_payable.del_uuid = 0
                         AND accounts_payable.accountsPayableId = ?`;
         const [res] = await conn.query<ResultSetHeader>(sql, [
-            accountsPayable.amounts,
             accountsPayable.checkedAmounts,
             accountsPayable.notCheckAmounts,
-            accountsPayable.correlationId,
-            accountsPayable.correlationType,
             accountsPayable.updater,
             accountsPayable.updatedAt,
             accountsPayable.accountsPayableId
@@ -171,11 +171,13 @@ export class AccountsPayableEntity {
                         accounts_payable.deleter = ?,
                         accounts_payable.deletedAt = ?
                      WHERE
-                        accounts_payable.del_uuid = 0`
+                        accounts_payable.del_uuid = 0
+                        AND accounts_payable.accountsPayableId = ?`
         const [res] = await conn.query<ResultSetHeader>(sql, [
             accountsPayableId,
             userName,
-            new Date()
+            new Date(),
+            accountsPayableId
         ]);
         if (res.affectedRows > 0) {
             return res;

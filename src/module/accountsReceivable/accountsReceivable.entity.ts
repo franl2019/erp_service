@@ -73,6 +73,12 @@ export class AccountsReceivableEntity {
             params.push(findDto.accountsReceivableId);
         }
 
+        if (findDto.correlationId && findDto.correlationType) {
+            sql = sql + ` AND accounts_receivable.correlationId = ?`;
+            sql = sql + ` AND accounts_receivable.correlationType = ?`;
+            params.push(findDto.correlationId, findDto.correlationType);
+        }
+
         //按出仓日期范围查询
         if (findDto.startDate.length > 0 && findDto.endDate.length > 0) {
             sql = sql + ` AND DATE(accounts_receivable.inDate) BETWEEN ? AND ?`;
@@ -166,11 +172,13 @@ export class AccountsReceivableEntity {
                         accounts_receivable.deleter = ?,
                         accounts_receivable.deletedAt = ?
                      WHERE
-                        accounts_receivable.del_uuid = 0`
+                        accounts_receivable.del_uuid = 0
+                        AND accounts_receivable.accountsReceivableId = ?`
         const [res] = await conn.query<ResultSetHeader>(sql, [
             accountsReceivableId,
             userName,
-            new Date()
+            new Date(),
+            accountsReceivableId
         ]);
         if (res.affectedRows > 0) {
             return res;

@@ -2,13 +2,17 @@ import {IsInt, IsString} from "class-validator";
 
 export class AccountsPayableFindDto {
     @IsInt()
-    accountsPayableId:number;
+    accountsPayableId: number;
     @IsInt()
-    buyid:number;
+    buyid: number;
+    @IsInt()
+    correlationId: number;
+    @IsInt()
+    correlationType: number;
     @IsString()
-    startDate:string;
+    startDate: string;
     @IsString()
-    endDate:string;
+    endDate: string;
     @IsInt()
     page: number;
     @IsInt()
