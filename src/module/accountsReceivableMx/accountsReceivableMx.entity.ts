@@ -103,7 +103,20 @@ export class AccountsReceivableMxEntity {
         }
     }
 
-    public async delete_data(correlationId: number, correlationType: number) {
+    public async deleteById(accountsReceivableId: number) {
+        const conn = await this.mysqldbAls.getConnectionInAls();
+        const sql = `DELETE FROM accounts_receivable_mx 
+                     WHERE 
+                        accounts_receivable_mx.accountsReceivableId = ?`;
+        const [res] = await conn.query<ResultSetHeader>(sql, [accountsReceivableId]);
+        if (res.affectedRows > 0) {
+            return res;
+        } else {
+            return Promise.reject(new Error('删除应收账款失败'))
+        }
+    }
+
+    public async deleteByCorrelation(correlationId: number, correlationType: number) {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `DELETE FROM accounts_receivable_mx 
                      WHERE 

@@ -22,7 +22,11 @@ export class AccountsReceivableMxService {
         return await this.accountsReceivableMxEntity.create(accountsReceivableMx);
     }
 
+    public async deleteById(accountsReceivableId:number){
+        return await this.accountsReceivableMxEntity.deleteById(accountsReceivableId);
+    }
+
     public async deleteByCorrelation(correlationId: number, correlationType: number) {
-        return await this.accountsReceivableMxEntity.delete_data(correlationId, correlationType);
+        return await this.accountsReceivableMxEntity.deleteByCorrelation(correlationId, correlationType);
     }
 }

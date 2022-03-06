@@ -11,5 +11,4 @@ import {AccountsReceivableMxEntity} from "./accountsReceivableMx.entity";
     exports: [AccountsReceivableMxService]
 })
 export class AccountsReceivableMxModule {
-
 }
