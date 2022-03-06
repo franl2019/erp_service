@@ -105,8 +105,8 @@ export class BuyInboundController {
     }
 
     @Post("unLevel2Review")
-    public async unLevel2Review(@Body() buyInboundLevel2ReviewDto: BuyInboundLevel2ReviewDto) {
-        await this.buyInboundService.unLevel2Review(buyInboundLevel2ReviewDto.inboundid);
+    public async unLevel2Review(@Body() buyInboundLevel2ReviewDto: BuyInboundLevel2ReviewDto, @ReqState() state: State) {
+        await this.buyInboundService.unLevel2Review(buyInboundLevel2ReviewDto.inboundid,state.user.username);
         return {
             code: 200,
             msg: "财务撤审成功"

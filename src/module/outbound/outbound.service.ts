@@ -9,6 +9,10 @@ import {IFindOutboundDto} from "./dto/find.dto";
 import {AddInventoryDto} from "../inventory/dto/addInventory.dto";
 import {InventoryService} from "../inventory/inventory.service";
 import {AutoCodeMxService} from "../autoCodeMx/autoCodeMx.service";
+import {AccountsReceivableService} from "../accountsReceivable/accountsReceivable.service";
+import {AccountsReceivableMxService} from "../accountsReceivableMx/accountsReceivableMx.service";
+import {codeType} from "../autoCode/codeType";
+import * as mathjs from "mathjs";
 
 @Injectable()
 export class OutboundService {
@@ -18,7 +22,9 @@ export class OutboundService {
         private readonly outboundEntity: OutboundEntity,
         private readonly outboundMxService: Outbound_mxService,
         private readonly autoCodeMxService: AutoCodeMxService,
-        private readonly inventoryService: InventoryService
+        private readonly inventoryService: InventoryService,
+        private readonly accountsReceivableService: AccountsReceivableService,
+        private readonly accountsReceivableMxService: AccountsReceivableMxService,
     ) {
     }
 
@@ -227,4 +233,112 @@ export class OutboundService {
             }
         })
     }
+
+    //财务审核
+    public async l2Review(outboundId: number, userName: string) {
+        return this.mysqlAls.sqlTransaction(async () => {
+            const outbound = await this.outboundEntity.findOne(outboundId);
+            //检查能否审核 仓审 = 1 财审 = 0 删除标记 = 0
+            if (outbound.level1review !== 1 && outbound.level2review !== 0 && outbound.del_uuid !== 0) {
+                return Promise.reject(new Error("审核失败,审核标记有误"));
+            }
+
+            //计算出仓单，应收金额
+            const outboundMxList = await this.outboundMxService.find(outboundId);
+
+            //单据应收金额
+            let amounts: number = 0;
+
+            for (let i = 0; i < outboundMxList.length; i++) {
+                const outboundMx = outboundMxList[i];
+                amounts = Number(mathjs.chain(mathjs.bignumber(outboundMx.priceqty)).multiply(mathjs.bignumber(outboundMx.netprice)));
+            }
+
+            //增加应收账款
+            const createAccountsReceivableResult = await this.accountsReceivableService.create({
+                accountsReceivableId: 0,
+                amounts: amounts,
+                checkedAmounts: 0,
+                notCheckAmounts: amounts,
+                clientid: outbound.clientid,
+                correlationId: outbound.outboundid,
+                correlationType: codeType.XS,
+                inDate: outbound.outdate,
+                creater: userName,
+                createdAt: new Date(),
+                updater: "",
+                updatedAt: null,
+                del_uuid: 0,
+                deletedAt: null,
+                deleter: "",
+            });
+
+            //增加应收账款明细
+            await this.accountsReceivableMxService.create({
+                accountReceivableMxId: 0,
+                accountsReceivableId: createAccountsReceivableResult.insertId,
+                inDate: new Date(),
+                receivables: amounts,
+                actuallyReceived: 0,
+                advancesReceived: 0,
+                correlationId: outbound.outboundid,
+                correlationType: codeType.XS,
+                abstract: "",
+                reMark: "",
+                creater: userName,
+                createdAt: new Date(),
+                updater: "",
+                updatedAt: null,
+            })
+
+            //更新出仓单审核状态
+            outbound.level2review = 1;
+            outbound.level2name = userName;
+            outbound.level2date = new Date();
+            await this.outboundEntity.update(outbound);
+        })
+    }
+
+    //财务撤审
+    public async unL2Review(outboundId: number, userName: string) {
+        return this.mysqlAls.sqlTransaction(async () => {
+            const outbound = await this.outboundEntity.findOne(outboundId);
+
+            //检查能否审核 仓审 = 1 财审 = 1 删除标记 = 0
+            if (outbound.level1review !== 1 && outbound.level2review !== 1 && outbound.del_uuid !== 0) {
+                return Promise.reject(new Error("审核失败,审核标记有误"));
+            }
+
+            //检查是否已经核销
+            const accountsReceivableList = await this.accountsReceivableService.find({
+                accountsReceivableId: 0,
+                clientid: 0,
+                correlationId: outbound.outboundid,
+                correlationType: codeType.XS,
+                startDate: "",
+                endDate: "",
+                page: 0,
+                pagesize: 0
+            })
+
+            if (accountsReceivableList.length <= 0 && accountsReceivableList[0]) {
+                const accountsReceivable = accountsReceivableList[0];
+                if (accountsReceivable.notCheckAmounts > 0) {
+                    return Promise.reject(new Error('财务撤审失败,销售单已进行核销'));
+                } else {
+                    await this.accountsReceivableService.deleteById(accountsReceivable.accountsReceivableId, userName);
+                    await this.accountsReceivableMxService.deleteById(accountsReceivable.accountsReceivableId);
+                }
+            } else {
+                return Promise.reject(new Error('财务撤审失败,查询应收账款失败'));
+            }
+
+            //更新出仓单审核状态
+            outbound.level2review = 0;
+            outbound.level2name = "";
+            outbound.level2date = null;
+            await this.outboundEntity.update(outbound);
+        });
+    }
+
 }

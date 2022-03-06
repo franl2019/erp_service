@@ -9,6 +9,8 @@ import {Inbound_mxService} from "../inbound_mx/inbound_mx.service";
 import {Inbound} from "./inbound";
 import {AutoCodeMxService} from "../autoCodeMx/autoCodeMx.service";
 import * as mathjs from "mathjs";
+import {AccountsPayableService} from "../accountsPayable/accountsPayable.service";
+import {AccountsPayableMxService} from "../accountsPayableMx/accountsPayableMx.service";
 
 @Injectable()
 export class InboundService {
@@ -17,7 +19,9 @@ export class InboundService {
         private readonly inboundEntity: InboundEntity,
         private readonly inboundMxService: Inbound_mxService,
         private readonly autoCodeMxService: AutoCodeMxService,
-        private readonly inventoryService: InventoryService
+        private readonly inventoryService: InventoryService,
+        private readonly accountsPayableService: AccountsPayableService,
+        private readonly accountsPayableMxService: AccountsPayableMxService
     ) {
     }
 
@@ -199,11 +203,14 @@ export class InboundService {
 
     public async level2Review(inboundId: number, userName: string) {
         return this.mysqldbAls.sqlTransaction(async () => {
-            //进仓单单头修改
+            //查询单头信息
             const inbound = await this.findOne(inboundId);
-            if (inbound.level1review !== 1) {
+            //验证单头状态是否可以财务审核
+            if (inbound.level1review !== 1 && inbound.level2review !== 0 && inbound.del_uuid !== 0) {
                 return Promise.reject(new Error("财务审核失败，单据未审核"));
             }
+
+            //更新单头
             inbound.level2review = 1;
             inbound.level2name = userName;
             inbound.level2date = new Date();
@@ -217,43 +224,86 @@ export class InboundService {
                 originalAmount = originalAmount + inboundMxAmount
             }
 
-            //增加应付账款
-            // const accountsPayable = new AccountsPayable({
-            //     accountsPayableId: 0,
-            //     buyid: inbound.buyid,
-            //     occurrenceDate: inbound.indate,
-            //     originalAmount: originalAmount,
-            //     payableAmount: originalAmount,
-            //     unPaidAmount: originalAmount,
-            //     paidAmount: 0,
-            //     payableType: 1,
-            //     creater: userName,
-            //     createdAt: new Date(),
-            //     updater: "",
-            //     updatedAt: null,
-            //     inboundid: inbound.inboundid,
-            // });
-            // return await this.accountsPayableService.create([accountsPayable]);
+            //新增应付账款记录
+            const createAccountsPayableResult = await this.accountsPayableService.create({
+                accountsPayableId: 0,
+                inDate: inbound.indate,
+                buyid: inbound.buyid,
+                amounts: originalAmount,
+                checkedAmounts: 0,
+                notCheckAmounts: originalAmount,
+                correlationId: inbound.inboundid,
+                correlationType: inbound.inboundtype,
+                creater: userName,
+                createdAt: new Date(),
+                updater: "",
+                updatedAt: null,
+                deleter: "",
+                del_uuid: 0,
+                deletedAt: null,
+            });
+
+            //增加应付记录明细
+            await this.accountsPayableMxService.create({
+                inDate: new Date(),
+                accountsPayableId: createAccountsPayableResult.insertId,
+                accountsPayableMxId: 0,
+                accountPayable: originalAmount,
+                actuallyPayment: 0,
+                advancesPayment: 0,
+                correlationId: inbound.inboundid,
+                correlationType: inbound.inboundtype,
+                creater: userName,
+                createdAt: new Date(),
+                updater: "",
+                updatedAt: null,
+                reMark: "",
+                abstract: ""
+            })
         })
     }
 
-    public async unLevel2Review(inboundId: number) {
+    public async unLevel2Review(inboundId: number, userName: string) {
         return this.mysqldbAls.sqlTransaction(async () => {
-            // const accountsPayable = await this.accountsPayableService.findByInboundId(inboundId);
-            // if(accountsPayable.paidAmount !== 0){
-            //     return Promise.reject(new Error('撤销财务审核失败，进仓单已存在采购付款单'))
-            // }
-            // await this.accountsPayableService.delete_data(accountsPayable.accountsPayableId);
-
-            //进仓单单头修改
+            //查询单头信息
             const inbound = await this.findOne(inboundId);
-            if (inbound.level2review !== 1) {
+            //检查单头状态是否可以撤销审核
+            if (inbound.level1review !== 1 && inbound.level2review !== 1 && inbound.del_uuid !== 0) {
                 return Promise.reject(new Error("财务撤审失败，单据未财务撤审"));
             }
+
+            //更新单头信息
             inbound.level2review = 0;
             inbound.level2name = "";
             inbound.level2date = null;
             await this.inboundEntity.update(inbound);
+
+            //检查应付账款是否已经核销
+            const accountsPayableList = await this.accountsPayableService.find({
+                accountsPayableId: 0,
+                buyid: inbound.buyid,
+                correlationId: inbound.inboundid,
+                correlationType: inbound.inboundtype,
+                startDate: "",
+                endDate: "",
+                page: 0,
+                pagesize: 0
+            })
+
+            //查询应付账款
+            if (accountsPayableList.length > 0 && accountsPayableList[0]) {
+                const accountsPayable = accountsPayableList[0];
+                if (accountsPayable.checkedAmounts > 0) {
+                    //删除应付账款
+                    await this.accountsPayableService.delete_data(accountsPayable.accountsPayableId, userName);
+                    await this.accountsPayableMxService.deleteById(accountsPayable.accountsPayableId);
+                } else {
+                    return Promise.reject(new Error('财务撤审失败，应付账款已有核销记录'))
+                }
+            } else {
+                return Promise.reject(new Error('财务撤审失败,查询应付账款记录失败'));
+            }
+
         })
     }
 

@@ -45,7 +45,7 @@ export class BuyInboundService {
     }
 
     //撤销财审
-    public async unLevel2Review(inboundId: number) {
-        return await this.inboundService.unLevel2Review(inboundId);
+    public async unLevel2Review(inboundId: number, userName: string) {
+        return await this.inboundService.unLevel2Review(inboundId, userName);
     }
 }
