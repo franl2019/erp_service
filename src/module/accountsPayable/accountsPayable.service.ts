@@ -3,7 +3,9 @@ import {AccountsPayableFindDto} from "./dto/accountsPayableFind.dto";
 import {IAccountsPayable} from "./accountsPayable";
 import {MysqldbAls} from "../mysqldb/mysqldbAls";
 import {bignumber, chain, round} from 'mathjs';
+import {Injectable} from "@nestjs/common";
 
+@Injectable()
 export class AccountsPayableService {
 
     constructor(
