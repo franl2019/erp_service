@@ -14,8 +14,7 @@ export class AccountInComeController {
     }
 
     @Post('find')
-    public async find(@Body() accountInComeFindDto: AccountInComeFindDto, @ReqState() state: IState) {
-        accountInComeFindDto.accountIds = state.user.accountIds;
+    public async find(@Body() accountInComeFindDto: AccountInComeFindDto) {
         const data = await this.accountInComeService.find(accountInComeFindDto);
         return {
             code: 200,

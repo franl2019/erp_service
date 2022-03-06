@@ -1,18 +1,14 @@
 export interface IAccountInCome {
     accountInComeId: number;
     accountInComeCode: string;
+    //客户
     clientid: number;
+    //发生日期
     indate: Date;
-    //应收账款金额
-    payableAmt: number;
-    currencyid: number;
-    //付款账号
-    paymentAccount: string;
-    //汇率
-    exchangeRate: number;
-    accountId: number
-    //出纳收入金额
-    revenueAmt: number
+    //收款单类型
+    accountInComeType:number;
+    //总金额
+    amount: number;
     //备注
     reMark: string;
     creater: string;
@@ -31,7 +27,5 @@ export interface IAccountInCome {
 }
 
 export interface IAccountInComeFind extends IAccountInCome {
-    accountName: string;
-    clientname: string;
-    currencyname:string
+
 }

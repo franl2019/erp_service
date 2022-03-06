@@ -32,11 +32,12 @@ import {BuyInboundModule} from './module/buyInbound/buyInbound.module';
 import {AccountRecordModule} from './module/accountsRecord/accountRecord.module';
 import {AccountExpenditureModule} from './module/accountExpenditure/accountExpenditure.module';
 import {AccountInComeModule} from './module/accountInCome/accountInCome.module';
-import {SalesInComeModule} from './module/salesInCome/salesInCome.module';
 import {AccountsReceivableModule} from "./module/accountsReceivable/accountsReceivable.module";
 import {AccountsReceivableMxModule} from "./module/accountsReceivableMx/accountsReceivableMx.module";
 import {AccountsPayableModule} from "./module/accountsPayable/accountsPayable.module";
 import {AccountsPayableMxModule} from "./module/accountsPayableMx/accountsPayableMx.module";
+import {AccountInComeAmountMxModule} from "./module/accountInComeAmountMx/accountInComeAmountMx.module";
+import {AccountInComeSheetMxModule} from "./module/accountInComeSheetMx/accountInComeSheetMx.module";
 
 @Module({
     imports: [
@@ -76,10 +77,12 @@ import {AccountsPayableMxModule} from "./module/accountsPayableMx/accountsPayabl
         AccountRecordModule,
         //出纳账户支出单
         AccountExpenditureModule,
-        //出纳账户收入单
+        //收入单
         AccountInComeModule,
-        //销售收入单
-        SalesInComeModule,
+        //收入单收款明细
+        AccountInComeAmountMxModule,
+        //收入单单据明细
+        AccountInComeSheetMxModule,
         //应收账款
         AccountsReceivableModule,
         //应收账款明细

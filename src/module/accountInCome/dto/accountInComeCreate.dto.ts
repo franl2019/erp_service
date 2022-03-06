@@ -2,26 +2,18 @@ import {IAccountInCome} from "../accountInCome";
 import {IsDateString, IsInt, IsNumber, IsString} from "class-validator";
 
 export class AccountInComeCreateDto implements IAccountInCome {
-    @IsInt()
-    accountId: number;
-    accountInComeCode: string;
     accountInComeId: number;
+    accountInComeCode: string;
+    @IsInt()
+    accountInComeType: number;
+    @IsNumber()
+    amount: number;
     @IsInt()
     clientid: number;
-    @IsInt()
-    currencyid: number;
-    @IsNumber()
-    exchangeRate: number;
     @IsDateString()
     indate: Date;
-    @IsNumber()
-    payableAmt: number;
-    @IsString()
-    paymentAccount: string;
     @IsString()
     reMark: string;
-    @IsNumber()
-    revenueAmt: number;
     creater: string;
     createdAt: Date;
     updatedAt: Date;

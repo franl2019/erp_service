@@ -1,16 +1,17 @@
-import {IsArray, IsInt, IsNumber, IsString} from "class-validator";
+import { IsInt, IsNumber, IsString} from "class-validator";
 
 export class AccountInComeFindDto {
     @IsInt()
     accountInComeId: number;
     @IsString()
     accountInComeCode: string;
+    @IsInt()
+    accountInComeType: number;
+    @IsInt()
+    clientid: number;
     //应收账款金额
     @IsNumber()
-    payableAmt: number;
-    //出纳收入金额
-    @IsNumber()
-    revenueAmt: number
+    amount: number;
     //付款账号
     @IsString()
     paymentAccount: string;
@@ -18,10 +19,6 @@ export class AccountInComeFindDto {
     startDate: string;
     @IsString()
     endDate: string;
-    @IsArray()
-    accountIds: number[];
-    @IsInt()
-    clientid: number;
     @IsInt()
     page: number;
     @IsInt()

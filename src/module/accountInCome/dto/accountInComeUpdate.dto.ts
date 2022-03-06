@@ -3,26 +3,18 @@ import {IAccountInCome} from "../accountInCome";
 
 export class AccountInComeUpdateDto implements IAccountInCome{
     @IsInt()
-    accountId: number;
+    accountInComeId: number;
     accountInComeCode: string;
     @IsInt()
-    accountInComeId: number;
+    accountInComeType: number;
+    @IsNumber()
+    amount: number;
     @IsInt()
     clientid: number;
-    @IsInt()
-    currencyid: number;
-    @IsNumber()
-    exchangeRate: number;
     @IsDateString()
     indate: Date;
-    @IsNumber()
-    payableAmt: number;
-    @IsString()
-    paymentAccount: string;
     @IsString()
     reMark: string;
-    @IsNumber()
-    revenueAmt: number;
     creater: string;
     createdAt: Date;
     updatedAt: Date;
@@ -36,4 +28,5 @@ export class AccountInComeUpdateDto implements IAccountInCome{
     del_uuid: number;
     deletedAt: Date;
     deleter: string;
+
 }

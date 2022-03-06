@@ -17,14 +17,10 @@ export class AccountInComeEntity {
         const sql = `SELECT
                         account_income.accountInComeId,
                         account_income.accountInComeCode,
+                        account_income.accountInComeType,
                         account_income.clientid,
                         account_income.indate,
-                        account_income.payableAmt,
-                        account_income.currencyid,
-                        account_income.paymentAccount,
-                        account_income.exchangeRate,
-                        account_income.accountId,
-                        account_income.revenueAmt,
+                        account_income.amount,
                         account_income.reMark,
                         account_income.creater,
                         account_income.createdAt,
@@ -39,9 +35,9 @@ export class AccountInComeEntity {
                         account_income.del_uuid,
                         account_income.deleter,
                         account_income.deletedAt
-                     FROM
+                    FROM
                         account_income
-                     WHERE 
+                    WHERE 
                         account_income.del_uuid = 0
                         AND account_income.accountIncomeId = ?`
         const [res] = await conn.query(sql, [accountInComeId])
@@ -57,14 +53,10 @@ export class AccountInComeEntity {
         let sql = `SELECT
                         account_income.accountInComeId,
                         account_income.accountInComeCode,
+                        account_income.accountInComeType,
                         account_income.clientid,
                         account_income.indate,
-                        account_income.payableAmt,
-                        account_income.currencyid,
-                        account_income.paymentAccount,
-                        account_income.exchangeRate,
-                        account_income.accountId,
-                        account_income.revenueAmt,
+                        account_income.amount,
                         account_income.reMark,
                         account_income.creater,
                         account_income.createdAt,
@@ -78,26 +70,12 @@ export class AccountInComeEntity {
                         account_income.level2Date,
                         account_income.del_uuid,
                         account_income.deleter,
-                        account_income.deletedAt,
-                        client.clientname,
-                        account.accountName,
-                        currency.currencyname
-                     FROM
+                        account_income.deletedAt
+                   FROM
                         account_income
-                        LEFT JOIN client ON client.clientid = account_income.clientid
-                        LEFT JOIN account ON account.accountId = account_income.accountId
-                        LEFT JOIN currency ON currency.currencyid = account_income.currencyid
-                     WHERE 
+                   WHERE 
                         account_income.del_uuid = 0`;
         const params = [];
-
-        //按出纳账户查询
-        if (findDto.accountIds.length > 0) {
-            sql = sql + ` AND account_income.accountId IN (?)`;
-            params.push(findDto.accountIds);
-        } else {
-            return Promise.reject(new Error("查询出纳收入单，缺少出纳账户权限"));
-        }
 
         //按客户查询
         if (findDto.clientid) {
@@ -117,16 +95,10 @@ export class AccountInComeEntity {
             params.push(findDto.accountInComeCode);
         }
 
-        //按应收账款金额查询
-        if (findDto.payableAmt) {
-            sql = sql + ` AND account_income.payableAmt = ?`;
-            params.push(findDto.payableAmt);
-        }
-
         //按出纳收入金额查询
-        if (findDto.revenueAmt) {
-            sql = sql + ` AND account_income.revenueAmt = ?`;
-            params.push(findDto.revenueAmt);
+        if (findDto.amount) {
+            sql = sql + ` AND account_income.amount = ?`;
+            params.push(findDto.amount);
         }
 
         //按付款账号查询
@@ -151,36 +123,27 @@ export class AccountInComeEntity {
         return (res as IAccountInComeFind[])
     }
 
-    public async create(accountInCome: IAccountInCome) {
+    public async create(account_income: IAccountInCome) {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `INSERT INTO account_income (
-                        account_income.accountInComeId,
                         account_income.accountInComeCode,
+                        account_income.accountInComeType,
                         account_income.clientid,
                         account_income.indate,
-                        account_income.payableAmt,
-                        account_income.currencyid,
-                        account_income.paymentAccount,
-                        account_income.exchangeRate,
-                        account_income.accountId,
-                        account_income.revenueAmt,
+                        account_income.amount,
                         account_income.reMark,
                         account_income.creater,
-                        account_income.createdAt ) VALUES ?`;
+                        account_income.createdAt
+                         ) VALUES ?`;
         const [res] = await conn.query<ResultSetHeader>(sql, [[[
-            accountInCome.accountInComeId,
-            accountInCome.accountInComeCode,
-            accountInCome.clientid,
-            accountInCome.indate,
-            accountInCome.payableAmt,
-            accountInCome.currencyid,
-            accountInCome.paymentAccount,
-            accountInCome.exchangeRate,
-            accountInCome.accountId,
-            accountInCome.revenueAmt,
-            accountInCome.reMark,
-            accountInCome.creater,
-            accountInCome.createdAt
+            account_income.accountInComeCode,
+            account_income.accountInComeType,
+            account_income.clientid,
+            account_income.indate,
+            account_income.amount,
+            account_income.reMark,
+            account_income.creater,
+            account_income.createdAt
         ]]]);
         if (res.affectedRows > 0 && res.insertId !== 0) {
             return res;
@@ -189,37 +152,29 @@ export class AccountInComeEntity {
         }
     }
 
-    public async update(accountInCome: IAccountInCome) {
+    public async update(account_income: IAccountInCome) {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `UPDATE
                         account_income
                      SET
+                        account_income.accountInComeType = ?,
                         account_income.clientid = ?,
                         account_income.indate = ?,
-                        account_income.payableAmt = ?,
-                        account_income.currencyid = ?,
-                        account_income.paymentAccount = ?,
-                        account_income.exchangeRate = ?,
-                        account_income.accountId = ?,
-                        account_income.revenueAmt = ?,
+                        account_income.amount = ?,
                         account_income.reMark = ?,
                         account_income.updater = ?,
                         account_income.updatedAt = ?
                      WHERE
                          account_income.accountInComeId = ?`;
         const [res] = await conn.query<ResultSetHeader>(sql, [
-            accountInCome.clientid,
-            accountInCome.indate,
-            accountInCome.payableAmt,
-            accountInCome.currencyid,
-            accountInCome.paymentAccount,
-            accountInCome.exchangeRate,
-            accountInCome.accountId,
-            accountInCome.revenueAmt,
-            accountInCome.reMark,
-            accountInCome.updater,
-            accountInCome.updatedAt,
-            accountInCome.accountInComeId
+            account_income.accountInComeType,
+            account_income.clientid,
+            account_income.indate,
+            account_income.amount,
+            account_income.reMark,
+            account_income.updater,
+            account_income.updatedAt,
+            account_income.accountInComeId
         ]);
         if (res.affectedRows > 0) {
             return res;
