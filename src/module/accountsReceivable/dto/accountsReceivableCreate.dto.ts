@@ -1,8 +1,11 @@
 import {IAccountsReceivable} from "../accountsReceivable";
 import {IsDateString, IsInt, IsNumber} from "class-validator";
+import { AccountCategory } from "src/module/accountsVerifySheetMx/accountCategory";
+import { CodeType } from "src/module/autoCode/codeType";
 
 export class AccountsReceivableCreateDto implements IAccountsReceivable{
     accountsReceivableId: number;
+    accountsReceivableType: AccountCategory;
     @IsInt()
     clientid: number;
     @IsDateString()
@@ -16,7 +19,7 @@ export class AccountsReceivableCreateDto implements IAccountsReceivable{
     @IsInt()
     correlationId: number;
     @IsInt()
-    correlationType: number;
+    correlationType: CodeType;
     creater: string;
     createdAt: Date | null;
     updater: string;
@@ -24,4 +27,5 @@ export class AccountsReceivableCreateDto implements IAccountsReceivable{
     del_uuid: number;
     deleter: string;
     deletedAt: Date | null;
+
 }

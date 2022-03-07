@@ -1,5 +1,5 @@
 //账款类别
-export enum AccountsVerifySheetMxType {
+export const enum AccountCategory {
     /*
     *[1]应收账款
     *[2]预收账款

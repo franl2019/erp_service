@@ -11,6 +11,7 @@ import {AutoCodeMxService} from "../autoCodeMx/autoCodeMx.service";
 import * as mathjs from "mathjs";
 import {AccountsPayableService} from "../accountsPayable/accountsPayable.service";
 import {AccountsPayableMxService} from "../accountsPayableMx/accountsPayableMx.service";
+import {AccountCategory} from "../accountsVerifySheetMx/accountCategory";
 
 @Injectable()
 export class InboundService {
@@ -227,6 +228,7 @@ export class InboundService {
             //新增应付账款记录
             const createAccountsPayableResult = await this.accountsPayableService.create({
                 accountsPayableId: 0,
+                accountsPayableType: AccountCategory.accountsPayable,
                 inDate: inbound.indate,
                 buyid: inbound.buyid,
                 amounts: originalAmount,
@@ -240,7 +242,7 @@ export class InboundService {
                 updatedAt: null,
                 deleter: "",
                 del_uuid: 0,
-                deletedAt: null,
+                deletedAt: null
             });
 
             //增加应付记录明细
@@ -281,6 +283,7 @@ export class InboundService {
             //检查应付账款是否已经核销
             const accountsPayableList = await this.accountsPayableService.find({
                 accountsPayableId: 0,
+                accountsPayableType: AccountCategory.accountsPayable,
                 buyid: inbound.buyid,
                 correlationId: inbound.inboundid,
                 correlationType: inbound.inboundtype,

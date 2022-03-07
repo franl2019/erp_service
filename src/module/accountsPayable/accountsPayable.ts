@@ -1,5 +1,9 @@
+import {AccountCategory} from "../accountsVerifySheetMx/accountCategory";
+import {CodeType} from "../autoCode/codeType";
+
 export interface IAccountsPayable {
     accountsPayableId: number;
+    accountsPayableType:AccountCategory,
     buyid: number;
     inDate: Date;
     //单据金额
@@ -11,7 +15,7 @@ export interface IAccountsPayable {
     //相关单号
     correlationId: number;
     //相关单号类型
-    correlationType: number;
+    correlationType: CodeType;
     creater: string;
     createdAt: Date | null;
     updater: string;

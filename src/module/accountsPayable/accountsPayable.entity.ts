@@ -78,6 +78,11 @@ export class AccountsPayableEntity {
             params.push(findDto.accountsPayableId);
         }
 
+        if (findDto.accountsPayableType) {
+            sql = sql + ` AND accounts_payable.accountsPayableType = ?`;
+            params.push(findDto.accountsPayableType);
+        }
+
         if (findDto.correlationId&&findDto.correlationType) {
             sql = sql + ` AND accounts_payable.correlationId = ?`;
             sql = sql + ` AND accounts_payable.correlationType = ?`;

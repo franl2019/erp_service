@@ -1,9 +1,11 @@
 import {IAccountsReceivable} from "../accountsReceivable";
 import {IsDateString, IsInt, IsNumber} from "class-validator";
+import { AccountCategory } from "src/module/accountsVerifySheetMx/accountCategory";
 
 export class AccountsReceivableUpdateDto implements IAccountsReceivable{
     @IsInt()
     accountsReceivableId: number;
+    accountsReceivableType: AccountCategory;
     @IsInt()
     clientid: number;
     @IsDateString()
@@ -25,4 +27,5 @@ export class AccountsReceivableUpdateDto implements IAccountsReceivable{
     del_uuid: number;
     deleter: string;
     deletedAt: Date | null;
+
 }

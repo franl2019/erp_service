@@ -14,6 +14,7 @@ export class AccountsReceivableEntity {
         const conn = this.mysqldbAls.getConnectionInAls();
         const sql: string = `SELECT
                                 accounts_receivable.accountsReceivableId,
+                                accounts_receivable.accountsReceivableType,
                                 accounts_receivable.clientid,
                                 accounts_receivable.inDate,
                                 accounts_receivable.amounts,
@@ -42,6 +43,7 @@ export class AccountsReceivableEntity {
         const conn = this.mysqldbAls.getConnectionInAls();
         let sql: string = `SELECT
                                 accounts_receivable.accountsReceivableId,
+                                accounts_receivable.accountsReceivableType,
                                 accounts_receivable.clientid,
                                 accounts_receivable.inDate,
                                 accounts_receivable.amounts,
@@ -71,6 +73,11 @@ export class AccountsReceivableEntity {
         if (findDto.accountsReceivableId) {
             sql = sql + ` AND accounts_receivable.accountsReceivableId = ?`;
             params.push(findDto.accountsReceivableId);
+        }
+
+        if (findDto.accountsReceivableType) {
+            sql = sql + ` AND accounts_receivable.accountsReceivableType = ?`;
+            params.push(findDto.accountsReceivableType);
         }
 
         if (findDto.correlationId && findDto.correlationType) {
@@ -103,6 +110,7 @@ export class AccountsReceivableEntity {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `INSERT INTO accounts_receivable (
                         accounts_receivable.accountsReceivableId,
+                        accounts_receivable.accountsReceivableType,
                         accounts_receivable.clientid,
                         accounts_receivable.inDate,
                         accounts_receivable.amounts,
@@ -114,6 +122,7 @@ export class AccountsReceivableEntity {
                         accounts_receivable.createdAt) VALUES ?`;
         const [res] = await conn.query<ResultSetHeader>(sql, [[[
             accountsReceivable.accountsReceivableId,
+            accountsReceivable.accountsReceivableType,
             accountsReceivable.clientid,
             accountsReceivable.inDate,
             accountsReceivable.amounts,

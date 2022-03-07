@@ -16,8 +16,8 @@ import {AccountsPayableMxService} from "../accountsPayableMx/accountsPayableMx.s
 import {AccountsReceivableMxService} from "../accountsReceivableMx/accountsReceivableMx.service";
 import {bignumber, chain, round} from "mathjs";
 import {AccountsVerifySheetType} from "./accountsVerifySheetType";
-import {AccountsVerifySheetMxType} from "../accountsVerifySheetMx/accountsVerifySheetMxType";
-import {codeType} from "../autoCode/codeType";
+import {AccountCategory} from "../accountsVerifySheetMx/accountCategory";
+import {CodeType} from "../autoCode/codeType";
 
 @Injectable()
 export class AccountsVerifySheetService {
@@ -55,7 +55,7 @@ export class AccountsVerifySheetService {
         }
 
         return await this.mysqldbAls.sqlTransaction(async () => {
-            createDto.accountsVerifySheetCode = await this.autoCodeMxService.getAutoCode(codeType.HXD);
+            createDto.accountsVerifySheetCode = await this.autoCodeMxService.getAutoCode(CodeType.HXD);
             const result = await this.accountsVerifySheetEntity.create(createDto);
             await this.accountsVerifySheetMxService.create(accountsVerifySheetMxList);
             return result;
@@ -136,12 +136,12 @@ export class AccountsVerifySheetService {
                     for (let i = 0; i < accountsVerifySheetMxList.length; i++) {
                         const accountsVerifySheetMx = accountsVerifySheetMxList[i];
                         //预收账款 本次核销相加
-                        if (accountsVerifySheetMx.correlationType === AccountsVerifySheetMxType.advancePayment) {
+                        if (accountsVerifySheetMx.correlationType === AccountCategory.advancePayment) {
                             advancePaymentThisWriteOff = advancePaymentThisWriteOff + accountsVerifySheetMx.amountsThisVerify
                         }
 
                         //应收账款 本次核销相加
-                        if (accountsVerifySheetMx.correlationType === AccountsVerifySheetMxType.accountsReceivable) {
+                        if (accountsVerifySheetMx.correlationType === AccountCategory.accountsReceivable) {
                             accountsReceivableThisWriteOff = accountsReceivableThisWriteOff + accountsVerifySheetMx.amountsThisVerify
                         }
                     }
@@ -159,7 +159,7 @@ export class AccountsVerifySheetService {
                         const accountsVerifySheetMx = accountsVerifySheetMxList[i];
 
                         //预收款
-                        if (accountsVerifySheetMx.correlationType === AccountsVerifySheetMxType.advancePayment) {
+                        if (accountsVerifySheetMx.correlationType === AccountCategory.advancePayment) {
                             //核销本次核销 更新账款信息
                             await this.accountsReceivableService.increaseWriteOffAmount(accountsVerifySheetMx.correlationId, accountsVerifySheetMx.amountsThisVerify);
                             //更新账款明细信息
@@ -170,7 +170,7 @@ export class AccountsVerifySheetService {
                                 actuallyReceived: 0,
                                 advancesReceived: accountsVerifySheetMx.amountsThisVerify * -1,
                                 correlationId: accountsVerifySheet.accountsVerifySheetId,
-                                correlationType: codeType.HXD,
+                                correlationType: CodeType.HXD,
                                 createdAt: new Date(),
                                 creater: userName,
                                 inDate: accountsVerifySheet.inDate,
@@ -183,7 +183,7 @@ export class AccountsVerifySheetService {
                         }
 
                         //应收款
-                        if (accountsVerifySheetMx.correlationType === AccountsVerifySheetMxType.advancePayment) {
+                        if (accountsVerifySheetMx.correlationType === AccountCategory.advancePayment) {
                             //更新账款信息
                             //本次核销更新
                             await this.accountsReceivableService.increaseWriteOffAmount(accountsVerifySheetMx.correlationId, accountsVerifySheetMx.amountsThisVerify);
@@ -196,7 +196,7 @@ export class AccountsVerifySheetService {
                                 advancesReceived: 0,
                                 receivables: 0,
                                 correlationId: accountsVerifySheet.accountsVerifySheetId,
-                                correlationType: codeType.HXD,
+                                correlationType: CodeType.HXD,
                                 creater: userName,
                                 createdAt: new Date(),
                                 inDate: accountsVerifySheet.inDate,
@@ -214,7 +214,7 @@ export class AccountsVerifySheetService {
                                     actuallyReceived: 0,
                                     advancesReceived: 0,
                                     correlationId: accountsVerifySheet.accountsVerifySheetId,
-                                    correlationType: codeType.HXD,
+                                    correlationType: CodeType.HXD,
                                     inDate: accountsVerifySheet.inDate,
                                     reMark: "",
                                     receivables: accountsVerifySheetMx.amountsMantissa * -1,
@@ -245,12 +245,12 @@ export class AccountsVerifySheetService {
                         const accountsVerifySheetMx = accountsVerifySheetMxList[i];
 
                         //预付账款 本次核销相加
-                        if (accountsVerifySheetMx.correlationType === AccountsVerifySheetMxType.prepayments) {
+                        if (accountsVerifySheetMx.correlationType === AccountCategory.prepayments) {
                             prepaymentsThisWriteOff = prepaymentsThisWriteOff + accountsVerifySheetMx.amountsThisVerify
                         }
 
                         //应付账款 本次核销相加
-                        if (accountsVerifySheetMx.correlationType === AccountsVerifySheetMxType.accountsPayable) {
+                        if (accountsVerifySheetMx.correlationType === AccountCategory.accountsPayable) {
                             accountsPayableThisWriteOff = accountsPayableThisWriteOff + accountsVerifySheetMx.amountsThisVerify
                         }
                     }
@@ -262,7 +262,7 @@ export class AccountsVerifySheetService {
                     for (let i = 0; i < accountsVerifySheetMxList.length; i++) {
                         const accountsVerifySheetMx = accountsVerifySheetMxList[i];
                         //预付账款
-                        if (accountsVerifySheetMx.correlationType === AccountsVerifySheetMxType.prepayments) {
+                        if (accountsVerifySheetMx.correlationType === AccountCategory.prepayments) {
                             await this.accountsPayableService.increaseWriteOffAmount(accountsVerifySheetMx.correlationId, accountsVerifySheetMx.amountsThisVerify);
                             await this.accountsPayableMxService.create({
                                 abstract: "",
@@ -272,7 +272,7 @@ export class AccountsVerifySheetService {
                                 actuallyPayment: 0,
                                 advancesPayment: accountsVerifySheetMx.amountsThisVerify * -1,
                                 correlationId: accountsVerifySheet.accountsVerifySheetId,
-                                correlationType: codeType.HXD,
+                                correlationType: CodeType.HXD,
                                 inDate: accountsVerifySheet.inDate,
                                 reMark: "",
                                 creater: userName,
@@ -283,7 +283,7 @@ export class AccountsVerifySheetService {
                         }
 
                         //应付账款
-                        if (accountsVerifySheetMx.correlationType === AccountsVerifySheetMxType.accountsPayable) {
+                        if (accountsVerifySheetMx.correlationType === AccountCategory.accountsPayable) {
                             //本次核销
                             await this.accountsPayableService.increaseWriteOffAmount(accountsVerifySheetMx.correlationId, accountsVerifySheetMx.amountsThisVerify);
                             await this.accountsPayableMxService.create({
@@ -294,7 +294,7 @@ export class AccountsVerifySheetService {
                                 actuallyPayment: accountsVerifySheetMx.amountsThisVerify,
                                 advancesPayment: 0,
                                 correlationId: accountsVerifySheet.accountsVerifySheetId,
-                                correlationType: codeType.HXD,
+                                correlationType: CodeType.HXD,
                                 inDate: accountsVerifySheet.inDate,
                                 reMark: "",
                                 creater: userName,
@@ -316,7 +316,7 @@ export class AccountsVerifySheetService {
                                     actuallyPayment: 0,
                                     advancesPayment: 0,
                                     correlationId: accountsVerifySheet.accountsVerifySheetId,
-                                    correlationType: codeType.HXD,
+                                    correlationType: CodeType.HXD,
                                     creater: userName,
                                     createdAt: new Date(),
                                     updater: "",
@@ -341,11 +341,11 @@ export class AccountsVerifySheetService {
 
                     for (let i = 0; i < accountsVerifySheetMxList.length; i++) {
                         const accountsVerifySheetMx = accountsVerifySheetMxList[i];
-                        if (accountsVerifySheetMx.correlationType === AccountsVerifySheetMxType.accountsReceivable) {
+                        if (accountsVerifySheetMx.correlationType === AccountCategory.accountsReceivable) {
                             accountsReceivableThisWriteOff = accountsReceivableThisWriteOff + accountsVerifySheetMx.amountsThisVerify;
                         }
 
-                        if (accountsVerifySheetMx.correlationType === AccountsVerifySheetMxType.accountsPayable) {
+                        if (accountsVerifySheetMx.correlationType === AccountCategory.accountsPayable) {
                             accountsPayableThisWriteOff = accountsPayableThisWriteOff + accountsVerifySheetMx.amountsThisVerify;
                         }
                     }
@@ -357,7 +357,7 @@ export class AccountsVerifySheetService {
                     for (let i = 0; i < accountsVerifySheetMxList.length; i++) {
                         const accountsVerifySheetMx = accountsVerifySheetMxList[i];
                         //应收账款
-                        if (accountsVerifySheetMx.correlationType === AccountsVerifySheetMxType.accountsReceivable) {
+                        if (accountsVerifySheetMx.correlationType === AccountCategory.accountsReceivable) {
                             await this.accountsReceivableService.increaseWriteOffAmount(accountsVerifySheetMx.correlationId, accountsVerifySheetMx.amountsThisVerify);
                             await this.accountsReceivableMxService.create({
                                 abstract: "",
@@ -368,7 +368,7 @@ export class AccountsVerifySheetService {
                                 advancesReceived: 0,
                                 receivables: 0,
                                 correlationId: accountsVerifySheet.accountsVerifySheetId,
-                                correlationType: codeType.HXD,
+                                correlationType: CodeType.HXD,
                                 inDate: accountsVerifySheet.inDate,
                                 creater: userName,
                                 createdAt: new Date(),
@@ -388,7 +388,7 @@ export class AccountsVerifySheetService {
                                     advancesReceived: 0,
                                     receivables: accountsVerifySheetMx.amountsMantissa * -1,
                                     correlationId: accountsVerifySheet.accountsVerifySheetId,
-                                    correlationType: codeType.HXD,
+                                    correlationType: CodeType.HXD,
                                     inDate: accountsVerifySheet.inDate,
                                     creater: userName,
                                     createdAt: new Date(),
@@ -399,7 +399,7 @@ export class AccountsVerifySheetService {
                         }
 
                         //应付账款
-                        if (accountsVerifySheetMx.correlationType === AccountsVerifySheetMxType.accountsPayable) {
+                        if (accountsVerifySheetMx.correlationType === AccountCategory.accountsPayable) {
                             //本次核销
                             await this.accountsPayableService.increaseWriteOffAmount(accountsVerifySheetMx.correlationId, accountsVerifySheetMx.amountsThisVerify);
                             await this.accountsPayableMxService.create({
@@ -410,7 +410,7 @@ export class AccountsVerifySheetService {
                                 actuallyPayment: accountsVerifySheetMx.amountsThisVerify,
                                 advancesPayment: 0,
                                 correlationId: accountsVerifySheet.accountsVerifySheetId,
-                                correlationType: codeType.HXD,
+                                correlationType: CodeType.HXD,
                                 inDate: accountsVerifySheet.inDate,
                                 reMark: "",
                                 creater: userName,
@@ -432,7 +432,7 @@ export class AccountsVerifySheetService {
                                     actuallyPayment: 0,
                                     advancesPayment: 0,
                                     correlationId: accountsVerifySheet.accountsVerifySheetId,
-                                    correlationType: codeType.HXD,
+                                    correlationType: CodeType.HXD,
                                     creater: userName,
                                     createdAt: new Date(),
                                     updater: "",
@@ -455,7 +455,7 @@ export class AccountsVerifySheetService {
 
                     for (let i = 0; i < accountsVerifySheetMxList.length; i++) {
                         const accountsVerifySheetMx = accountsVerifySheetMxList[i];
-                        if (accountsVerifySheetMx.correlationType === AccountsVerifySheetMxType.accountsReceivable) {
+                        if (accountsVerifySheetMx.correlationType === AccountCategory.accountsReceivable) {
                             accountsReceivableThisTransfer = accountsReceivableThisTransfer + accountsVerifySheetMx.amountsThisVerify;
                             await this.accountsReceivableService.increaseWriteOffAmount(accountsVerifySheetMx.correlationId, accountsVerifySheetMx.amountsThisVerify);
                             await this.accountsReceivableMxService.create({
@@ -468,7 +468,7 @@ export class AccountsVerifySheetService {
                                 receivables: accountsVerifySheetMx.amountsThisVerify * -1,
                                 inDate: accountsVerifySheet.inDate,
                                 correlationId: accountsVerifySheet.accountsVerifySheetId,
-                                correlationType: codeType.HXD,
+                                correlationType: CodeType.HXD,
                                 creater: userName,
                                 createdAt: new Date(),
                                 updater: "",
@@ -480,20 +480,21 @@ export class AccountsVerifySheetService {
                     //创建客户B的应收账款
                     const createAccountsReceivableResult = await this.accountsReceivableService.create({
                         accountsReceivableId: 0,
+                        accountsReceivableType: AccountCategory.accountsReceivable,
                         clientid: accountsVerifySheet.clientid_b,
                         amounts: accountsReceivableThisTransfer,
                         checkedAmounts: 0,
                         notCheckAmounts: accountsReceivableThisTransfer,
                         inDate: accountsVerifySheet.inDate,
                         correlationId: accountsVerifySheet.accountsVerifySheetId,
-                        correlationType: codeType.HXD,
+                        correlationType: CodeType.HXD,
                         creater: userName,
                         createdAt: new Date(),
                         updater: "",
                         updatedAt: null,
                         del_uuid: 0,
                         deletedAt: null,
-                        deleter: "",
+                        deleter: ""
                     })
 
                     await this.accountsReceivableMxService.create({
@@ -505,7 +506,7 @@ export class AccountsVerifySheetService {
                         advancesReceived: 0,
                         receivables: accountsReceivableThisTransfer,
                         correlationId: accountsVerifySheet.accountsVerifySheetId,
-                        correlationType: codeType.HXD,
+                        correlationType: CodeType.HXD,
                         inDate: accountsVerifySheet.inDate,
                         creater: userName,
                         createdAt: new Date(),
@@ -525,7 +526,7 @@ export class AccountsVerifySheetService {
 
                     for (let i = 0; i < accountsVerifySheetMxList.length; i++) {
                         const accountsVerifySheetMx = accountsVerifySheetMxList[i];
-                        if (accountsVerifySheetMx.correlationType === AccountsVerifySheetMxType.accountsPayable) {
+                        if (accountsVerifySheetMx.correlationType === AccountCategory.accountsPayable) {
                             accountsPayableThisTransfer = accountsPayableThisTransfer + accountsVerifySheetMx.amountsThisVerify;
                             await this.accountsPayableService.increaseWriteOffAmount(accountsVerifySheetMx.correlationId, accountsVerifySheetMx.amountsThisVerify);
                             await this.accountsPayableMxService.create({
@@ -537,7 +538,7 @@ export class AccountsVerifySheetService {
                                 actuallyPayment: 0,
                                 advancesPayment: 0,
                                 correlationId: accountsVerifySheet.accountsVerifySheetId,
-                                correlationType: codeType.HXD,
+                                correlationType: CodeType.HXD,
                                 inDate: accountsVerifySheet.inDate,
                                 creater: userName,
                                 createdAt: new Date(),
@@ -549,12 +550,13 @@ export class AccountsVerifySheetService {
 
                     const createAccountsPayableThisTransferResult = await this.accountsPayableService.create({
                         accountsPayableId: 0,
+                        accountsPayableType: AccountCategory.accountsPayable,
                         buyid: accountsVerifySheet.buyid_b,
                         amounts: accountsPayableThisTransfer,
                         checkedAmounts: 0,
                         notCheckAmounts: accountsPayableThisTransfer,
                         correlationId: accountsVerifySheet.accountsVerifySheetId,
-                        correlationType: codeType.HXD,
+                        correlationType: CodeType.HXD,
                         inDate: accountsVerifySheet.inDate,
                         creater: userName,
                         createdAt: new Date(),
@@ -562,7 +564,7 @@ export class AccountsVerifySheetService {
                         updatedAt: null,
                         del_uuid: 0,
                         deletedAt: null,
-                        deleter: "",
+                        deleter: ""
                     })
 
                     await this.accountsPayableMxService.create({
@@ -574,7 +576,7 @@ export class AccountsVerifySheetService {
                         actuallyPayment: 0,
                         advancesPayment: 0,
                         correlationId: accountsVerifySheet.accountsVerifySheetId,
-                        correlationType: codeType.HXD,
+                        correlationType: CodeType.HXD,
                         inDate: accountsVerifySheet.inDate,
                         creater: userName,
                         createdAt: new Date(),
@@ -618,42 +620,42 @@ export class AccountsVerifySheetService {
                         //减少已核销金额
                         await this.accountsReceivableService.reduceWriteOffAmount(accountsVerifySheetMx.correlationId, thisCancelWriteOffAmount);
                         //删除本次核销单相关应付账款明细
-                        await this.accountsReceivableMxService.deleteByCorrelation(accountsVerifySheet.accountsVerifySheetId, codeType.HXD);
+                        await this.accountsReceivableMxService.deleteByCorrelation(accountsVerifySheet.accountsVerifySheetId, CodeType.HXD);
                         break
                     // [2]预收账款
                     case 2:
                         //减少已核销金额
                         await this.accountsReceivableService.reduceWriteOffAmount(accountsVerifySheetMx.correlationId, thisCancelWriteOffAmount);
                         //删除本次核销单相关应付账款明细
-                        await this.accountsReceivableMxService.deleteByCorrelation(accountsVerifySheet.accountsVerifySheetId, codeType.HXD);
+                        await this.accountsReceivableMxService.deleteByCorrelation(accountsVerifySheet.accountsVerifySheetId, CodeType.HXD);
                         break
                     // [3]其他应收
                     case 3:
                         //减少已核销金额
                         await this.accountsReceivableService.reduceWriteOffAmount(accountsVerifySheetMx.correlationId, thisCancelWriteOffAmount);
                         //删除本次核销单相关应付账款明细
-                        await this.accountsReceivableMxService.deleteByCorrelation(accountsVerifySheet.accountsVerifySheetId, codeType.HXD);
+                        await this.accountsReceivableMxService.deleteByCorrelation(accountsVerifySheet.accountsVerifySheetId, CodeType.HXD);
                         break
                     //[4]应付账款
                     case 4:
                         //减少已核销金额
                         await this.accountsPayableService.reduceWriteOffAmount(accountsVerifySheetMx.correlationId, thisCancelWriteOffAmount);
                         //删除本次核销单相关应收账款明细
-                        await this.accountsPayableMxService.deleteByCorrelationId(accountsVerifySheet.accountsVerifySheetId, codeType.HXD);
+                        await this.accountsPayableMxService.deleteByCorrelationId(accountsVerifySheet.accountsVerifySheetId, CodeType.HXD);
                         break
                     //[5]预付账款
                     case 5:
                         //减少已核销金额
                         await this.accountsPayableService.reduceWriteOffAmount(accountsVerifySheetMx.correlationId, thisCancelWriteOffAmount);
                         //删除本次核销单相关应收账款明细
-                        await this.accountsPayableMxService.deleteByCorrelationId(accountsVerifySheet.accountsVerifySheetId, codeType.HXD);
+                        await this.accountsPayableMxService.deleteByCorrelationId(accountsVerifySheet.accountsVerifySheetId, CodeType.HXD);
                         break
                     //[6]其他应收
                     case 6:
                         //减少已核销金额
                         await this.accountsPayableService.reduceWriteOffAmount(accountsVerifySheetMx.correlationId, thisCancelWriteOffAmount);
                         //删除本次核销单相关应收账款明细
-                        await this.accountsPayableMxService.deleteByCorrelationId(accountsVerifySheet.accountsVerifySheetId, codeType.HXD);
+                        await this.accountsPayableMxService.deleteByCorrelationId(accountsVerifySheet.accountsVerifySheetId, CodeType.HXD);
                         break
                     default:
                         break;
@@ -669,13 +671,14 @@ export class AccountsVerifySheetService {
                     //查询核销单 转移应收 生成的 客户B应收
                     const accountsReceivableList = await this.accountsReceivableService.find({
                         accountsReceivableId: 0,
+                        accountsReceivableType: AccountCategory.accountsReceivable,
                         clientid: accountsVerifySheet.clientid_b,
                         correlationId: accountsVerifySheet.accountsVerifySheetId,
-                        correlationType: codeType.HXD,//[20]核销单
+                        correlationType: CodeType.HXD,//[20]核销单
                         startDate: "",
                         endDate: "",
                         page: 0,
-                        pagesize: 0,
+                        pagesize: 0
                     });
 
                     //删除客户B应收
@@ -689,13 +692,14 @@ export class AccountsVerifySheetService {
                     //查询核销单 转移应付 生成的 供应商B应付
                     const accountsPayableList = await this.accountsPayableService.find({
                         accountsPayableId: 0,
+                        accountsPayableType: AccountCategory.accountsPayable,
                         buyid: accountsVerifySheet.buyid_b,
                         correlationId: accountsVerifySheet.accountsVerifySheetId,
-                        correlationType: codeType.HXD,//[20]核销单
+                        correlationType: CodeType.HXD,//[20]核销单
                         startDate: "",
                         endDate: "",
                         page: 0,
-                        pagesize: 0,
+                        pagesize: 0
                     });
 
                     //循环，删除生成的供应商B应付账款

@@ -1,5 +1,10 @@
+import {AccountCategory} from "../accountsVerifySheetMx/accountCategory";
+import {CodeType} from "../autoCode/codeType";
+
 export interface IAccountsReceivable {
     accountsReceivableId: number;
+    //账款类型
+    accountsReceivableType: AccountCategory;
     clientid: number;
     inDate: Date;
     //单据金额
@@ -8,8 +13,10 @@ export interface IAccountsReceivable {
     checkedAmounts: number;
     //未核销金额
     notCheckAmounts: number;
+    //相关单号id
     correlationId: number;
-    correlationType: number;
+    //相关单号类别
+    correlationType: CodeType;
     creater: string;
     createdAt: Date | null;
     updater: string;

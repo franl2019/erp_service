@@ -24,10 +24,6 @@ export class AccountsReceivableService {
         return await this.accountsReceivableEntity.create(accountsReceivable);
     }
 
-    public async update(accountsReceivable: IAccountsReceivable) {
-        return await this.accountsReceivableEntity.update(accountsReceivable);
-    }
-
     public async delete_data(accountsReceivableId: number, userName: string) {
         return await this.accountsReceivableEntity.delete_data(accountsReceivableId, userName);
     }

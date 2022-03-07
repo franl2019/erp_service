@@ -1,8 +1,12 @@
 import {IsDateString, IsInt, IsNumber} from "class-validator";
+import { AccountCategory } from "src/module/accountsVerifySheetMx/accountCategory";
+import { CodeType } from "src/module/autoCode/codeType";
 import {IAccountsPayable} from "../accountsPayable";
 
 export class AccountsPayableCreateDto implements IAccountsPayable {
     accountsPayableId: number;
+    @IsInt()
+    accountsPayableType: AccountCategory;
     @IsInt()
     buyid: number;
     @IsDateString()
@@ -16,7 +20,7 @@ export class AccountsPayableCreateDto implements IAccountsPayable {
     @IsInt()
     correlationId: number;
     @IsInt()
-    correlationType: number;
+    correlationType: CodeType;
     creater: string;
     createdAt: Date | null;
     updater: string;
@@ -24,4 +28,6 @@ export class AccountsPayableCreateDto implements IAccountsPayable {
     del_uuid: number;
     deleter: string;
     deletedAt: Date | null;
+
+
 }

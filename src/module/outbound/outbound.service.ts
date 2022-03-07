@@ -11,8 +11,9 @@ import {InventoryService} from "../inventory/inventory.service";
 import {AutoCodeMxService} from "../autoCodeMx/autoCodeMx.service";
 import {AccountsReceivableService} from "../accountsReceivable/accountsReceivable.service";
 import {AccountsReceivableMxService} from "../accountsReceivableMx/accountsReceivableMx.service";
-import {codeType} from "../autoCode/codeType";
+import {CodeType} from "../autoCode/codeType";
 import * as mathjs from "mathjs";
+import {AccountCategory} from "../accountsVerifySheetMx/accountCategory";
 
 @Injectable()
 export class OutboundService {
@@ -228,7 +229,7 @@ export class OutboundService {
                     return Promise.reject(new Error("出仓单明细缺少仓库资料"))
                 }
 
-                //出仓每个明细
+                //增加每个明细
                 await this.inventoryService.addInventory(inventory);
             }
         })
@@ -257,12 +258,13 @@ export class OutboundService {
             //增加应收账款
             const createAccountsReceivableResult = await this.accountsReceivableService.create({
                 accountsReceivableId: 0,
+                accountsReceivableType: AccountCategory.accountsReceivable,
                 amounts: amounts,
                 checkedAmounts: 0,
                 notCheckAmounts: amounts,
                 clientid: outbound.clientid,
                 correlationId: outbound.outboundid,
-                correlationType: codeType.XS,
+                correlationType: CodeType.XS,
                 inDate: outbound.outdate,
                 creater: userName,
                 createdAt: new Date(),
@@ -270,7 +272,7 @@ export class OutboundService {
                 updatedAt: null,
                 del_uuid: 0,
                 deletedAt: null,
-                deleter: "",
+                deleter: ""
             });
 
             //增加应收账款明细
@@ -282,7 +284,7 @@ export class OutboundService {
                 actuallyReceived: 0,
                 advancesReceived: 0,
                 correlationId: outbound.outboundid,
-                correlationType: codeType.XS,
+                correlationType: CodeType.XS,
                 abstract: "",
                 reMark: "",
                 creater: userName,
@@ -312,9 +314,10 @@ export class OutboundService {
             //检查是否已经核销
             const accountsReceivableList = await this.accountsReceivableService.find({
                 accountsReceivableId: 0,
+                accountsReceivableType: AccountCategory.accountsReceivable,
                 clientid: 0,
                 correlationId: outbound.outboundid,
-                correlationType: codeType.XS,
+                correlationType: CodeType.XS,
                 startDate: "",
                 endDate: "",
                 page: 0,
