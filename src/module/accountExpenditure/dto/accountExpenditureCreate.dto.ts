@@ -1,7 +1,14 @@
 import {IAccountExpenditure} from "../accountExpenditure";
-import {IsDateString, IsInt, IsNumber, IsString} from "class-validator";
+import {IsArray, IsDateString, IsInt, IsNumber, IsString} from "class-validator";
+import {IAccountExpenditureAmountMx} from "../../accountExpenditureAmountMx/accountExpenditureAmountMx";
+import {IAccountExpenditureSheetMx} from "../../accountExpenditureSheetMx/accountExpenditureSheetMx";
 
-export class AccountExpenditureCreateDto implements IAccountExpenditure {
+export interface IAccountExpenditureCreate extends IAccountExpenditure{
+    accountExpenditureAmountMx:IAccountExpenditureAmountMx[]
+    accountExpenditureSheetMx:IAccountExpenditureSheetMx[]
+}
+
+export class AccountExpenditureCreateDto implements IAccountExpenditureCreate {
     accountExpenditureId: number;
     @IsString()
     accountExpenditureCode: string;
@@ -32,4 +39,8 @@ export class AccountExpenditureCreateDto implements IAccountExpenditure {
     del_uuid: number;
     deleter: string
     deletedAt: Date;
+    @IsArray()
+    accountExpenditureAmountMx:IAccountExpenditureAmountMx[]
+    @IsArray()
+    accountExpenditureSheetMx:IAccountExpenditureSheetMx[]
 }

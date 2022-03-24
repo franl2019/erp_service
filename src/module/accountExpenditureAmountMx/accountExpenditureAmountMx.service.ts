@@ -6,19 +6,19 @@ import {IAccountExpenditureAmountMx} from "./accountExpenditureAmountMx";
 export class AccountExpenditureAmountMxService {
 
     constructor(
-        private readonly accountExpenditureAmountMxEntity:AccountExpenditureAmountMxEntity,
+        private readonly accountExpenditureAmountMxEntity: AccountExpenditureAmountMxEntity,
     ) {
     }
 
-    public async findById(accountExpenditureId:number){
-        await this.accountExpenditureAmountMxEntity.findById(accountExpenditureId);
+    public async findById(accountExpenditureId: number) {
+        return await this.accountExpenditureAmountMxEntity.findById(accountExpenditureId);
     }
 
-    public async create(accountExpenditureAmountMx: IAccountExpenditureAmountMx){
-        await this.accountExpenditureAmountMxEntity.create(accountExpenditureAmountMx)
+    public async create(accountExpenditureAmountMxList: IAccountExpenditureAmountMx[]) {
+        return await this.accountExpenditureAmountMxEntity.create(accountExpenditureAmountMxList)
     }
 
-    public async deleteById(accountExpenditureId:number){
-        await this.accountExpenditureAmountMxEntity.deleteById(accountExpenditureId);
+    public async deleteById(accountExpenditureId: number) {
+        return await this.accountExpenditureAmountMxEntity.deleteById(accountExpenditureId);
     }
 }

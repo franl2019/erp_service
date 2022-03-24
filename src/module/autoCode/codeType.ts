@@ -17,14 +17,12 @@ export const enum CodeType {
     // 15.包件出仓
     // 16.执货单
     // 17.采购付款单 -
-    // 18.出纳支出单 -
     // 19.出纳收入单 -
     // 20.核销单 -
     CG = 1,
     SC = 2,
     XS = 8,
-    FK = 17,
-    ZC = 18,
+    accountExpenditure = 17,
     accountInCome = 19,
     HXD = 20,
 }

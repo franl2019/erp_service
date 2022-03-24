@@ -36,7 +36,7 @@ export class AccountExpenditureAmountMxEntity {
         }
     }
 
-    public async create(account_expenditure_amount_mx: IAccountExpenditureAmountMx) {
+    public async create(accountExpenditureAmountMxList: IAccountExpenditureAmountMx[]) {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `INSERT INTO account_expenditure_amount_mx (
                         account_expenditure_amount_mx.accountExpenditureAmountMxId,
@@ -50,18 +50,20 @@ export class AccountExpenditureAmountMxEntity {
                         account_expenditure_amount_mx.reMack2,
                         account_expenditure_amount_mx.reMack3
                     ) VALUES ?`;
-        const [res] = await conn.query<ResultSetHeader>(sql, [[[
-            account_expenditure_amount_mx.accountExpenditureAmountMxId,
-            account_expenditure_amount_mx.accountExpenditureId,
-            account_expenditure_amount_mx.printId,
-            account_expenditure_amount_mx.accountId,
-            account_expenditure_amount_mx.amount,
-            account_expenditure_amount_mx.receivingAccount,
-            account_expenditure_amount_mx.payee,
-            account_expenditure_amount_mx.reMack1,
-            account_expenditure_amount_mx.reMack2,
-            account_expenditure_amount_mx.reMack3
-        ]]]);
+        const [res] = await conn.query<ResultSetHeader>(sql, [
+            accountExpenditureAmountMxList.map(accountExpenditureAmountMx => [
+                accountExpenditureAmountMx.accountExpenditureAmountMxId,
+                accountExpenditureAmountMx.accountExpenditureId,
+                accountExpenditureAmountMx.printId,
+                accountExpenditureAmountMx.accountId,
+                accountExpenditureAmountMx.amount,
+                accountExpenditureAmountMx.receivingAccount,
+                accountExpenditureAmountMx.payee,
+                accountExpenditureAmountMx.reMack1,
+                accountExpenditureAmountMx.reMack2,
+                accountExpenditureAmountMx.reMack3
+            ])
+        ]);
         if (res.affectedRows > 0) {
             return res;
         } else {
@@ -69,13 +71,13 @@ export class AccountExpenditureAmountMxEntity {
         }
     }
 
-    public async deleteById(accountExpenditureId:number) {
+    public async deleteById(accountExpenditureId: number) {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `DELETE FROM account_expenditure_amount_mx WHERE account_expenditure_amount_mx.accountExpenditureId = ?`;
-        const [res] = await conn.query<ResultSetHeader>(sql,[accountExpenditureId]);
-        if(res.affectedRows>0){
+        const [res] = await conn.query<ResultSetHeader>(sql, [accountExpenditureId]);
+        if (res.affectedRows > 0) {
             return res
-        }else{
+        } else {
             return Promise.reject(new Error('删除支出单出纳明细失败'));
         }
     }

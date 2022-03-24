@@ -215,7 +215,7 @@ export class AccountExpenditureEntity {
         }
     }
 
-    public async delete_data(accountExpenditureId: number, userName: string) {
+    public async deleteById(accountExpenditureId: number, userName: string) {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `UPDATE
                         account_expenditure

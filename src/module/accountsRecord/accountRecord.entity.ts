@@ -147,7 +147,7 @@ export class AccountRecordEntity {
         }
     }
 
-    public async delete_data(correlationId: number, type: CodeType.accountInCome | CodeType.FK) {
+    public async delete_data(correlationId: number, type: CodeType.accountInCome | CodeType.accountExpenditure) {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `DELETE FROM account_record WHERE account_record.correlationId = ? AND account_record.correlationType = ?`;
         const [res] = await conn.query<ResultSetHeader>(sql, [correlationId, type]);

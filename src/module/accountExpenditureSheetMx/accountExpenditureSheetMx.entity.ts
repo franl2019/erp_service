@@ -36,7 +36,7 @@ export class AccountExpenditureSheetMxEntity {
         }
     }
 
-    public async create(account_expenditure_sheet_mx: IAccountExpenditureSheetMx) {
+    public async create(accountExpenditureSheetMxList: IAccountExpenditureSheetMx[]) {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `INSERT INTO account_expenditure_sheet_mx (
                         account_expenditure_sheet_mx.accountExpenditureSheetMxId,
@@ -50,7 +50,7 @@ export class AccountExpenditureSheetMxEntity {
                         account_expenditure_sheet_mx.correlationId,
                         account_expenditure_sheet_mx.correlationType
             ) VALUES ?`;
-        const [res] = await conn.query<ResultSetHeader>(sql, [[[
+        const [res] = await conn.query<ResultSetHeader>(sql, [accountExpenditureSheetMxList.map((account_expenditure_sheet_mx)=>[
             account_expenditure_sheet_mx.accountExpenditureSheetMxId,
             account_expenditure_sheet_mx.accountExpenditureId,
             account_expenditure_sheet_mx.printId,
@@ -61,7 +61,7 @@ export class AccountExpenditureSheetMxEntity {
             account_expenditure_sheet_mx.amountsThisVerify,
             account_expenditure_sheet_mx.correlationId,
             account_expenditure_sheet_mx.correlationType
-        ]]]);
+        ])]);
         if (res.affectedRows > 0) {
             return res;
         } else {

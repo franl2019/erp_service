@@ -284,7 +284,7 @@ export class AccountInComeService {
             await this.accountInComeEntity.unLevel1Review(accountInComeId);
 
             //删除出纳记录
-            await this.accountRecordService.delete_data(accountInCome.accountInComeId, CodeType.accountInCome);
+            await this.accountRecordService.deleteByCorrelation(accountInCome.accountInComeId, CodeType.accountInCome);
 
             //删除收款单相关的 账款明细记录
             //查询 明细记录计算得出已核销未核销

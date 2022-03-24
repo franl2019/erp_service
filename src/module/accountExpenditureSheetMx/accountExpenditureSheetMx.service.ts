@@ -14,8 +14,8 @@ export class AccountExpenditureSheetMxService {
         return await this.accountExpenditureSheetMxEntity.findById(accountExpenditureId);
     }
 
-    public async create(accountExpenditureSheetMx: IAccountExpenditureSheetMx) {
-        return await this.accountExpenditureSheetMxEntity.create(accountExpenditureSheetMx);
+    public async create(accountExpenditureSheetMxList: IAccountExpenditureSheetMx[]) {
+        return await this.accountExpenditureSheetMxEntity.create(accountExpenditureSheetMxList);
     }
 
     public async deleteById(accountExpenditureId: number) {
