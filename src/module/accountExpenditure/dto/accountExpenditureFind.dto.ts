@@ -1,22 +1,16 @@
-import {IsArray, IsInt, IsNumber, IsString} from "class-validator";
+import {IsInt, IsString} from "class-validator";
 
 export class AccountExpenditureFindDto {
     @IsInt()
     accountExpenditureId: number;
     @IsString()
     accountExpenditureCode: string;
-    @IsString()
-    collectionAccount:string
-    @IsString()
-    payee:string
-    @IsNumber()
-    expenditureAmt:number
+    @IsInt()
+    accountExpenditureType:number;
     @IsString()
     startDate: string;
     @IsString()
     endDate: string;
-    @IsArray()
-    accountIds: number[];
     @IsInt()
     buyid: number;
     @IsInt()

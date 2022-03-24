@@ -9,7 +9,6 @@ export interface IAccountInCome {
     accountInComeType:number;
     //总金额
     amount: number;
-    //备注
     reMark: string;
     creater: string;
     createdAt: Date;

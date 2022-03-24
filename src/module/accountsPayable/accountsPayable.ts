@@ -1,9 +1,9 @@
-import {AccountCategory} from "../accountsVerifySheetMx/accountCategory";
+import {AccountCategoryType} from "../accountsVerifySheetMx/accountCategoryType";
 import {CodeType} from "../autoCode/codeType";
 
 export interface IAccountsPayable {
     accountsPayableId: number;
-    accountsPayableType:AccountCategory,
+    accountsPayableType:AccountCategoryType,
     buyid: number;
     inDate: Date;
     //单据金额

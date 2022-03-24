@@ -18,7 +18,7 @@ export class Outbound_mxService {
   }
 
   //查询出仓单明细_实例
-  public async find_entity(outboundid: number) {
+  public async findById(outboundid: number) {
     return await this.outbound_mxEntity.find_entity(outboundid);
   }
 

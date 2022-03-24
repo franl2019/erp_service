@@ -1,10 +1,10 @@
-import {AccountCategory} from "../accountsVerifySheetMx/accountCategory";
+import {AccountCategoryType} from "../accountsVerifySheetMx/accountCategoryType";
 import {CodeType} from "../autoCode/codeType";
 
 export interface IAccountsReceivable {
     accountsReceivableId: number;
     //账款类型
-    accountsReceivableType: AccountCategory;
+    accountsReceivableType: AccountCategoryType;
     clientid: number;
     inDate: Date;
     //单据金额

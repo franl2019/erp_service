@@ -1,13 +1,14 @@
 export interface IAccountExpenditure {
     accountExpenditureId: number;
     accountExpenditureCode: string;
-    //收款账号
-    collectionAccount:string;
-    //收款人
-    payee:string;
-    //支出金额
-    expenditureAmt:number;
+    //供应商
+    buyid: number;
+    //发生日期
     indate: Date;
+    //付款单类型
+    accountExpenditureType:number;
+    //总金额
+    amount: number;
     reMark: string;
     creater: string;
     createdAt: Date;
@@ -19,14 +20,7 @@ export interface IAccountExpenditure {
     level2Review: number;
     level2Name: string;
     level2Date: Date;
-    accountId: number;
-    buyid: number;
     del_uuid:number;
     deleter:string
     deletedAt:Date;
-}
-
-export interface IAccountExpenditureFind extends IAccountExpenditure{
-    accountName:string;
-    buyname:string;
 }

@@ -65,8 +65,8 @@ export class AccountsVerifySheetController {
     }
 
     @Post('unLevel1Review')
-    public async unLevel1Review(@Body() l1ReviewDto: AccountsVerifySheetL1ReviewDto, @ReqState() state: IState) {
-        await this.accountsVerifySheetService.unLevel1Review(l1ReviewDto.accountsVerifySheetId, state.user.username);
+    public async unLevel1Review(@Body() l1ReviewDto: AccountsVerifySheetL1ReviewDto) {
+        await this.accountsVerifySheetService.unLevel1Review(l1ReviewDto.accountsVerifySheetId);
         return {
             code: 200,
             msg: '撤审成功'

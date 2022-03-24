@@ -17,7 +17,6 @@ export class AccountExpenditureController {
 
   @Post("find")
   public async find(@Body() accountExpenditureFindDto: AccountExpenditureFindDto, @ReqState() state: IState) {
-    accountExpenditureFindDto.accountIds = state.user.accountIds;
     const data = await this.accountExpenditureService.find(accountExpenditureFindDto);
     return {
       code: 200,

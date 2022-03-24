@@ -1,11 +1,11 @@
 import {IsInt, IsString} from "class-validator";
-import {AccountCategory} from "../../accountsVerifySheetMx/accountCategory";
+import {AccountCategoryType} from "../../accountsVerifySheetMx/accountCategoryType";
 
 export class AccountsPayableFindDto {
     @IsInt()
     accountsPayableId: number;
     @IsInt()
-    accountsPayableType:AccountCategory;
+    accountsPayableType:AccountCategoryType;
     @IsInt()
     buyid: number;
     @IsInt()

@@ -3,6 +3,7 @@ import {AccountsReceivableMxEntity} from "./accountsReceivableMx.entity";
 import {IAccountsReceivableMx} from "./accountsReceivableMx";
 import {AccountsReceivableFindDto} from "./dto/accountsReceivableFind.dto";
 
+
 @Injectable()
 export class AccountsReceivableMxService {
 
@@ -22,7 +23,7 @@ export class AccountsReceivableMxService {
         return await this.accountsReceivableMxEntity.create(accountsReceivableMx);
     }
 
-    public async deleteById(accountsReceivableId:number){
+    public async deleteById(accountsReceivableId: number) {
         return await this.accountsReceivableMxEntity.deleteById(accountsReceivableId);
     }
 

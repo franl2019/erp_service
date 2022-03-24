@@ -5,7 +5,7 @@ import { MysqldbAls } from "../mysqldb/mysqldbAls";
 import { IFindInboundMx } from "./dto/findInboundMx";
 
 @Injectable()
-export class Inbound_mxEntity {
+export class InboundMxEntity {
 
   constructor(private readonly mysqldbAls: MysqldbAls) {
   }
@@ -60,10 +60,10 @@ export class Inbound_mxEntity {
   }
 
   //查找进仓单的明细(无关联，纯实例)
-  public async find_entity(inboundid: number): Promise<Inbound_mx[]> {
+  public async findById(inboundId: number): Promise<Inbound_mx[]> {
     const conn = await this.mysqldbAls.getConnectionInAls();
     const sql = `SELECT 
- 	                inbound_mx.inboundid, 
+ 	              inbound_mx.inboundid, 
                   inbound_mx.printid, 
                   inbound_mx.clientid, 
                   inbound_mx.productid, 
@@ -85,7 +85,7 @@ export class Inbound_mxEntity {
                   inbound_mx 
                  WHERE 
                   inbound_mx.inboundid = ?`;
-    const [res] = await conn.query(sql, [inboundid]);
+    const [res] = await conn.query(sql, [inboundId]);
     if ((res as Inbound_mx[]).length > 0) {
       return (res as Inbound_mx[]);
     } else {

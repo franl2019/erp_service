@@ -117,7 +117,7 @@ export class OutboundEntity {
     }
 
     //分页查询
-    if (findDto.page >= 0 && findDto.pagesize >=0) {
+    if (findDto.page > 0 && findDto.pagesize >0) {
       sql = sql + ` LIMIT ?,?`;
       params.push(findDto.page, findDto.pagesize);
     }
@@ -127,7 +127,7 @@ export class OutboundEntity {
   };
 
   //查询单个进仓单头
-  public async findOne(outboundid: number): Promise<IOutbound> {
+  public async findById(outboundid: number): Promise<IOutbound> {
     const conn = await this.mysqlAls.getConnectionInAls();
     const sql = `SELECT
                 outbound.outboundid, 

@@ -25,6 +25,6 @@ export const enum CodeType {
     XS = 8,
     FK = 17,
     ZC = 18,
-    SR = 19,
+    accountInCome = 19,
     HXD = 20,
 }

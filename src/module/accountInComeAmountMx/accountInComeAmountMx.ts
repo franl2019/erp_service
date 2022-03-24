@@ -3,7 +3,7 @@ export interface IAccountInComeAmountMx {
     //收款单明细Id
     accountInComeAmountMxId:number;
     //收款单Id
-    accountInComeAmountId:number;
+    accountInComeId:number;
     //明细顺序
     printId:number;
     //结算方式

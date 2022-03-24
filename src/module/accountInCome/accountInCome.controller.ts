@@ -27,6 +27,7 @@ export class AccountInComeController {
     public async create(@Body() accountInComeCreateDto: AccountInComeCreateDto, @ReqState() state: IState) {
         accountInComeCreateDto.creater = state.user.username;
         accountInComeCreateDto.createdAt = new Date();
+
         await this.accountInComeService.create(accountInComeCreateDto);
         return {
             code: 200,
@@ -47,7 +48,7 @@ export class AccountInComeController {
 
     @Post('delete_data')
     public async delete_data(@Body() accountInComeDeleteDto: AccountInComeDeleteDto, @ReqState() state: IState) {
-        await this.accountInComeService.delete_data(accountInComeDeleteDto.accountIncomeId, state.user.username);
+        await this.accountInComeService.deleteById(accountInComeDeleteDto.accountIncomeId, state.user.username);
         return {
             code: 200,
             msg: "删除成功"

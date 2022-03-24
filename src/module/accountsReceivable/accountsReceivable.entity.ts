@@ -54,11 +54,9 @@ export class AccountsReceivableEntity {
                                 accounts_receivable.creater,
                                 accounts_receivable.createdAt,
                                 accounts_receivable.updater,
-                                accounts_receivable.updatedAt,
-                                client.clientname
+                                accounts_receivable.updatedAt
                             FROM
                                 accounts_receivable
-                                LEFT JOIN client ON client.clientid = accounts_receivable.clientid
                             WHERE
                                 accounts_receivable.del_uuid = 0`;
         const params = [];
@@ -66,8 +64,6 @@ export class AccountsReceivableEntity {
         if (findDto.clientid) {
             sql = sql + ` AND accounts_receivable.clientid = ?`
             params.push(findDto.clientid);
-        } else {
-            return Promise.reject(new Error('查询缺少客户Id'));
         }
 
         if (findDto.accountsReceivableId) {
@@ -93,20 +89,22 @@ export class AccountsReceivableEntity {
         }
 
         //分页查询
-        if (findDto.page >= 0 && findDto.pagesize >= 0) {
+        if (findDto.page > 0 && findDto.pagesize > 0) {
             sql = sql + ` LIMIT ?,?`;
             params.push(findDto.page, findDto.pagesize);
         }
 
         const [res] = await conn.query(sql, params);
+        await console.log(sql)
+        await console.log(res)
         if ((res as IAccountsReceivableFind[]).length > 0) {
-            return (res as IAccountsReceivableFind[])
+            return (res as IAccountsReceivableFind[]);
         } else {
             return [];
         }
     }
 
-    public async create(accountsReceivable: IAccountsReceivable) {
+    public async create(accounts_receivable: IAccountsReceivable) {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `INSERT INTO accounts_receivable (
                         accounts_receivable.accountsReceivableId,
@@ -119,19 +117,20 @@ export class AccountsReceivableEntity {
                         accounts_receivable.correlationId,
                         accounts_receivable.correlationType,
                         accounts_receivable.creater,
-                        accounts_receivable.createdAt) VALUES ?`;
+                        accounts_receivable.createdAt
+                     ) VALUES ?`;
         const [res] = await conn.query<ResultSetHeader>(sql, [[[
-            accountsReceivable.accountsReceivableId,
-            accountsReceivable.accountsReceivableType,
-            accountsReceivable.clientid,
-            accountsReceivable.inDate,
-            accountsReceivable.amounts,
-            accountsReceivable.checkedAmounts,
-            accountsReceivable.notCheckAmounts,
-            accountsReceivable.correlationId,
-            accountsReceivable.correlationType,
-            accountsReceivable.creater,
-            accountsReceivable.createdAt
+            accounts_receivable.accountsReceivableId,
+            accounts_receivable.accountsReceivableType,
+            accounts_receivable.clientid,
+            accounts_receivable.inDate,
+            accounts_receivable.amounts,
+            accounts_receivable.checkedAmounts,
+            accounts_receivable.notCheckAmounts,
+            accounts_receivable.correlationId,
+            accounts_receivable.correlationType,
+            accounts_receivable.creater,
+            accounts_receivable.createdAt
         ]]]);
         if (res.affectedRows > 0) {
             return res;
@@ -172,21 +171,14 @@ export class AccountsReceivableEntity {
         }
     }
 
-    public async delete_data(accountsReceivableId: number, userName: string) {
+    public async deleteById(accountsReceivableId: number) {
         const conn = await this.mysqldbAls.getConnectionInAls();
-        const sql = `UPDATE
+        const sql = `DELETE FROM
                         accounts_receivable
-                     SET
-                        accounts_receivable.del_uuid = ?,
-                        accounts_receivable.deleter = ?,
-                        accounts_receivable.deletedAt = ?
                      WHERE
                         accounts_receivable.del_uuid = 0
                         AND accounts_receivable.accountsReceivableId = ?`
         const [res] = await conn.query<ResultSetHeader>(sql, [
-            accountsReceivableId,
-            userName,
-            new Date(),
             accountsReceivableId
         ]);
         if (res.affectedRows > 0) {

@@ -114,7 +114,7 @@ export class AccountInComeEntity {
         }
 
         //分页查询
-        if (findDto.page >= 0 && findDto.pagesize >= 0) {
+        if (findDto.page > 0 && findDto.pagesize > 0) {
             sql = sql + ` LIMIT ?,?`;
             params.push(findDto.page, findDto.pagesize);
         }
@@ -183,7 +183,7 @@ export class AccountInComeEntity {
         }
     }
 
-    public async delete_data(accountInComeId: number, userName: string) {
+    public async deleteById(accountInComeId: number, userName: string) {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `UPDATE
                         account_income

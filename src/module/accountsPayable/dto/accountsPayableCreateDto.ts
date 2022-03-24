@@ -1,12 +1,12 @@
 import {IsDateString, IsInt, IsNumber} from "class-validator";
-import { AccountCategory } from "src/module/accountsVerifySheetMx/accountCategory";
+import { AccountCategoryType } from "src/module/accountsVerifySheetMx/accountCategoryType";
 import { CodeType } from "src/module/autoCode/codeType";
 import {IAccountsPayable} from "../accountsPayable";
 
 export class AccountsPayableCreateDto implements IAccountsPayable {
     accountsPayableId: number;
     @IsInt()
-    accountsPayableType: AccountCategory;
+    accountsPayableType: AccountCategoryType;
     @IsInt()
     buyid: number;
     @IsDateString()

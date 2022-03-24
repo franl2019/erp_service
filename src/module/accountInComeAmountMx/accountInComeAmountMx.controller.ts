@@ -12,7 +12,7 @@ export class AccountInComeAmountMxController {
 
     @Post('find')
     public async find(@Body() accountInComeAmountMxFindDto:AccountInComeAmountMxFindDto){
-        const data = await this.accountInComeAmountMxService.find(accountInComeAmountMxFindDto.accountInComeAmountId);
+        const data = await this.accountInComeAmountMxService.findById(accountInComeAmountMxFindDto.accountInComeId);
         return {
             code:200,
             msg:'查询成功',

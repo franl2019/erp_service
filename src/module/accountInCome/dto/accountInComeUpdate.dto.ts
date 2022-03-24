@@ -1,7 +1,9 @@
-import {IsDateString, IsInt, IsNumber, IsString} from "class-validator";
-import {IAccountInCome} from "../accountInCome";
+import {IsArray, IsDateString, IsInt, IsNumber, IsString} from "class-validator";
+import {IAccountInComeAmountMx} from "../../accountInComeAmountMx/accountInComeAmountMx";
+import {IAccountInComeSheetMx} from "../../accountInComeSheetMx/accountInComeSheetMx";
+import {IAccountInComeCreateDto} from "./accountInComeCreate.dto";
 
-export class AccountInComeUpdateDto implements IAccountInCome{
+export class AccountInComeUpdateDto implements IAccountInComeCreateDto {
     @IsInt()
     accountInComeId: number;
     accountInComeCode: string;
@@ -28,5 +30,9 @@ export class AccountInComeUpdateDto implements IAccountInCome{
     del_uuid: number;
     deletedAt: Date;
     deleter: string;
+    @IsArray()
+    accountInComeAmountMx: IAccountInComeAmountMx[];
+    @IsArray()
+    accountInComeSheetMx: IAccountInComeSheetMx[];
 
 }

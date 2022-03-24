@@ -18,7 +18,7 @@ import {UserWarehouseMxModule} from './module/userWarehouseMx/userWarehouseMx.mo
 import {InboundModule} from './module/inbound/inbound.module';
 import {AutoCodeModule} from './module/autoCode/autoCode.module';
 import {AutoCodeMxModule} from './module/autoCodeMx/autoCodeMx.module';
-import {Inbound_mxModule} from './module/inbound_mx/inbound_mx.module';
+import {InboundMxModule} from './module/inbound_mx/inbound_mx.module';
 import {InventoryModule} from './module/inventory/inventory.module';
 import {MysqldbModule} from './module/mysqldb/mysqldb.module';
 import {TableColumnStateModule} from './module/tableColumnState/tableColumnState.module';
@@ -38,6 +38,12 @@ import {AccountsPayableModule} from "./module/accountsPayable/accountsPayable.mo
 import {AccountsPayableMxModule} from "./module/accountsPayableMx/accountsPayableMx.module";
 import {AccountInComeAmountMxModule} from "./module/accountInComeAmountMx/accountInComeAmountMx.module";
 import {AccountInComeSheetMxModule} from "./module/accountInComeSheetMx/accountInComeSheetMx.module";
+import {AccountsPayableSubjectMxModule} from "./module/accountsPayableMxSubject/accountsPayableSubjectMx.module";
+import {
+    AccountsReceivableSubjectMxModule
+} from "./module/accountsReceivableSubjectMx/accountsReceivableSubjectMx.module";
+import {AccountExpenditureSheetMxModule} from "./module/accountExpenditureSheetMx/accountExpenditureSheetMx.module";
+import {AccountExpenditureAmountMxModule} from "./module/accountExpenditureAmountMx/accountExpenditureAmountMx.module";
 
 @Module({
     imports: [
@@ -57,7 +63,7 @@ import {AccountInComeSheetMxModule} from "./module/accountInComeSheetMx/accountI
         WarehouseModule,
         //进仓单模块
         InboundModule,
-        Inbound_mxModule,
+        InboundMxModule,
         AutoCodeModule,
         AutoCodeMxModule,
         //生产进仓
@@ -81,16 +87,26 @@ import {AccountInComeSheetMxModule} from "./module/accountInComeSheetMx/accountI
         AccountInComeModule,
         //收入单收款明细
         AccountInComeAmountMxModule,
-        //收入单单据明细
+        //收入单核销明细
         AccountInComeSheetMxModule,
         //应收账款
         AccountsReceivableModule,
         //应收账款明细
         AccountsReceivableMxModule,
+        //应收账款科目明细
+        AccountsReceivableSubjectMxModule,
         //应付账款
         AccountsPayableModule,
         //应付账款明细
-        AccountsPayableMxModule
+        AccountsPayableMxModule,
+        //应付账款科目明细
+        AccountsPayableSubjectMxModule,
+        //支出单
+        AccountExpenditureModule,
+        //支出单收款明细
+        AccountExpenditureAmountMxModule,
+        //支出单核销明细
+        AccountExpenditureSheetMxModule
     ],
     providers: [
         {

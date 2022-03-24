@@ -2,9 +2,11 @@ import {Module} from "@nestjs/common";
 import {InboundModule} from "../inbound/inbound.module";
 import {BuyInboundController} from "./buyInbound.controller";
 import {BuyInboundService} from "./buyInbound.service";
+import {AccountsPayableModule} from "../accountsPayable/accountsPayable.module";
+import {MysqldbModule} from "../mysqldb/mysqldb.module";
 
 @Module({
-    imports:[InboundModule],
+    imports:[InboundModule,AccountsPayableModule,MysqldbModule],
     controllers:[BuyInboundController],
     providers:[BuyInboundService],
 })

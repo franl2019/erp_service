@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { Inbound_mxEntity } from "./inbound_mx.entity";
+import { InboundMxEntity } from "./inbound_mx.entity";
 import { InboundMxDto } from "./dto/inboundMx.dto";
 import { verifyParam } from "../../utils/verifyParam";
 import { IInbound_mx } from "./inbound_mx";
@@ -7,15 +7,15 @@ import { IInbound_mx } from "./inbound_mx";
 @Injectable()
 export class Inbound_mxService {
 
-  constructor(private readonly inbound_mxSql: Inbound_mxEntity) {
+  constructor(private readonly inboundMxEntity: InboundMxEntity) {
   }
 
   public async find(inboundid: number){
-    return await this.inbound_mxSql.find(inboundid);
+    return await this.inboundMxEntity.find(inboundid);
   }
 
-  public async find_entity(inboundid: number) {
-    return await this.inbound_mxSql.find_entity(inboundid);
+  public async findById(inboundid: number) {
+    return await this.inboundMxEntity.findById(inboundid);
   }
 
   //新增进仓单的明细
@@ -31,11 +31,11 @@ export class Inbound_mxService {
       }
       verifiedInboundMxList.push(inboundMx);
     }
-    return await this.inbound_mxSql.create(verifiedInboundMxList);
+    return await this.inboundMxEntity.create(verifiedInboundMxList);
   }
 
   //删除进仓单的明细
   public async delete_date(inboundid: number) {
-    return await this.inbound_mxSql.delete_data(inboundid);
+    return await this.inboundMxEntity.delete_data(inboundid);
   }
 }

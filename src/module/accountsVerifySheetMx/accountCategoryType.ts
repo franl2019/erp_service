@@ -1,5 +1,5 @@
 //账款类别
-export const enum AccountCategory {
+export const enum AccountCategoryType {
     /*
     *[1]应收账款
     *[2]预收账款

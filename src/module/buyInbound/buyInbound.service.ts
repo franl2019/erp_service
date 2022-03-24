@@ -2,12 +2,21 @@ import {Injectable} from "@nestjs/common";
 import {InboundService} from "../inbound/inbound.service";
 import {FindBuyInboundDto} from "./dto/findBuyInbound.dto";
 import {BuyInboundDto} from "./dto/buyInbound.dto";
+import * as mathjs from "mathjs";
+import {bignumber} from "mathjs";
+import {MysqldbAls} from "../mysqldb/mysqldbAls";
+import {IAccountsPayable} from "../accountsPayable/accountsPayable";
+import {AccountCategoryType} from "../accountsVerifySheetMx/accountCategoryType";
+import {CodeType} from "../autoCode/codeType";
+import {AccountsPayableService} from "../accountsPayable/accountsPayable.service";
 
 @Injectable()
 export class BuyInboundService {
 
     constructor(
-        private readonly inboundService: InboundService
+        private readonly mysqldbAls: MysqldbAls,
+        private readonly inboundService: InboundService,
+        private readonly accountsPayableService:AccountsPayableService
     ) {
     }
 
@@ -41,11 +50,60 @@ export class BuyInboundService {
 
     //财审
     public async level2Review(inboundId: number, userName: string) {
-        return await this.inboundService.level2Review(inboundId, userName);
+        return this.mysqldbAls.sqlTransaction(async () => {
+            await this.inboundService.level2Review(inboundId, userName);
+            const inbound = await this.inboundService.findById(inboundId);
+            //根据进仓单明细计算应付金额
+            const inboundMxList = await this.inboundService.findMxById(inboundId);
+            let amounts: number = 0;
+            for (let i = 0; i < inboundMxList.length; i++) {
+                const inboundMxAmount = Number(
+                    mathjs.round(
+                        mathjs.chain(
+                            mathjs.bignumber(inboundMxList[i].priceqty)
+                        ).multiply(
+                            mathjs.bignumber(inboundMxList[i].netprice)
+                        ).done(), 4)
+                );
+                amounts = Number(
+                    mathjs.round(
+                        mathjs.chain(bignumber(amounts))
+                            .add(bignumber(inboundMxAmount))
+                            .done()
+                        , 4)
+                )
+            }
+
+            const accountsPayable:IAccountsPayable = {
+                accountsPayableId: 0,
+                accountsPayableType: AccountCategoryType.accountsPayable,
+                correlationId: inbound.inboundid,
+                correlationType: CodeType.CG,
+                buyid: inbound.buyid,
+                inDate: inbound.indate,
+                amounts: amounts,
+                checkedAmounts: 0,
+                notCheckAmounts: amounts,
+                creater: inbound.level2name,
+                createdAt: inbound.level2date,
+                updater: "",
+                updatedAt: null,
+                del_uuid: 0,
+                deletedAt: null,
+                deleter: "",
+            }
+
+            await this.accountsPayableService.createAccountPayable(accountsPayable);
+
+        })
+
     }
 
     //撤销财审
     public async unLevel2Review(inboundId: number, userName: string) {
-        return await this.inboundService.unLevel2Review(inboundId, userName);
+        return this.mysqldbAls.sqlTransaction(async ()=>{
+            await this.inboundService.unLevel2Review(inboundId, userName);
+            await this.accountsPayableService.deleteByCorrelation(inboundId,CodeType.CG);
+        })
     }
 }

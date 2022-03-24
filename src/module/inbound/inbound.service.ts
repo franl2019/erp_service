@@ -8,10 +8,6 @@ import {AddInventoryDto} from "../inventory/dto/addInventory.dto";
 import {Inbound_mxService} from "../inbound_mx/inbound_mx.service";
 import {Inbound} from "./inbound";
 import {AutoCodeMxService} from "../autoCodeMx/autoCodeMx.service";
-import * as mathjs from "mathjs";
-import {AccountsPayableService} from "../accountsPayable/accountsPayable.service";
-import {AccountsPayableMxService} from "../accountsPayableMx/accountsPayableMx.service";
-import {AccountCategory} from "../accountsVerifySheetMx/accountCategory";
 
 @Injectable()
 export class InboundService {
@@ -20,20 +16,24 @@ export class InboundService {
         private readonly inboundEntity: InboundEntity,
         private readonly inboundMxService: Inbound_mxService,
         private readonly autoCodeMxService: AutoCodeMxService,
-        private readonly inventoryService: InventoryService,
-        private readonly accountsPayableService: AccountsPayableService,
-        private readonly accountsPayableMxService: AccountsPayableMxService
+        private readonly inventoryService: InventoryService
     ) {
     }
 
-    //查询进仓单
-    private async findOne(inboundid: number) {
-        return await this.inboundEntity.findOne(inboundid);
-    }
 
     //查询进仓单单头list
     public async find(findDto: FindInboundDto) {
         return await this.inboundEntity.find(findDto);
+    }
+
+    //查询进仓单
+    public async findById(inboundId: number) {
+        return await this.inboundEntity.findOne(inboundId);
+    }
+
+    //查询进仓单明细
+    public async findMxById(inboundId:number){
+        return await this.inboundMxService.findById(inboundId)
     }
 
     //新增进仓单
@@ -61,7 +61,7 @@ export class InboundService {
     public async update(inboundDto: IInboundDto) {
         return this.mysqldbAls.sqlTransaction(async () => {
             //检查是否已经审核
-            const inbound_db = await this.findOne(inboundDto.inboundid);
+            const inbound_db = await this.findById(inboundDto.inboundid);
             if (inbound_db.level1review !== 0 && inbound_db.level2review !== 0) {
                 return Promise.reject(new Error("修改失败，进仓单已审核，请先撤审"));
             }
@@ -89,7 +89,7 @@ export class InboundService {
     public async delete_data(inboundid: number, userName: string) {
         return this.mysqldbAls.sqlTransaction(async () => {
             //检查是否已经审核
-            const inbound_db = await this.findOne(inboundid);
+            const inbound_db = await this.findById(inboundid);
             if (inbound_db.level1review !== 0 && inbound_db.level2review !== 0) {
                 return Promise.reject(new Error("删除失败，进仓单已审核，请先撤审"));
             }
@@ -105,7 +105,7 @@ export class InboundService {
     public async undelete_data(inboundid: number) {
         return this.mysqldbAls.sqlTransaction(async () => {
             //检查是否已经审核
-            const inbound_db = await this.findOne(inboundid);
+            const inbound_db = await this.findById(inboundid);
             if (inbound_db.del_uuid === inbound_db.inboundid && inbound_db.deleter.length > 0) {
                 return Promise.reject(new Error("取消删除失败，进仓单未删除"));
             }
@@ -121,7 +121,7 @@ export class InboundService {
     public async level1Review(inboundid: number, userName: string) {
         return await this.mysqldbAls.sqlTransaction(async () => {
             //获取需要审核的单头
-            const inbound = await this.findOne(inboundid);
+            const inbound = await this.findById(inboundid);
 
             if (inbound.level1review !== 0 && inbound.level2review !== 0) {
                 return Promise.reject(new Error("单据已审核"));
@@ -134,7 +134,7 @@ export class InboundService {
             await this.inboundEntity.update(inbound);
 
             //获取需要进仓的明细
-            const inboundmxList = await this.inboundMxService.find_entity(inboundid);
+            const inboundmxList = await this.inboundMxService.findById(inboundid);
             for (let i = 0; i < inboundmxList.length; i++) {
                 const inboundmx = inboundmxList[i];
                 const inventory = new AddInventoryDto();
@@ -163,7 +163,7 @@ export class InboundService {
     public async unLevel1Review(inboundid: number, userName: string) {
         return await this.mysqldbAls.sqlTransaction(async () => {
             //获取需要撤审的单头
-            const inbound = await this.findOne(inboundid);
+            const inbound = await this.findById(inboundid);
 
             if ((inbound.level1review + inbound.level2review) !== 1) {
                 return Promise.reject(new Error("单据已审核"));
@@ -176,7 +176,7 @@ export class InboundService {
             await this.inboundEntity.update(inbound);
 
             //获取需要扣减的明细
-            const inboundmxList = await this.inboundMxService.find_entity(inboundid);
+            const inboundmxList = await this.inboundMxService.findById(inboundid);
             for (let i = 0; i < inboundmxList.length; i++) {
                 const inboundmx = inboundmxList[i];
                 const intoTheWarehouseDto = new AddInventoryDto();
@@ -205,7 +205,7 @@ export class InboundService {
     public async level2Review(inboundId: number, userName: string) {
         return this.mysqldbAls.sqlTransaction(async () => {
             //查询单头信息
-            const inbound = await this.findOne(inboundId);
+            const inbound = await this.findById(inboundId);
             //验证单头状态是否可以财务审核
             if (inbound.level1review !== 1 && inbound.level2review !== 0 && inbound.del_uuid !== 0) {
                 return Promise.reject(new Error("财务审核失败，单据未审核"));
@@ -216,59 +216,13 @@ export class InboundService {
             inbound.level2name = userName;
             inbound.level2date = new Date();
             await this.inboundEntity.update(inbound);
-
-            //根据进仓单明细计算应付金额
-            const inboundMxList = await this.inboundMxService.find(inbound.inboundid);
-            let originalAmount: number = 0;
-            for (let i = 0; i < inboundMxList.length; i++) {
-                const inboundMxAmount = Number(mathjs.chain(mathjs.bignumber(inboundMxList[i].priceqty)).multiply(mathjs.bignumber(inboundMxList[i].netprice)));
-                originalAmount = originalAmount + inboundMxAmount
-            }
-
-            //新增应付账款记录
-            const createAccountsPayableResult = await this.accountsPayableService.create({
-                accountsPayableId: 0,
-                accountsPayableType: AccountCategory.accountsPayable,
-                inDate: inbound.indate,
-                buyid: inbound.buyid,
-                amounts: originalAmount,
-                checkedAmounts: 0,
-                notCheckAmounts: originalAmount,
-                correlationId: inbound.inboundid,
-                correlationType: inbound.inboundtype,
-                creater: userName,
-                createdAt: new Date(),
-                updater: "",
-                updatedAt: null,
-                deleter: "",
-                del_uuid: 0,
-                deletedAt: null
-            });
-
-            //增加应付记录明细
-            await this.accountsPayableMxService.create({
-                inDate: new Date(),
-                accountsPayableId: createAccountsPayableResult.insertId,
-                accountsPayableMxId: 0,
-                accountPayable: originalAmount,
-                actuallyPayment: 0,
-                advancesPayment: 0,
-                correlationId: inbound.inboundid,
-                correlationType: inbound.inboundtype,
-                creater: userName,
-                createdAt: new Date(),
-                updater: "",
-                updatedAt: null,
-                reMark: "",
-                abstract: ""
-            })
         })
     }
 
     public async unLevel2Review(inboundId: number, userName: string) {
         return this.mysqldbAls.sqlTransaction(async () => {
             //查询单头信息
-            const inbound = await this.findOne(inboundId);
+            const inbound = await this.findById(inboundId);
             //检查单头状态是否可以撤销审核
             if (inbound.level1review !== 1 && inbound.level2review !== 1 && inbound.del_uuid !== 0) {
                 return Promise.reject(new Error("财务撤审失败，单据未财务撤审"));
@@ -279,34 +233,6 @@ export class InboundService {
             inbound.level2name = "";
             inbound.level2date = null;
             await this.inboundEntity.update(inbound);
-
-            //检查应付账款是否已经核销
-            const accountsPayableList = await this.accountsPayableService.find({
-                accountsPayableId: 0,
-                accountsPayableType: AccountCategory.accountsPayable,
-                buyid: inbound.buyid,
-                correlationId: inbound.inboundid,
-                correlationType: inbound.inboundtype,
-                startDate: "",
-                endDate: "",
-                page: 0,
-                pagesize: 0
-            })
-
-            //查询应付账款
-            if (accountsPayableList.length > 0 && accountsPayableList[0]) {
-                const accountsPayable = accountsPayableList[0];
-                if (accountsPayable.checkedAmounts > 0) {
-                    //删除应付账款
-                    await this.accountsPayableService.delete_data(accountsPayable.accountsPayableId, userName);
-                    await this.accountsPayableMxService.deleteById(accountsPayable.accountsPayableId);
-                } else {
-                    return Promise.reject(new Error('财务撤审失败，应付账款已有核销记录'))
-                }
-            } else {
-                return Promise.reject(new Error('财务撤审失败,查询应付账款记录失败'));
-            }
-
         })
     }
 

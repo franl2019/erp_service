@@ -1,36 +1,36 @@
 import {IAccountExpenditure} from "../accountExpenditure";
-import {IsDateString, IsInt, IsNumber, IsString } from "class-validator";
+import {IsDateString, IsInt, IsNumber, IsString} from "class-validator";
 
 export class AccountExpenditureUpdateDto implements IAccountExpenditure {
-    @IsString()
-    accountExpenditureCode: string;
     @IsInt()
     accountExpenditureId: number;
-    @IsInt()
-    accountId: number;
+    @IsString()
+    accountExpenditureCode: string;
+    //供应商
     @IsInt()
     buyid: number;
+    //发生日期
     @IsDateString()
     indate: Date;
+    //付款单类型
+    @IsInt()
+    accountExpenditureType: number;
+    //总金额
+    @IsNumber()
+    amount: number;
     @IsString()
     reMark: string;
-    @IsString()
-    collectionAccount: string;
-    @IsNumber()
-    expenditureAmt: number;
-    @IsString()
-    payee: string;
-    createdAt: Date;
     creater: string;
-    updatedAt: Date;
+    createdAt: Date;
     updater: string;
-    level1Date: Date;
-    level1Name: string;
+    updatedAt: Date;
     level1Review: number;
-    level2Date: Date;
-    level2Name: string;
+    level1Name: string;
+    level1Date: Date;
     level2Review: number;
+    level2Name: string;
+    level2Date: Date;
     del_uuid: number;
+    deleter: string
     deletedAt: Date;
-    deleter: string;
 }

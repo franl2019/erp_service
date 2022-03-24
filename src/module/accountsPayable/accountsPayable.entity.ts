@@ -69,8 +69,6 @@ export class AccountsPayableEntity {
         if (findDto.buyid) {
             sql = sql + ` AND accounts_payable.buyid = ?`
             params.push(findDto.buyid);
-        } else {
-            return Promise.reject(new Error('查询缺少供应商Id'));
         }
 
         if (findDto.accountsPayableId) {
@@ -96,7 +94,7 @@ export class AccountsPayableEntity {
         }
 
         //分页查询
-        if (findDto.page >= 0 && findDto.pagesize >= 0) {
+        if (findDto.page > 0 && findDto.pagesize > 0) {
             sql = sql + ` LIMIT ?,?`;
             params.push(findDto.page, findDto.pagesize);
         }
@@ -167,21 +165,14 @@ export class AccountsPayableEntity {
         }
     }
 
-    public async delete_data(accountsPayableId: number, userName: string) {
+    public async deleteById(accountsPayableId: number) {
         const conn = await this.mysqldbAls.getConnectionInAls();
-        const sql = `UPDATE
+        const sql = `DELETE FROM
                         accounts_payable
-                     SET
-                        accounts_payable.del_uuid = ?,
-                        accounts_payable.deleter = ?,
-                        accounts_payable.deletedAt = ?
                      WHERE
                         accounts_payable.del_uuid = 0
                         AND accounts_payable.accountsPayableId = ?`
         const [res] = await conn.query<ResultSetHeader>(sql, [
-            accountsPayableId,
-            userName,
-            new Date(),
             accountsPayableId
         ]);
         if (res.affectedRows > 0) {

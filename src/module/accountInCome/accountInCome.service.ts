@@ -1,15 +1,26 @@
 import {Injectable} from "@nestjs/common";
 import {AccountInComeEntity} from "./accountInCome.entity";
 import {AccountInComeFindDto} from "./dto/accountInComeFind.dto";
-import {IAccountInCome} from "./accountInCome";
 import {AutoCodeMxService} from "../autoCodeMx/autoCodeMx.service";
 import {MysqldbAls} from "../mysqldb/mysqldbAls";
 import {AccountInComeAmountMxService} from "../accountInComeAmountMx/accountInComeAmountMx.service";
 import {AccountRecordService} from "../accountsRecord/accountRecord.service";
+import {verifyParam} from "../../utils/verifyParam";
+import {AccountInComeAmountMxCreateDto} from "../accountInComeAmountMx/dto/accountInComeAmountMxCreate.dto";
+import {AccountInComeSheetMxCreateDto} from "../accountInComeSheetMx/dto/accountInComeSheetMxCreate.dto";
+import {AccountInComeCreateDto} from "./dto/accountInComeCreate.dto";
+import {AccountInComeUpdateDto} from "./dto/accountInComeUpdate.dto";
+import * as mathjs from 'mathjs';
+import {IAccountsReceivable} from "../accountsReceivable/accountsReceivable";
 import {CodeType} from "../autoCode/codeType";
+import {IAccountRecord} from "../accountsRecord/accountRecord";
+import {AccountCategoryType} from "../accountsVerifySheetMx/accountCategoryType";
+import {IAccountInComeAmountMx} from "../accountInComeAmountMx/accountInComeAmountMx";
+import {IAccountInCome} from "./accountInCome";
+import {AccountInComeSheetMxService} from "../accountInComeSheetMx/accountInComeSheetMx.service";
+import {IAccountInComeSheetMx} from "../accountInComeSheetMx/accountInComeSheetMx";
 import {AccountsReceivableService} from "../accountsReceivable/accountsReceivable.service";
-import {AccountCategory} from "../accountsVerifySheetMx/accountCategory";
-import {AccountsReceivableMxService} from "../accountsReceivableMx/accountsReceivableMx.service";
+import {IAccountsReceivableSubjectMx} from "../accountsReceivableSubjectMx/accountsReceivableSubjectMx";
 
 @Injectable()
 export class AccountInComeService {
@@ -19,10 +30,119 @@ export class AccountInComeService {
         private readonly accountInComeEntity: AccountInComeEntity,
         private readonly autoCodeMxService: AutoCodeMxService,
         private readonly accountInComeAmountMxService: AccountInComeAmountMxService,
+        private readonly accountInComeSheetMxService: AccountInComeSheetMxService,
         private readonly accountRecordService: AccountRecordService,
-        private readonly accountsReceivableService: AccountsReceivableService,
-        private readonly accountsReceivableMxService: AccountsReceivableMxService,
+        private readonly accountsReceivableService: AccountsReceivableService
     ) {
+    }
+
+    private static getAccountRecordList(accountInCome: IAccountInCome, accountInComeAmountMxList: IAccountInComeAmountMx[]) {
+        const accountRecordList: IAccountRecord[] = [];
+        for (let i = 0; i < accountInComeAmountMxList.length; i++) {
+            const accountInComeAmountMx = accountInComeAmountMxList[i];
+            //创建出纳记录
+            const accountRecord: IAccountRecord = {
+                accountRecordId: 0,
+                accountId: accountInComeAmountMx.accountId,
+                correlationId: accountInCome.accountInComeId,
+                correlationType: CodeType.accountInCome,
+                creater: accountInCome.level1Name,
+                createdAt: new Date(),
+                openQty: 0,
+                debitQty: accountInComeAmountMx.amount,
+                creditQty: 0,
+                balanceQty: 0,
+                indate: accountInCome.indate,
+                reMark: "",
+                relatedNumber: ""
+            }
+            accountRecordList.push(accountRecord);
+        }
+        return accountRecordList;
+    }
+
+    //收入单明细添加id
+    private static accountInComeMxAddId(accountInComeCreateDto: AccountInComeCreateDto, accountInComeId: number) {
+        //收入单 出纳账户收款明细
+        const accountInComeAmountMxList = accountInComeCreateDto.accountInComeAmountMx;
+
+        //验证出纳账户收款明细
+        for (let i = 0; i < accountInComeAmountMxList.length; i++) {
+            accountInComeAmountMxList[i].accountInComeId = accountInComeId
+        }
+
+        //出纳收入单 核销的明细
+        const accountInComeSheetMx = accountInComeCreateDto.accountInComeSheetMx;
+
+        //验证核销明细
+        for (let i = 0; i < accountInComeSheetMx.length; i++) {
+            accountInComeSheetMx[i].accountInComeId = accountInComeId
+        }
+
+        return accountInComeCreateDto
+    }
+
+    //验证明细参数
+    private static async validateDetailParameters(accountInComeCreateDto: AccountInComeCreateDto) {
+        //收入单 出纳账户收款明细
+        const accountInComeAmountMxList = accountInComeCreateDto.accountInComeAmountMx;
+
+        //验证出纳账户收款明细
+        for (let i = 0; i < accountInComeAmountMxList.length; i++) {
+            await verifyParam(new AccountInComeAmountMxCreateDto(accountInComeAmountMxList[i]));
+        }
+
+        //出纳收入单 核销的明细
+        const accountInComeSheetMx = accountInComeCreateDto.accountInComeSheetMx;
+
+        if (accountInComeSheetMx.length > 0) {
+            //验证核销明细
+            for (let i = 0; i < accountInComeSheetMx.length; i++) {
+                await verifyParam(new AccountInComeSheetMxCreateDto(accountInComeSheetMx[i]));
+            }
+        }
+    }
+
+    //核销合计是否等于收款金额
+    private static async isEqual_writeOffAmount_accountAmount(accountInComeAmountMx: IAccountInComeAmountMx[], accountInComeSheetMx: IAccountInComeSheetMx[]) {
+        if (accountInComeSheetMx.length > 0) {
+            return Promise.resolve(true);
+        }
+
+        let sumAccountsReceivable: number = 0;
+        let sumAmountsThisVerify: number = 0;
+
+
+        for (let i = 0; i < accountInComeAmountMx.length; i++) {
+            sumAccountsReceivable = Number(
+                mathjs.round(
+                    mathjs.chain(
+                        mathjs.bignumber(sumAccountsReceivable)
+                    ).add(
+                        mathjs.bignumber(accountInComeAmountMx[i].accountsReceivable)
+                    ).done(), 4
+                )
+            )
+        }
+
+        for (let i = 0; i < accountInComeSheetMx.length; i++) {
+            sumAmountsThisVerify = Number(
+                mathjs.round(
+                    mathjs.chain(
+                        mathjs.bignumber(sumAccountsReceivable)
+                    ).add(
+                        mathjs.bignumber(accountInComeSheetMx[i].amountsThisVerify)
+                    ).done(), 4
+                )
+            )
+        }
+
+        //本次核销合计大于收款金额
+        if (mathjs.equal(mathjs.bignumber(sumAmountsThisVerify), mathjs.bignumber(sumAccountsReceivable))) {
+            return Promise.resolve(true);
+        } else {
+            return Promise.reject(new Error('保存失败，本次收款单核销金额不等于收款金额'))
+        }
     }
 
     public async find(accountInComeFindDto: AccountInComeFindDto) {
@@ -33,105 +153,186 @@ export class AccountInComeService {
         return await this.accountInComeEntity.findById(accountInComeId);
     }
 
-    public async create(accountInCome: IAccountInCome) {
+    public async create(accountInComeCreateDto: AccountInComeCreateDto) {
+        await AccountInComeService.validateDetailParameters(accountInComeCreateDto);
+        await AccountInComeService.isEqual_writeOffAmount_accountAmount(accountInComeCreateDto.accountInComeAmountMx, accountInComeCreateDto.accountInComeSheetMx);
+
         return this.mysqldbAls.sqlTransaction(async () => {
-            accountInCome.accountInComeCode = await this.autoCodeMxService.getAutoCode(19);
-            return await this.accountInComeEntity.create(accountInCome);
+
+            //创建单号
+            accountInComeCreateDto.accountInComeCode = await this.autoCodeMxService.getAutoCode(CodeType.accountInCome);
+
+            //创建单头
+            const createResult = await this.accountInComeEntity.create(accountInComeCreateDto);
+
+            //给明细增加Id
+            accountInComeCreateDto = AccountInComeService.accountInComeMxAddId(accountInComeCreateDto, createResult.insertId);
+
+            //创建明细
+            await this.accountInComeAmountMxService.create(accountInComeCreateDto.accountInComeAmountMx);
+
+            //只收款的情况下没有核销明细
+            if (accountInComeCreateDto.accountInComeSheetMx.length > 0) {
+                await this.accountInComeSheetMxService.create(accountInComeCreateDto.accountInComeSheetMx);
+            }
         })
     }
 
-    public async update(accountInCome: IAccountInCome) {
-        await this.findById(accountInCome.accountInComeId);
-        return await this.accountInComeEntity.update(accountInCome);
+    public async update(accountInComeUpdateDto: AccountInComeUpdateDto) {
+        const accountInCome = await this.findById(accountInComeUpdateDto.accountInComeId);
+        const accountInComeSheetMxList = await this.accountInComeSheetMxService.findById(accountInComeUpdateDto.accountInComeId);
+        //验证单头状态是否可以出纳审核
+        if (accountInCome.level1Review !== 0 && accountInCome.level2Review !== 0 && accountInCome.del_uuid !== 0) {
+            return Promise.reject(new Error('审核失败,收款单状态不正确'));
+        }
+
+        await AccountInComeService.validateDetailParameters(accountInComeUpdateDto);
+        await AccountInComeService.isEqual_writeOffAmount_accountAmount(accountInComeUpdateDto.accountInComeAmountMx, accountInComeUpdateDto.accountInComeSheetMx);
+
+        return this.mysqldbAls.sqlTransaction(async () => {
+
+            //更新单头
+            await this.accountInComeEntity.update(accountInComeUpdateDto);
+
+            //删除明细
+            await this.accountInComeAmountMxService.deleteById(accountInComeUpdateDto.accountInComeId);
+            //更新前如果有核销明细要删除
+            if (accountInComeSheetMxList.length > 0) {
+                await this.accountInComeSheetMxService.deleteById(accountInComeUpdateDto.accountInComeId);
+            }
+
+            //给明细增加Id
+            accountInComeUpdateDto = AccountInComeService.accountInComeMxAddId(accountInComeUpdateDto, accountInComeUpdateDto.accountInComeId);
+
+            //创建明细
+            await this.accountInComeAmountMxService.create(accountInComeUpdateDto.accountInComeAmountMx);
+            //只收款的情况下没有核销明细
+            if (accountInComeUpdateDto.accountInComeSheetMx.length > 0) {
+                await this.accountInComeSheetMxService.create(accountInComeUpdateDto.accountInComeSheetMx);
+            }
+        })
     }
 
-    public async delete_data(accountInComeId: number, userName: string) {
-        await this.findById(accountInComeId);
-        return await this.accountInComeEntity.delete_data(accountInComeId, userName);
+    public async deleteById(accountInComeId: number, userName: string) {
+        const accountInCome = await this.findById(accountInComeId);
+
+        //验证单头状态是否可以出纳审核
+        if (accountInCome.level1Review !== 0 && accountInCome.level2Review !== 0 && accountInCome.del_uuid !== 0) {
+            return Promise.reject(new Error('审核失败,收款单状态不正确'));
+        }
+
+        return await this.accountInComeEntity.deleteById(accountInComeId, userName);
     }
 
     public async level1Review(accountInComeId: number, userName: string) {
         return this.mysqldbAls.sqlTransaction(async () => {
             const accountInCome = await this.findById(accountInComeId);
-            await this.accountInComeEntity.level1Review(accountInComeId, userName);
+            const accountInComeAmountMxList = await this.accountInComeAmountMxService.findById(accountInComeId);
+            const accountInComeSheetMxList = await this.accountInComeSheetMxService.findById(accountInComeId);
 
             //验证单头状态是否可以出纳审核
             if (accountInCome.level1Review !== 0 && accountInCome.level2Review !== 0 && accountInCome.del_uuid !== 0) {
                 return Promise.reject(new Error('审核失败,收款单状态不正确'));
             }
 
-            //获取收款单收款明细
-            const accountInComeAmountMxList = await this.accountInComeAmountMxService.find(accountInCome.accountInComeId);
+            await this.accountInComeEntity.level1Review(accountInComeId, userName);
 
-            for (let i = 0; i < accountInComeAmountMxList.length; i++) {
-                const accountInComeAmountMx = accountInComeAmountMxList[i];
+            //创建出纳记录数组
+            const accountRecordList: IAccountRecord[] = AccountInComeService.getAccountRecordList(accountInCome, accountInComeAmountMxList);
 
-                //增加出纳收款
-                await this.accountRecordService.create({
-                    accountId: accountInComeAmountMx.accountId,
-                    accountRecordId: 0,
-                    correlationId: accountInCome.accountInComeId,
-                    correlationType: CodeType.SR,
-                    creater: userName,
-                    createdAt: new Date(),
-                    creditQty: 0,
-                    balanceQty: 0,
-                    debitQty: accountInComeAmountMx.amount,
-                    indate: accountInCome.indate,
-                    openQty: 0,
-                    reMark: "",
-                    relatedNumber: ""
-                });
-
-                //增加应收收款
-                const createAccountsReceivableResult = await this.accountsReceivableService.create({
-                    accountsReceivableId: 0,
-                    accountsReceivableType: AccountCategory.accountsReceivable,
-                    amounts: accountInComeAmountMx.accountsReceivable,
-                    checkedAmounts: 0,
-                    notCheckAmounts: accountInComeAmountMx.accountsReceivable,
-                    clientid: accountInCome.clientid,
-                    correlationId: accountInCome.accountInComeId,
-                    correlationType: CodeType.SR,
-                    createdAt: new Date(),
-                    creater: userName,
-                    del_uuid: 0,
-                    deletedAt: null,
-                    deleter: "",
-                    inDate: accountInCome.indate,
-                    updatedAt: null,
-                    updater: ""
-                })
-
-                await this.accountsReceivableMxService.create({
-                    accountReceivableMxId: 0,
-                    accountsReceivableId: createAccountsReceivableResult.insertId,
-                    actuallyReceived: 0,
-                    advancesReceived: accountInComeAmountMx.accountsReceivable,
-                    correlationId: accountInCome.accountInComeId,
-                    correlationType: CodeType.SR,
-                    createdAt: new Date(),
-                    creater: userName,
-                    inDate: accountInCome.indate,
-                    abstract: "",
-                    reMark: "",
-                    receivables: 0,
-                    updatedAt: null,
-                    updater: ""
-                })
+            if (accountInComeSheetMxList.length === 0) {
+                //创建出纳记录
+                for (let i = 0; i < accountRecordList.length; i++) {
+                    await this.accountRecordService.create(accountRecordList[i]);
+                }
+                //创建预收款数组
+                await this.createAccountsReceivable(accountInCome, accountInComeAmountMxList);
+            } else {
+                //创建出纳记录
+                for (let i = 0; i < accountRecordList.length; i++) {
+                    await this.accountRecordService.create(accountRecordList[i]);
+                }
+                for (let i = 0; i < accountInComeSheetMxList.length; i++) {
+                    const accountInComeSheetMx = accountInComeSheetMxList[i];
+                    const accountsReceivableSubjectMx: IAccountsReceivableSubjectMx = {
+                        accountsReceivableSubjectMxId: 0,
+                        accountsReceivableId: accountInComeSheetMx.correlationId,
+                        inDate: accountInCome.indate,
+                        correlationId: accountInCome.accountInComeId,
+                        correlationType: CodeType.accountInCome,
+                        debit: 0,
+                        credit: accountInComeSheetMx.amountsThisVerify,
+                        creater: accountInCome.creater,
+                        createdAt: accountInCome.createdAt,
+                        abstract: "",
+                        reMark: "",
+                    }
+                    await this.accountsReceivableService.createAccountsReceivableSubject(accountsReceivableSubjectMx);
+                }
             }
 
-            // await this.accountRecordService.create(accountRecord);
-            // await this.accountRecordService.countAccountQty(accountRecord.accountId);
+
         })
     }
 
     public async unLevel1Review(accountInComeId: number) {
         return this.mysqldbAls.sqlTransaction(async () => {
             const accountInCome = await this.findById(accountInComeId);
+            if (accountInCome.level1Review !== 1 || accountInCome.level2Review !== 0 || accountInCome.del_uuid !== 0) {
+                return Promise.reject(new Error("审核失败,单据状态不正确"));
+            }
             await this.accountInComeEntity.unLevel1Review(accountInComeId);
-            // await this.accountRecordService.delete_data(accountInComeId, 0);
-            // await this.accountRecordService.countAccountQty(accountInCome.accountId);
+
+            //删除出纳记录
+            await this.accountRecordService.delete_data(accountInCome.accountInComeId, CodeType.accountInCome);
+
+            //删除收款单相关的 账款明细记录
+            //查询 明细记录计算得出已核销未核销
+            await this.accountsReceivableService.deleteMxByCorrelation(accountInCome.accountInComeId, CodeType.accountInCome);
+
+            //删除此单生成的应收账款
+            await this.accountsReceivableService.deleteByCorrelation(accountInCome.accountInComeId, CodeType.accountInCome);
         })
+    }
+
+    private async createAccountsReceivable(accountInCome: IAccountInCome, accountInComeAmountMxList: IAccountInComeAmountMx[]) {
+        let amounts: number = 0;
+        for (let i = 0; i < accountInComeAmountMxList.length; i++) {
+            const accountInComeAmountMx = accountInComeAmountMxList[i];
+
+            //计算收款产生多少应收账款
+            amounts = Number(mathjs.round(
+                mathjs.chain(
+                    mathjs.bignumber(amounts)
+                ).add(
+                    mathjs.bignumber(accountInComeAmountMx.accountsReceivable)
+                ).done(
+                ), 4));
+        }
+
+        //创建预收账款
+        const accountsReceivable: IAccountsReceivable = {
+            accountsReceivableId: 0,
+            accountsReceivableType: AccountCategoryType.advancePayment,
+            inDate: accountInCome.indate,
+            clientid: accountInCome.clientid,
+
+            correlationId: accountInCome.accountInComeId,
+            correlationType: CodeType.accountInCome,
+
+            amounts: amounts,
+            checkedAmounts: 0,
+            notCheckAmounts: amounts,
+
+            creater: accountInCome.level1Name,
+            createdAt: new Date(),
+            updater: "",
+            updatedAt: null,
+            del_uuid: 0,
+            deletedAt: null,
+            deleter: "",
+        }
+        await this.accountsReceivableService.createAccountsReceivable(accountsReceivable);
+
     }
 }

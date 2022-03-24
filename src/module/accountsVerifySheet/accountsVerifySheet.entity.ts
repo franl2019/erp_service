@@ -110,7 +110,7 @@ export class AccountsVerifySheetEntity {
         }
 
         //分页查询
-        if (findDto.page >= 0 && findDto.pagesize >= 0) {
+        if (findDto.page > 0 && findDto.pagesize > 0) {
             sql = sql + ` LIMIT ?,?`;
             params.push(findDto.page, findDto.pagesize);
         }

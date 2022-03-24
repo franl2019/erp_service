@@ -4,6 +4,7 @@ import {IAccountRecordFindDto} from "./dto/accountRecordFind.dto";
 import {ResultSetHeader} from "mysql2/promise";
 import {Injectable} from "@nestjs/common";
 import {CashBankDepositJournalDto} from "./dto/cashBankDepositJournal.dto";
+import {CodeType} from "../autoCode/codeType";
 
 @Injectable()
 export class AccountRecordEntity {
@@ -98,7 +99,7 @@ export class AccountRecordEntity {
         }
 
         //分页查询
-        if (findDto.page >= 0 && findDto.pagesize >= 0) {
+        if (findDto.page > 0 && findDto.pagesize > 0) {
             sql = sql + ` LIMIT ?,?`;
             params.push(findDto.page, findDto.pagesize);
         }
@@ -107,7 +108,7 @@ export class AccountRecordEntity {
         return res as IAccountRecord[];
     }
 
-    public async create(account_record: IAccountRecord) {
+    public async create(accountRecord: IAccountRecord) {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `INSERT INTO account_record (
                     	account_record.accountRecordId,
@@ -125,19 +126,19 @@ export class AccountRecordEntity {
                         account_record.correlationType
                     	) VALUES ?`;
         const [res] = await conn.query<ResultSetHeader>(sql, [[[
-            account_record.accountRecordId,
-            account_record.accountId,
-            account_record.indate,
-            account_record.openQty,
-            account_record.debitQty,
-            account_record.creditQty,
-            account_record.balanceQty,
-            account_record.reMark,
-            account_record.relatedNumber,
-            account_record.creater,
-            account_record.createdAt,
-            account_record.correlationId,
-            account_record.correlationType
+            accountRecord.accountRecordId,
+            accountRecord.accountId,
+            accountRecord.indate,
+            accountRecord.openQty,
+            accountRecord.debitQty,
+            accountRecord.creditQty,
+            accountRecord.balanceQty,
+            accountRecord.reMark,
+            accountRecord.relatedNumber,
+            accountRecord.creater,
+            accountRecord.createdAt,
+            accountRecord.correlationId,
+            accountRecord.correlationType
         ]]]);
         if (res.affectedRows > 0 && res.insertId !== 0) {
             return res;
@@ -146,7 +147,7 @@ export class AccountRecordEntity {
         }
     }
 
-    public async delete_data(correlationId: number, type: number) {
+    public async delete_data(correlationId: number, type: CodeType.accountInCome | CodeType.FK) {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `DELETE FROM account_record WHERE account_record.correlationId = ? AND account_record.correlationType = ?`;
         const [res] = await conn.query<ResultSetHeader>(sql, [correlationId, type]);
@@ -167,6 +168,7 @@ export class AccountRecordEntity {
             return [];
         }
     }
+
     public async cashBankDepositJournal(cashBankDepositJournalDto: CashBankDepositJournalDto) {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `call cashBankDepositJournal(?,?,?);`;

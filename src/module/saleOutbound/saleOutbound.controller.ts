@@ -6,6 +6,7 @@ import {FindOutboundDto} from "../outbound/dto/find.dto";
 import {OutboundDto} from "../outbound/dto/outbound.dto";
 import {DeleteOutboundDto} from "../outbound/dto/deleteOutbound.dto";
 import {Level1ReviewSaleOutboundDto} from "./dto/level1ReviewSaleOutbound.dto";
+import {Level2ReviewSaleOutboundDto} from "./dto/level2ReviewSaleOutbound.dto";
 
 @Controller('erp/saleOutbound')
 export class SaleOutboundController {
@@ -78,6 +79,24 @@ export class SaleOutboundController {
     @Post("unL1Review")
     public async unLevel1Review(@Body() level1ReviewSaleOutboundDto: Level1ReviewSaleOutboundDto, @ReqState() state: State) {
         await this.saleOutboundService.unLevel1Review(level1ReviewSaleOutboundDto.outboundid, state);
+        return {
+            code: 200,
+            msg: "撤审成功"
+        };
+    }
+
+    @Post("l2Review")
+    public async level2Review(@Body() level2ReviewSaleOutboundDto: Level2ReviewSaleOutboundDto, @ReqState() state: State) {
+        await this.saleOutboundService.level2Review(level2ReviewSaleOutboundDto.outboundid, state.user.username);
+        return {
+            code: 200,
+            msg: "审核成功"
+        };
+    }
+
+    @Post("unL2Review")
+    public async unLevel2Review(@Body() level2ReviewSaleOutboundDto: Level2ReviewSaleOutboundDto, @ReqState() state: State) {
+        await this.saleOutboundService.unLevel2Review(level2ReviewSaleOutboundDto.outboundid);
         return {
             code: 200,
             msg: "撤审成功"

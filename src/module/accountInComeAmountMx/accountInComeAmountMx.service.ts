@@ -10,19 +10,15 @@ export class AccountInComeAmountMxService {
     ) {
     }
 
-    public async findById(accountInComeAmountMxId: number) {
-        return await this.accountInComeAmountMxEntity.findById(accountInComeAmountMxId);
+    public async findById(accountInComeId: number) {
+        return await this.accountInComeAmountMxEntity.findById(accountInComeId);
     }
 
-    public async find(accountInComeAmountId: number) {
-        return await this.accountInComeAmountMxEntity.find(accountInComeAmountId);
+    public async create(accountInComeAmountMxList: IAccountInComeAmountMx[]) {
+        return await this.accountInComeAmountMxEntity.create(accountInComeAmountMxList);
     }
 
-    public async create(account_income_amount_mx: IAccountInComeAmountMx) {
-        return await this.accountInComeAmountMxEntity.create(account_income_amount_mx);
-    }
-
-    public async deleteById(accountInComeAmountId: number) {
-        return await this.accountInComeAmountMxEntity.deleteById(accountInComeAmountId);
+    public async deleteById(accountInComeId: number) {
+        return await this.accountInComeAmountMxEntity.deleteById(accountInComeId);
     }
 }
