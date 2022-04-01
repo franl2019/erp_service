@@ -95,8 +95,6 @@ export class AccountsReceivableEntity {
         }
 
         const [res] = await conn.query(sql, params);
-        await console.log(sql)
-        await console.log(res)
         if ((res as IAccountsReceivableFind[]).length > 0) {
             return (res as IAccountsReceivableFind[]);
         } else {

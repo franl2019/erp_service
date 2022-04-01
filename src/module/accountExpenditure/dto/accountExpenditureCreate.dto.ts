@@ -3,9 +3,9 @@ import {IsArray, IsDateString, IsInt, IsNumber, IsString} from "class-validator"
 import {IAccountExpenditureAmountMx} from "../../accountExpenditureAmountMx/accountExpenditureAmountMx";
 import {IAccountExpenditureSheetMx} from "../../accountExpenditureSheetMx/accountExpenditureSheetMx";
 
-export interface IAccountExpenditureCreate extends IAccountExpenditure{
-    accountExpenditureAmountMx:IAccountExpenditureAmountMx[]
-    accountExpenditureSheetMx:IAccountExpenditureSheetMx[]
+export interface IAccountExpenditureCreate extends IAccountExpenditure {
+    accountExpenditureAmountMx: IAccountExpenditureAmountMx[]
+    accountExpenditureSheetMx: IAccountExpenditureSheetMx[]
 }
 
 export class AccountExpenditureCreateDto implements IAccountExpenditureCreate {
@@ -40,7 +40,7 @@ export class AccountExpenditureCreateDto implements IAccountExpenditureCreate {
     deleter: string
     deletedAt: Date;
     @IsArray()
-    accountExpenditureAmountMx:IAccountExpenditureAmountMx[]
+    accountExpenditureAmountMx: IAccountExpenditureAmountMx[]
     @IsArray()
-    accountExpenditureSheetMx:IAccountExpenditureSheetMx[]
+    accountExpenditureSheetMx: IAccountExpenditureSheetMx[]
 }

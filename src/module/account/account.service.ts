@@ -14,11 +14,15 @@ export class AccountService {
     ) {
     }
 
+    public async findAuthByUserId(userid: number) {
+        return await this.accountEntity.findAuthByUserId(userid);
+    }
+
     public async findOne(accountId: number) {
         return await this.accountEntity.findOne(accountId);
     }
 
-    public async find(findAccountDto:FindAccountDto) {
+    public async find(findAccountDto: FindAccountDto) {
         return await this.accountEntity.find(findAccountDto);
     }
 
@@ -26,7 +30,7 @@ export class AccountService {
         return await this.accountEntity.create(accountList);
     }
 
-    public async update(account: IAccount,state:IState) {
+    public async update(account: IAccount, state: IState) {
         return await this.mysqldbAls.sqlTransaction(async () => {
             const account_db = await this.accountEntity.findOne(account.accountId);
             account_db.accountCode = account.accountCode;

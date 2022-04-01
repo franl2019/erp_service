@@ -16,8 +16,9 @@ export class AccountExpenditureEntity {
         const sql = `SELECT
                     account_expenditure.accountExpenditureId,
                     account_expenditure.accountExpenditureCode,
-                    account_expenditure.buyid,
                     account_expenditure.accountExpenditureType,
+                    account_expenditure.indate,
+                    account_expenditure.buyid,
                     account_expenditure.amount,
                     account_expenditure.reMark,
                     account_expenditure.creater,
@@ -53,8 +54,9 @@ export class AccountExpenditureEntity {
         let sql = `SELECT
                     account_expenditure.accountExpenditureId,
                     account_expenditure.accountExpenditureCode,
-                    account_expenditure.buyid,
                     account_expenditure.accountExpenditureType,
+                    account_expenditure.indate,
+                    account_expenditure.buyid,
                     account_expenditure.amount,
                     account_expenditure.reMark,
                     account_expenditure.creater,
@@ -69,9 +71,11 @@ export class AccountExpenditureEntity {
                     account_expenditure.level2Date,
                     account_expenditure.del_uuid,
                     account_expenditure.deleter,
-                    account_expenditure.deletedAt
+                    account_expenditure.deletedAt,
+                    buy.buyname
                 FROM
                     account_expenditure
+                    inner join buy ON account_expenditure.buyid = buy.buyid
                 WHERE 
                     account_expenditure.del_uuid = 0`;
         const params = [];
@@ -90,8 +94,8 @@ export class AccountExpenditureEntity {
 
         //按出纳支出单号查询
         if (findDto.accountExpenditureCode) {
-            sql = sql + ` AND account_expenditure.accountExpenditureCode = ?`;
-            params.push(findDto.accountExpenditureCode);
+            sql = sql + ` AND account_expenditure.accountExpenditureCode LIKE ?`;
+            params.push(`${findDto.accountExpenditureCode}%`);
         }
 
         //按出仓日期范围查询
@@ -114,8 +118,9 @@ export class AccountExpenditureEntity {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `INSERT INTO account_expenditure (
                     account_expenditure.accountExpenditureCode,
-                    account_expenditure.buyid,
                     account_expenditure.accountExpenditureType,
+                    account_expenditure.indate,
+                    account_expenditure.buyid,
                     account_expenditure.amount,
                     account_expenditure.reMark,
                     account_expenditure.creater,
@@ -125,8 +130,9 @@ export class AccountExpenditureEntity {
             [
                 [
                     account_expenditure.accountExpenditureCode,
-                    account_expenditure.buyid,
                     account_expenditure.accountExpenditureType,
+                    account_expenditure.indate,
+                    account_expenditure.buyid,
                     account_expenditure.amount,
                     account_expenditure.reMark,
                     account_expenditure.creater,
@@ -146,8 +152,9 @@ export class AccountExpenditureEntity {
         const sql = `UPDATE
                         account_expenditure 
                      SET
-                        account_expenditure.buyid = ?,
                         account_expenditure.accountExpenditureType = ?,
+                        account_expenditure.indate = ?,
+                        account_expenditure.buyid = ?,
                         account_expenditure.amount = ?,
                         account_expenditure.reMark = ?,
                         account_expenditure.updater = ?,
@@ -155,9 +162,9 @@ export class AccountExpenditureEntity {
                      WHERE 
                         account_expenditure.accountExpenditureId = ?`;
         const [res] = await conn.query<ResultSetHeader>(sql, [
-            account_expenditure.accountExpenditureCode,
-            account_expenditure.buyid,
             account_expenditure.accountExpenditureType,
+            account_expenditure.indate,
+            account_expenditure.buyid,
             account_expenditure.amount,
             account_expenditure.reMark,
             account_expenditure.updater,
@@ -215,20 +222,13 @@ export class AccountExpenditureEntity {
         }
     }
 
-    public async deleteById(accountExpenditureId: number, userName: string) {
+    public async deleteById(accountExpenditureId: number) {
         const conn = await this.mysqldbAls.getConnectionInAls();
-        const sql = `UPDATE
+        const sql = `DELETE FROM
                         account_expenditure
-                     SET 
-                        account_expenditure.del_uuid = ?,
-                        account_expenditure.deleter = ?,
-                        account_expenditure.deletedAt = ?
                      WHERE 
                         account_expenditure.accountExpenditureId = ?`;
         const [res] = await conn.query<ResultSetHeader>(sql, [
-            accountExpenditureId,
-            userName,
-            new Date(),
             accountExpenditureId
         ]);
         if (res.affectedRows > 0) {

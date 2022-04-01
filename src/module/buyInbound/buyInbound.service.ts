@@ -78,7 +78,7 @@ export class BuyInboundService {
                 accountsPayableId: 0,
                 accountsPayableType: AccountCategoryType.accountsPayable,
                 correlationId: inbound.inboundid,
-                correlationType: CodeType.CG,
+                correlationType: CodeType.buyInbound,
                 buyid: inbound.buyid,
                 inDate: inbound.indate,
                 amounts: amounts,
@@ -102,8 +102,10 @@ export class BuyInboundService {
     //撤销财审
     public async unLevel2Review(inboundId: number, userName: string) {
         return this.mysqldbAls.sqlTransaction(async ()=>{
+            await this.accountsPayableService.deleteMxByCorrelation(inboundId,CodeType.buyInbound);
+            await this.accountsPayableService.deleteByCorrelation(inboundId,CodeType.buyInbound);
             await this.inboundService.unLevel2Review(inboundId, userName);
-            await this.accountsPayableService.deleteByCorrelation(inboundId,CodeType.CG);
+
         })
     }
 }

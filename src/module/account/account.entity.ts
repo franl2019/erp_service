@@ -87,6 +87,32 @@ export class AccountEntity {
         return res as IAccount[]
     }
 
+    public async findAuthByUserId(userid:number){
+        const conn = await this.mysqldbAls.getConnectionInAls();
+        const sql = `SELECT
+                        account.currencyid,
+                        account.accountCode,
+                        account.accountName,
+                        account.accountType,
+                        account.companyFlag,
+                        account.creater,
+                        account.createdAt,
+                        account.updater,
+                        account.updatedAt,
+                        account.useFlag,
+                        account.del_uuid,
+                        account.deleter,
+                        account.deletedAt,
+                        account.accountId
+                     FROM
+                        account
+                        INNER JOIN user_account_mx ON account.accountId = user_account_mx.accountId
+                     WHERE
+                        user_account_mx.userid = ?`;
+        const [res] = await conn.query(sql,[userid]);
+        return res as IAccount[]
+    }
+
     public async create(accountList: IAccount[]) {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `INSERT INTO account (

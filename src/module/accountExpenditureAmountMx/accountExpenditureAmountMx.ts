@@ -6,7 +6,7 @@ export interface IAccountExpenditureAmountMx {
     amount:number;
     receivingAccount:string;
     payee:string;
-    reMack1:string;
-    reMack2:string;
-    reMack3:string;
+    reMark1:string;
+    reMark2:string;
+    reMark3:string;
 }

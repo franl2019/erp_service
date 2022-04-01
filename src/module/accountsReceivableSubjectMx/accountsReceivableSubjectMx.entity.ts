@@ -38,7 +38,6 @@ export class AccountsReceivableSubjectMxEntity {
     }
 
     public async create(accountsReceivableSubjectMx: IAccountsReceivableSubjectMx) {
-        console.log(accountsReceivableSubjectMx)
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `INSERT INTO accounts_receivable_subject_mx (
                         accounts_receivable_subject_mx.accountsReceivableId,

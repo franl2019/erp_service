@@ -20,6 +20,7 @@ import {IAccountRecord} from "../accountsRecord/accountRecord";
 import {IAccountExpenditure} from "./accountExpenditure";
 import * as mathjs from "mathjs";
 import {AccountsPayableService} from "../accountsPayable/accountsPayable.service";
+import {AccountCategoryType} from "../accountsVerifySheetMx/accountCategoryType";
 
 @Injectable()
 export class AccountExpenditureService {
@@ -71,7 +72,7 @@ export class AccountExpenditureService {
     }
 
     //创建出纳付款记录
-    private static async createAccountRecord(accountExpenditure: IAccountExpenditure, accountExpenditureAmountMx: IAccountExpenditureAmountMx[]) {
+    private static createAccountRecord(accountExpenditure: IAccountExpenditure, accountExpenditureAmountMx: IAccountExpenditureAmountMx[]) {
         const accountRecordList: IAccountRecord[] = []
         const accountExpenditureAmountMxList = accountExpenditureAmountMx;
         for (let i = 0; i < accountExpenditureAmountMxList.length; i++) {
@@ -119,9 +120,11 @@ export class AccountExpenditureService {
             sumAmountsThisVerify = Number(
                 mathjs.round(
                     mathjs.chain(
-                        mathjs.bignumber(sumAccountsPayable)
+                        mathjs.bignumber(sumAmountsThisVerify)
                     ).add(
                         mathjs.bignumber(accountExpenditureSheetMxList[i].amountsThisVerify)
+                    ).add(
+                        mathjs.bignumber(accountExpenditureSheetMxList[i].amountsMantissa)
                     ).done(), 4
                 )
             )
@@ -144,6 +147,14 @@ export class AccountExpenditureService {
     }
 
     public async create(accountExpenditureCreateDto: AccountExpenditureCreateDto) {
+        if (accountExpenditureCreateDto.buyid === 0) {
+            return Promise.reject(new Error("请选择供应商"));
+        }
+
+        if (accountExpenditureCreateDto.amount === 0 || accountExpenditureCreateDto.accountExpenditureAmountMx.length === 0) {
+            return Promise.reject(new Error("缺少付款明细"));
+        }
+
         return this.mysqldbAls.sqlTransaction(async () => {
             //验证参数
             await AccountExpenditureService.validationParameters(accountExpenditureCreateDto);
@@ -157,16 +168,28 @@ export class AccountExpenditureService {
             const result = await this.accountExpenditureEntity.create(accountExpenditureCreateDto);
             //明细添加单头Id
             const accountExpenditureAmountMxList = await AccountExpenditureService.addIdForAmountMxList(accountExpenditureCreateDto.accountExpenditureAmountMx, result.insertId);
-            const accountExpenditureSheetMxList = await AccountExpenditureService.addIdForSheetMxList(accountExpenditureCreateDto.accountExpenditureSheetMx, result.insertId);
             //创建明细
             await this.accountExpenditureAmountMxService.create(accountExpenditureAmountMxList);
-            await this.accountExpenditureSheetMxService.create(accountExpenditureSheetMxList);
+
+            if (accountExpenditureCreateDto.accountExpenditureSheetMx.length > 0) {
+                const accountExpenditureSheetMxList = await AccountExpenditureService.addIdForSheetMxList(accountExpenditureCreateDto.accountExpenditureSheetMx, result.insertId);
+                await this.accountExpenditureSheetMxService.create(accountExpenditureSheetMxList);
+            }
         })
     }
 
     public async update(accountExpenditureUpdateDto: AccountExpenditureUpdateDto) {
+        if (accountExpenditureUpdateDto.buyid === 0) {
+            return Promise.reject(new Error("请选择供应商"));
+        }
+
+        if (accountExpenditureUpdateDto.amount === 0 || accountExpenditureUpdateDto.accountExpenditureAmountMx.length === 0) {
+            return Promise.reject(new Error("缺少付款明细"));
+        }
+
         return this.mysqldbAls.sqlTransaction(async () => {
             const accountExpenditure = await this.findById(accountExpenditureUpdateDto.accountExpenditureId);
+            const accountExpenditureSheetMxList_db = await this.accountExpenditureSheetMxService.findById(accountExpenditureUpdateDto.accountExpenditureId)
             //状态是否可以更新
             if (accountExpenditure.level1Review !== 0 && accountExpenditure.level2Review !== 0) {
                 return Promise.reject(new Error("更新失败，请先撤审此单据"));
@@ -185,12 +208,17 @@ export class AccountExpenditureService {
 
             //更新单头
             await this.accountExpenditureEntity.update(accountExpenditureUpdateDto);
+
             //删除明细
             await this.accountExpenditureAmountMxService.deleteById(accountExpenditure.accountExpenditureId);
-            await this.accountExpenditureSheetMxService.deleteById(accountExpenditure.accountExpenditureId);
             //更新明细
             await this.accountExpenditureAmountMxService.create(accountExpenditureAmountMxList);
-            await this.accountExpenditureSheetMxService.create(accountExpenditureSheetMxList);
+
+            if (accountExpenditureSheetMxList_db.length > 0) {
+                await this.accountExpenditureSheetMxService.deleteById(accountExpenditure.accountExpenditureId);
+                await this.accountExpenditureSheetMxService.create(accountExpenditureSheetMxList);
+            }
+
         })
     }
 
@@ -198,6 +226,7 @@ export class AccountExpenditureService {
         return this.mysqldbAls.sqlTransaction(async () => {
             const accountExpenditure = await this.findById(accountExpenditureId);
             accountExpenditure.level1Name = userName;
+            accountExpenditure.level1Date = new Date();
             //状态是否可以更新
             if (accountExpenditure.level1Review !== 0 && accountExpenditure.level2Review !== 0) {
                 return Promise.reject(new Error("审核失败，请先撤审此单据"));
@@ -205,33 +234,78 @@ export class AccountExpenditureService {
             const accountExpenditureAmountMxList = await this.accountExpenditureAmountMxService.findById(accountExpenditureId)
             const accountExpenditureSheetMxList = await this.accountExpenditureSheetMxService.findById(accountExpenditureId)
 
-            if (accountExpenditureSheetMxList.length <= 0) {
+            if (accountExpenditureSheetMxList.length === 0) {
                 //创建出纳记录
-                await AccountExpenditureService.createAccountRecord(accountExpenditure, accountExpenditureAmountMxList);
+                const accountRecords = AccountExpenditureService.createAccountRecord(accountExpenditure, accountExpenditureAmountMxList);
+                for (let i = 0; i < accountRecords.length; i++) {
+                    const accountRecord = accountRecords[i];
+                    await this.accountRecordService.create(accountRecord);
+                    await this.accountsPayableService.createAccountPayable({
+                        accountsPayableId: 0,
+                        accountsPayableType: AccountCategoryType.prepayments,
+                        correlationId: accountExpenditure.accountExpenditureId,
+                        correlationType: CodeType.accountExpenditure,
+                        amounts: accountRecord.creditQty,
+                        buyid: accountExpenditure.buyid,
+                        checkedAmounts: 0,
+                        inDate: accountExpenditure.indate,
+                        notCheckAmounts: accountRecord.creditQty,
+                        creater: accountExpenditure.level1Name,
+                        createdAt: new Date(),
+                        updater: "",
+                        updatedAt: null,
+                        del_uuid: 0,
+                        deletedAt: null,
+                        deleter: ""
+
+                    })
+                }
+
             } else {
                 //创建出纳记录
-                await AccountExpenditureService.createAccountRecord(accountExpenditure, accountExpenditureAmountMxList);
+                const accountRecords = AccountExpenditureService.createAccountRecord(accountExpenditure, accountExpenditureAmountMxList);
+                for (let i = 0; i < accountRecords.length; i++) {
+                    const accountRecord = accountRecords[i];
+                    await this.accountRecordService.create(accountRecord);
+                }
 
                 //核销明细
                 for (let i = 0; i < accountExpenditureSheetMxList.length; i++) {
                     const accountExpenditureSheetMx = accountExpenditureSheetMxList[i];
+                    //本次核销
                     await this.accountsPayableService.createAccountsPayableSubject({
                         accountsPayableSubjectMxId: 0,
                         accountsPayableId: accountExpenditureSheetMx.correlationId,
                         inDate: accountExpenditure.indate,
                         correlationId: accountExpenditure.accountExpenditureId,
                         correlationType: CodeType.accountExpenditure,
-                        debit: 0,
-                        credit: accountExpenditureSheetMx.amountsThisVerify,
+                        debit: accountExpenditureSheetMx.amountsThisVerify,
+                        credit: 0,
                         creater: accountExpenditure.level1Name,
-                        createdAt: new Date(),
+                        createdAt: accountExpenditure.level1Date,
                         abstract: "",
                         reMark: "",
                     })
+                    //冲尾数
+                    if(accountExpenditureSheetMx.amountsMantissa>0){
+                        await this.accountsPayableService.createAccountsPayableSubject({
+                            accountsPayableSubjectMxId: 0,
+                            accountsPayableId: accountExpenditureSheetMx.correlationId,
+                            inDate: accountExpenditure.indate,
+                            correlationId: accountExpenditure.accountExpenditureId,
+                            correlationType: CodeType.accountExpenditure,
+                            debit: 0,
+                            credit: -accountExpenditureSheetMx.amountsMantissa,
+                            creater: accountExpenditure.level1Name,
+                            createdAt: accountExpenditure.level1Date,
+                            abstract: `采购付款单冲尾数${accountExpenditureSheetMx.amountsMantissa}`,
+                            reMark: "",
+                        })
+                    }
                 }
             }
 
-            await this.accountExpenditureEntity.level1Review(accountExpenditureId,userName);
+            await this.accountExpenditureEntity.level1Review(accountExpenditureId, userName);
 
         });
     }
@@ -240,24 +314,36 @@ export class AccountExpenditureService {
         return this.mysqldbAls.sqlTransaction(async () => {
             const accountExpenditure = await this.findById(accountExpenditureId);
             //状态是否可以更新
-            if (accountExpenditure.level1Review !== 1 && accountExpenditure.level2Review !== 0) {
+            if (accountExpenditure.level1Review !== 1 && accountExpenditure.level1Review + accountExpenditure.level2Review !== 0) {
                 return Promise.reject(new Error("撤审失败，请先撤审此单据"));
             }
 
+            //删除出纳记录
             await this.accountRecordService.deleteByCorrelation(accountExpenditureId, CodeType.accountExpenditure);
+            //删除应付账款科目明细
             await this.accountsPayableService.deleteMxByCorrelation(accountExpenditureId, CodeType.accountExpenditure);
+            //删除应付账款
             await this.accountsPayableService.deleteByCorrelation(accountExpenditureId, CodeType.accountExpenditure);
             await this.accountExpenditureEntity.unLevel1Review(accountExpenditureId);
         });
     }
 
-    public async deleteById(accountExpenditureId: number, userName: string) {
-        const accountExpenditure = await this.findById(accountExpenditureId);
-        //状态是否可以更新
-        if (accountExpenditure.level1Review !== 0 && accountExpenditure.level2Review !== 0 && accountExpenditure.del_uuid === 0) {
-            return Promise.reject(new Error("撤审失败，请先撤审此单据"));
-        }
+    public async deleteById(accountExpenditureId: number) {
+        return await this.mysqldbAls.sqlTransaction(async () => {
+            const accountExpenditure = await this.findById(accountExpenditureId);
+            const accountExpenditureSheetMxList = await this.accountExpenditureSheetMxService.findById(accountExpenditureId)
+            //状态是否可以更新
+            if (accountExpenditure.level1Review !== 0 && accountExpenditure.level2Review !== 0 && accountExpenditure.del_uuid === 0) {
+                return Promise.reject(new Error("撤审失败，请先撤审此单据"));
+            }
 
-        await this.accountExpenditureEntity.deleteById(accountExpenditureId, userName)
+            await this.accountExpenditureEntity.deleteById(accountExpenditureId);
+            await this.accountExpenditureAmountMxService.deleteById(accountExpenditureId);
+
+
+            if (accountExpenditureSheetMxList.length > 0) {
+                await this.accountExpenditureSheetMxService.deleteById(accountExpenditureId);
+            }
+        })
     }
 }

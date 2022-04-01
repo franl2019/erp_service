@@ -22,6 +22,16 @@ export class AccountController {
         }
     }
 
+    @Post('findAccountAuth')
+    public async findAuthByUserId(@ReqState() state: State){
+        const data = await this.accountService.findAuthByUserId(state.user.userid);
+        return {
+            code: 200,
+            msg: '查询成功',
+            data
+        }
+    }
+
     @Post('create')
     public async create(@Body() createDto: CreateAccountDto, @ReqState() state: State) {
         createDto.creater = state.user.username;

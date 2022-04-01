@@ -28,20 +28,43 @@ export class AccountsPayableService {
 
         return this.mysqldbAls.sqlTransaction(async () => {
             const result = await this.accountsPayableEntity.create(accountsPayable);
+
             accountsPayable.accountsPayableId = result.insertId;
 
             const accountsPayableSubjectMx: IAccountsPayableSubjectMx = {
-                accountsPayableId: accountsPayable.accountsPayableId,
                 accountsPayableSubjectMxId: 0,
+                accountsPayableId: accountsPayable.accountsPayableId,
                 inDate: accountsPayable.inDate,
                 correlationId: accountsPayable.correlationId,
                 correlationType: accountsPayable.correlationType,
-                credit: accountsPayable.amounts,
+                credit: 0,
                 debit: 0,
                 reMark: "",
                 abstract: "",
                 creater: accountsPayable.creater,
                 createdAt: accountsPayable.createdAt,
+            }
+
+            switch (accountsPayable.accountsPayableType) {
+                //预付账款
+                case AccountCategoryType.prepayments:
+                    if (accountsPayable.amounts > 0) {
+                        accountsPayableSubjectMx.debit = accountsPayable.amounts;
+                    } else if (accountsPayable.amounts < 0) {
+                        accountsPayableSubjectMx.credit = Math.abs(accountsPayable.amounts);
+                    }
+                    break;
+                //应付账款 || 其他应付
+                case AccountCategoryType.accountsPayable || AccountCategoryType.otherPayable:
+                    if (accountsPayable.amounts > 0) {
+                        //正数贷方 负债类 贷方增加
+                        accountsPayableSubjectMx.credit = accountsPayable.amounts;
+                    } else if (accountsPayable.amounts < 0) {
+                        accountsPayableSubjectMx.debit = Math.abs(accountsPayable.amounts);
+                    }
+                    break;
+                default:
+                    break;
             }
 
             await this.createAccountsPayableSubject(accountsPayableSubjectMx);
@@ -63,16 +86,19 @@ export class AccountsPayableService {
     }
 
     public async deleteByCorrelation(correlationId: number, correlationType: number) {
+        console.log('应付账款deleteByCorrelation')
         const accountsPayableList = await this.find({
+            correlationCode: "",
+            amounts: 0, checkedAmounts: 0, notCheckAmounts: 0,
             accountsPayableId: 0,
-            accountsPayableType: undefined,
+            accountsPayableTypeList: undefined,
             buyid: 0,
             correlationId: correlationId,
             correlationType: correlationType,
             startDate: "",
             endDate: "",
             page: 0,
-            pagesize: 0,
+            pagesize: 0
         });
 
         for (let i = 0; i < accountsPayableList.length; i++) {
@@ -86,24 +112,29 @@ export class AccountsPayableService {
     }
 
     public async deleteMxByCorrelation(correlationId: number, correlationType: number) {
+        console.log('应付账款deleteMxByCorrelation')
         return this.mysqldbAls.sqlTransaction(async () => {
-            await this.accountsPayableMxService.deleteByCorrelationId(correlationId, correlationType);
-            await this.accountsPayableSubjectMxService.deleteByCorrelation(correlationId, correlationType);
-            const accountPayableList = await this.find({
-                accountsPayableId: 0,
-                accountsPayableType: null,
-                buyid: 0,
-                correlationId: correlationId,
-                correlationType: correlationType,
-                startDate: "",
-                endDate: "",
-                page: 0,
-                pagesize: 0,
-            })
 
-            for (let i = 0; i < accountPayableList.length; i++) {
-                await this.recalculateAccountPayable(accountPayableList[i].accountsPayableId);
+
+            await this.accountsPayableMxService.deleteByCorrelationId(correlationId, correlationType);
+            const accountsPayableSubjectMxList = await this.accountsPayableSubjectMxService.findByCorrelation(correlationId, correlationType);
+            if(accountsPayableSubjectMxList&&accountsPayableSubjectMxList.length>0){
+                await this.accountsPayableSubjectMxService.deleteByCorrelation(correlationId, correlationType);
+
+                //需要重新计算应付账款ID列表
+                let needsToBeRecalculatedAccountsPayableIdList:number[] = [];
+                for (let i = 0; i < accountsPayableSubjectMxList.length; i++) {
+                    if(accountsPayableSubjectMxList[i].accountsPayableId!==0){
+                        needsToBeRecalculatedAccountsPayableIdList.push(accountsPayableSubjectMxList[i].accountsPayableId);
+                    }
+                }
+                needsToBeRecalculatedAccountsPayableIdList = Array.from(new Set(needsToBeRecalculatedAccountsPayableIdList));
+
+                for (let i = 0; i < needsToBeRecalculatedAccountsPayableIdList.length; i++) {
+                    await this.recalculateAccountPayable(needsToBeRecalculatedAccountsPayableIdList[i]);
+                }
             }
+
         })
     }
 
@@ -127,38 +158,60 @@ export class AccountsPayableService {
         }
 
         const accountsPayable = await this.findById(accountsPayableSubjectMx.accountsPayableId);
-
         switch (accountsPayable.accountsPayableType) {
             //应付账款
-            case AccountCategoryType.accountsPayable | AccountCategoryType.otherPayable:
-                //借方增加,应付账款增加
-                if (accountsPayableSubjectMx.debit) {
-                    accountsPayableMx.accountPayable = accountsPayableSubjectMx.debit;
+            case AccountCategoryType.accountsPayable || AccountCategoryType.otherPayable:
+                console.log("应付账款")
+                //负债类 贷方增加
+                if (accountsPayableSubjectMx.credit > 0) {
+                    //贷方正数 应付款 增加
+                    accountsPayableMx.accountPayable = accountsPayableSubjectMx.credit;
+                } else if (accountsPayableSubjectMx.credit < 0) {
+                    //贷方负数 应付款 减少
+                    accountsPayableMx.accountPayable = accountsPayableSubjectMx.credit;
                 }
 
-                //贷方增加，实收增加
-                if (accountsPayableSubjectMx.credit) {
-                    accountsPayableMx.actuallyPayment = accountsPayableSubjectMx.credit
+                //负债类 借方减少
+                if (accountsPayableSubjectMx.debit > 0) {
+                    //借方正数 应付款 减少
+                    accountsPayableMx.actuallyPayment = accountsPayableSubjectMx.debit;
+                } else if (accountsPayableSubjectMx.debit < 0) {
+                    //借方负数 应付款 增加
+                    accountsPayableMx.accountPayable = accountsPayableSubjectMx.debit
                 }
                 break;
             case AccountCategoryType.prepayments:
-                if (accountsPayableSubjectMx.debit) {
+                console.log("预付账款")
+                //资产类 借方增加
+                if (accountsPayableSubjectMx.debit > 0) {
+                    accountsPayableMx.advancesPayment = accountsPayableSubjectMx.debit;
+                } else if (accountsPayableSubjectMx.debit < 0) {
                     accountsPayableMx.advancesPayment = accountsPayableSubjectMx.debit;
                 }
 
-                if (accountsPayableSubjectMx.credit) {
+                if (accountsPayableSubjectMx.credit > 0) {
                     accountsPayableMx.advancesPayment = -accountsPayableSubjectMx.credit;
+                } else if (accountsPayableSubjectMx.credit < 0) {
+                    accountsPayableMx.advancesPayment = Math.abs(accountsPayableSubjectMx.credit);
                 }
                 break;
             default:
+                console.log('default')
                 break;
         }
-
+        await this.accountsPayableMxService.create(accountsPayableMx);
     }
 
+    //重新计算应付账款
     private async recalculateAccountPayable(accountsPayableId: number) {
+        console.log("重新计算应付账款")
         const accountsPayable = await this.findById(accountsPayableId);
         const accountsPayableSubjectMxList = await this.accountsPayableSubjectMxService.findById(accountsPayableId);
+
+        if (accountsPayableSubjectMxList.length === 0) {
+            return
+        }
+
         const amounts = accountsPayable.amounts;
         let checkedAmounts: number;
         let notCheckAmounts: number = 0;
@@ -168,11 +221,13 @@ export class AccountsPayableService {
             notCheckAmounts = Number(
                 round(
                     chain(bignumber(notCheckAmounts))
-                        .add(bignumber(accountsPayableSubjectMx.debit))
                         .add(bignumber(accountsPayableSubjectMx.credit))
+                        .subtract(bignumber(accountsPayableSubjectMx.debit))
                         .done(), 4)
             );
         }
+
+        await AccountsPayableService.negativeForNotCheckAmounts(notCheckAmounts);
 
         checkedAmounts = Number(
             round(
@@ -185,5 +240,17 @@ export class AccountsPayableService {
         accountsPayable.notCheckAmounts = notCheckAmounts;
 
         await this.accountsPayableEntity.update(accountsPayable);
+    }
+
+    //未检查金额为负数
+     private static async negativeForNotCheckAmounts(notCheckAmounts:number){
+
+        //账套,是否能负数
+        // if(false){
+        //     return true
+        // }
+        if(notCheckAmounts<0){
+            return Promise.reject(new Error('应付账款未核销数不能小于0,不能为负数'));
+        }
     }
 }

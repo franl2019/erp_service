@@ -17,11 +17,11 @@ export class AccountExpenditureAmountMxCreateDto implements IAccountExpenditureA
     @IsString()
     payee: string;
     @IsString()
-    reMack1: string;
+    reMark1: string;
     @IsString()
-    reMack2: string;
+    reMark2: string;
     @IsString()
-    reMack3: string;
+    reMark3: string;
 
 
     constructor(accountExpenditureAmountMx:IAccountExpenditureAmountMx) {
@@ -32,8 +32,8 @@ export class AccountExpenditureAmountMxCreateDto implements IAccountExpenditureA
         this.amount = accountExpenditureAmountMx.amount;
         this.receivingAccount = accountExpenditureAmountMx.receivingAccount;
         this.payee = accountExpenditureAmountMx.payee;
-        this.reMack1 = accountExpenditureAmountMx.reMack1;
-        this.reMack2 = accountExpenditureAmountMx.reMack2;
-        this.reMack3 = accountExpenditureAmountMx.reMack3;
+        this.reMark1 = accountExpenditureAmountMx.reMark1;
+        this.reMark2 = accountExpenditureAmountMx.reMark2;
+        this.reMark3 = accountExpenditureAmountMx.reMark3;
     }
 }

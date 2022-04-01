@@ -21,11 +21,13 @@ export class AccountExpenditureAmountMxEntity {
                         account_expenditure_amount_mx.amount,
                         account_expenditure_amount_mx.receivingAccount,
                         account_expenditure_amount_mx.payee,
-                        account_expenditure_amount_mx.reMack1,
-                        account_expenditure_amount_mx.reMack2,
-                        account_expenditure_amount_mx.reMack3
+                        account_expenditure_amount_mx.reMark1,
+                        account_expenditure_amount_mx.reMark2,
+                        account_expenditure_amount_mx.reMark3,
+                        account.accountName
                      FROM
                         account_expenditure_amount_mx
+                        left join account on account_expenditure_amount_mx.accountId = account.accountId
                      WHERE
                         account_expenditure_amount_mx.accountExpenditureId = ?`;
         const [res] = await conn.query(sql, [accountExpenditureId]);
@@ -46,9 +48,9 @@ export class AccountExpenditureAmountMxEntity {
                         account_expenditure_amount_mx.amount,
                         account_expenditure_amount_mx.receivingAccount,
                         account_expenditure_amount_mx.payee,
-                        account_expenditure_amount_mx.reMack1,
-                        account_expenditure_amount_mx.reMack2,
-                        account_expenditure_amount_mx.reMack3
+                        account_expenditure_amount_mx.reMark1,
+                        account_expenditure_amount_mx.reMark2,
+                        account_expenditure_amount_mx.reMark3
                     ) VALUES ?`;
         const [res] = await conn.query<ResultSetHeader>(sql, [
             accountExpenditureAmountMxList.map(accountExpenditureAmountMx => [
@@ -59,9 +61,9 @@ export class AccountExpenditureAmountMxEntity {
                 accountExpenditureAmountMx.amount,
                 accountExpenditureAmountMx.receivingAccount,
                 accountExpenditureAmountMx.payee,
-                accountExpenditureAmountMx.reMack1,
-                accountExpenditureAmountMx.reMack2,
-                accountExpenditureAmountMx.reMack3
+                accountExpenditureAmountMx.reMark1,
+                accountExpenditureAmountMx.reMark2,
+                accountExpenditureAmountMx.reMark3
             ])
         ]);
         if (res.affectedRows > 0) {

@@ -3,6 +3,8 @@ import {IAccountsPayable, IAccountsPayableFind} from "./accountsPayable";
 import {AccountsPayableFindDto} from "./dto/accountsPayableFind.dto";
 import {ResultSetHeader} from "mysql2/promise";
 import {Injectable} from "@nestjs/common";
+import {AccountCategoryType} from "../accountsVerifySheetMx/accountCategoryType";
+import {CodeType} from "../autoCode/codeType";
 
 @Injectable()
 export class AccountsPayableEntity {
@@ -13,6 +15,7 @@ export class AccountsPayableEntity {
     public async findById(accountsPayableId: number): Promise<IAccountsPayable> {
         const conn = this.mysqldbAls.getConnectionInAls();
         const sql: string = `SELECT
+                                accounts_payable.accountsPayableType,
                                 accounts_payable.accountsPayableId,
                                 accounts_payable.buyid,
                                 accounts_payable.inDate,
@@ -44,6 +47,7 @@ export class AccountsPayableEntity {
     public async find(findDto: AccountsPayableFindDto): Promise<IAccountsPayableFind[]> {
         const conn = this.mysqldbAls.getConnectionInAls();
         let sql: string = `SELECT
+                                accounts_payable.accountsPayableType,
                                 accounts_payable.accountsPayableId,
                                 accounts_payable.buyid,
                                 accounts_payable.inDate,
@@ -59,12 +63,25 @@ export class AccountsPayableEntity {
                                 accounts_payable.del_uuid,
                                 accounts_payable.deleter,
                                 accounts_payable.deletedAt,
-                                buy.buyname
+                                buy.buyname,
+                                (
+                                    CASE
+                                    WHEN inbound.inboundcode <> '' THEN
+                                        inbound.inboundcode
+                                    WHEN account_expenditure.accountExpenditureCode <> '' THEN
+                                        account_expenditure.accountExpenditureCode
+                                    ELSE
+                                        '[无]'
+                                    END
+                                ) AS correlationCode
                             FROM
                                 accounts_payable
                                 LEFT JOIN buy ON buy.buyid = accounts_payable.buyid
+                                LEFT JOIN inbound ON inbound.inboundid = accounts_payable.correlationId AND accounts_payable.correlationType = ${CodeType.buyInbound}
+                                LEFT JOIN account_expenditure ON accounts_payable.correlationId = account_expenditure.accountExpenditureId AND accounts_payable.correlationType = ${CodeType.accountExpenditure}
                             WHERE
-                                accounts_payable.del_uuid = 0`;
+                                accounts_payable.del_uuid = 0 
+                                AND accounts_payable.notCheckAmounts <> 0`;
         const params = [];
         if (findDto.buyid) {
             sql = sql + ` AND accounts_payable.buyid = ?`
@@ -76,15 +93,52 @@ export class AccountsPayableEntity {
             params.push(findDto.accountsPayableId);
         }
 
-        if (findDto.accountsPayableType) {
-            sql = sql + ` AND accounts_payable.accountsPayableType = ?`;
-            params.push(findDto.accountsPayableType);
+        if (findDto.accountsPayableTypeList&&findDto.accountsPayableTypeList.length > 0) {
+
+            findDto.accountsPayableTypeList = findDto.accountsPayableTypeList.map((accountsPayableType) => {
+                if (accountsPayableType === AccountCategoryType.accountsPayable ||
+                    accountsPayableType === AccountCategoryType.otherPayable ||
+                    accountsPayableType === AccountCategoryType.prepayments
+                ) {
+                    return accountsPayableType
+                }
+            })
+            sql = sql + ` AND accounts_payable.accountsPayableType IN (?)`;
+            params.push(findDto.accountsPayableTypeList);
         }
 
-        if (findDto.correlationId&&findDto.correlationType) {
+        if (findDto.correlationId && findDto.correlationType) {
             sql = sql + ` AND accounts_payable.correlationId = ?`;
             sql = sql + ` AND accounts_payable.correlationType = ?`;
-            params.push(findDto.correlationId,findDto.correlationType);
+            params.push(findDto.correlationId, findDto.correlationType);
+        }
+
+        if (findDto.correlationCode.length>0) {
+            sql = sql + ` AND (inbound.inboundcode LIKE ? OR 
+                              account_expenditure.accountExpenditureCode
+                              LIKE ?)`;
+            params.push(`%${findDto.correlationCode}%`,`%${findDto.correlationCode}%`);
+        }
+
+        if (findDto.correlationId && findDto.correlationType) {
+            sql = sql + ` AND accounts_payable.correlationId = ?`;
+            sql = sql + ` AND accounts_payable.correlationType = ?`;
+            params.push(findDto.correlationId, findDto.correlationType);
+        }
+
+        if(findDto.amounts){
+            sql = sql + ` AND accounts_payable.amounts = ?`;
+            params.push(findDto.amounts);
+        }
+
+        if(findDto.checkedAmounts){
+            sql = sql + ` AND accounts_payable.checkedAmounts = ?`;
+            params.push(findDto.checkedAmounts);
+        }
+
+        if(findDto.notCheckAmounts){
+            sql = sql + ` AND accounts_payable.notCheckAmounts = ?`;
+            params.push(findDto.notCheckAmounts);
         }
 
         //按出仓日期范围查询
@@ -110,6 +164,7 @@ export class AccountsPayableEntity {
     public async create(accountsPayable: IAccountsPayable) {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `INSERT INTO accounts_payable (
+                        accounts_payable.accountsPayableType,
                         accounts_payable.accountsPayableId,
                         accounts_payable.buyid,
                         accounts_payable.inDate,
@@ -121,6 +176,7 @@ export class AccountsPayableEntity {
                         accounts_payable.creater,
                         accounts_payable.createdAt) VALUES ?`;
         const [res] = await conn.query<ResultSetHeader>(sql, [[[
+            accountsPayable.accountsPayableType,
             accountsPayable.accountsPayableId,
             accountsPayable.buyid,
             accountsPayable.inDate,

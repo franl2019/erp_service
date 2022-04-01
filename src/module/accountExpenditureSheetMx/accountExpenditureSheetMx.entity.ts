@@ -2,6 +2,7 @@ import {Injectable} from "@nestjs/common";
 import {MysqldbAls} from "../mysqldb/mysqldbAls";
 import {IAccountExpenditureSheetMx} from "./accountExpenditureSheetMx";
 import {ResultSetHeader} from "mysql2/promise";
+import { CodeType } from "../autoCode/codeType";
 
 @Injectable()
 export class AccountExpenditureSheetMxEntity {
@@ -23,9 +24,22 @@ export class AccountExpenditureSheetMxEntity {
                         account_expenditure_sheet_mx.amountsMantissa,
                         account_expenditure_sheet_mx.amountsThisVerify,
                         account_expenditure_sheet_mx.correlationId,
-                        account_expenditure_sheet_mx.correlationType
+                        account_expenditure_sheet_mx.correlationType,
+                        (
+                          CASE
+                            WHEN inbound.inboundcode <> '' THEN
+                                inbound.inboundcode
+                            WHEN account_expenditure.accountExpenditureCode <> '' THEN
+                                account_expenditure.accountExpenditureCode
+                            ELSE
+                                '[无]'
+                            END
+                        ) AS correlationCode
                      FROM
                         account_expenditure_sheet_mx
+                        LEFT JOIN accounts_payable ON accounts_payable.accountsPayableId = account_expenditure_sheet_mx.correlationId
+                        LEFT JOIN inbound ON inbound.inboundid = accounts_payable.correlationId AND accounts_payable.correlationType = ${CodeType.buyInbound}
+                                LEFT JOIN account_expenditure ON accounts_payable.correlationId = account_expenditure.accountExpenditureId AND accounts_payable.correlationType = ${CodeType.accountExpenditure}
                      WHERE
                         account_expenditure_sheet_mx.accountExpenditureId = ?`;
         const [res] = await conn.query(sql, [accountExpenditureId]);

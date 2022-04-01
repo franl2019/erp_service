@@ -19,7 +19,7 @@ export const enum CodeType {
     // 17.采购付款单 -
     // 19.出纳收入单 -
     // 20.核销单 -
-    CG = 1,
+    buyInbound = 1,
     SC = 2,
     XS = 8,
     accountExpenditure = 17,
