@@ -123,12 +123,12 @@ export class AccountExpenditureService {
                         mathjs.bignumber(sumAmountsThisVerify)
                     ).add(
                         mathjs.bignumber(accountExpenditureSheetMxList[i].amountsThisVerify)
-                    ).add(
-                        mathjs.bignumber(accountExpenditureSheetMxList[i].amountsMantissa)
                     ).done(), 4
                 )
             )
         }
+
+
 
         //本次核销合计大于收款金额
         if (mathjs.equal(mathjs.bignumber(sumAmountsThisVerify), mathjs.bignumber(sumAccountsPayable))) {
