@@ -10,8 +10,8 @@ export class AccountInComeSheetMxService {
     ) {
     }
 
-    public async findById(accountInComeSheetMxId: number) {
-        return await this.accountInComeSheetMxEntity.findById(accountInComeSheetMxId);
+    public async findById(accountInComeId: number) {
+        return await this.accountInComeSheetMxEntity.findById(accountInComeId);
     }
 
     public async create(accountInComeSheetMxList: IAccountInComeSheetMx[]) {

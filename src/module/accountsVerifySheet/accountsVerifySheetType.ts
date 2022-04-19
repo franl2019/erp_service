@@ -6,9 +6,9 @@ export enum AccountsVerifySheetType {
     * [4]应收转应收
     * [5]应付转应付
     * */
-    yuShouChongYinShou = 1,
-    yuFuChongYinFu = 2,
-    yinShouChongYinFu = 3,
-    yinShouZhuanYinShou = 4,
-    yinFuZhuanYinFu = 5,
+    advancePayment_accountsReceivable_1 = 1,
+    prepayments_accountsPayable_2 = 2,
+    accountsReceivable_accountsPayable_3 = 3,
+    accountsReceivable_accountsReceivable_4 = 4,
+    accountsPayable_accountsPayable_5 = 5,
 }

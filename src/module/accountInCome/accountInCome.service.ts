@@ -105,10 +105,6 @@ export class AccountInComeService {
 
     //核销合计是否等于收款金额
     private static async isEqual_writeOffAmount_accountAmount(accountInComeAmountMx: IAccountInComeAmountMx[], accountInComeSheetMx: IAccountInComeSheetMx[]) {
-        if (accountInComeSheetMx.length > 0) {
-            return Promise.resolve(true);
-        }
-
         let sumAccountsReceivable: number = 0;
         let sumAmountsThisVerify: number = 0;
 
@@ -129,7 +125,7 @@ export class AccountInComeService {
             sumAmountsThisVerify = Number(
                 mathjs.round(
                     mathjs.chain(
-                        mathjs.bignumber(sumAccountsReceivable)
+                        mathjs.bignumber(sumAmountsThisVerify)
                     ).add(
                         mathjs.bignumber(accountInComeSheetMx[i].amountsThisVerify)
                     ).done(), 4
@@ -155,7 +151,9 @@ export class AccountInComeService {
 
     public async create(accountInComeCreateDto: AccountInComeCreateDto) {
         await AccountInComeService.validateDetailParameters(accountInComeCreateDto);
-        await AccountInComeService.isEqual_writeOffAmount_accountAmount(accountInComeCreateDto.accountInComeAmountMx, accountInComeCreateDto.accountInComeSheetMx);
+        if (accountInComeCreateDto.accountInComeSheetMx.length > 0) {
+            await AccountInComeService.isEqual_writeOffAmount_accountAmount(accountInComeCreateDto.accountInComeAmountMx, accountInComeCreateDto.accountInComeSheetMx);
+        }
 
         return this.mysqldbAls.sqlTransaction(async () => {
 
@@ -180,6 +178,8 @@ export class AccountInComeService {
 
     public async update(accountInComeUpdateDto: AccountInComeUpdateDto) {
         const accountInCome = await this.findById(accountInComeUpdateDto.accountInComeId);
+
+
         const accountInComeSheetMxList = await this.accountInComeSheetMxService.findById(accountInComeUpdateDto.accountInComeId);
         //验证单头状态是否可以出纳审核
         if (accountInCome.level1Review !== 0 && accountInCome.level2Review !== 0 && accountInCome.del_uuid !== 0) {
@@ -187,7 +187,10 @@ export class AccountInComeService {
         }
 
         await AccountInComeService.validateDetailParameters(accountInComeUpdateDto);
-        await AccountInComeService.isEqual_writeOffAmount_accountAmount(accountInComeUpdateDto.accountInComeAmountMx, accountInComeUpdateDto.accountInComeSheetMx);
+
+        if (accountInComeUpdateDto.accountInComeSheetMx.length > 0) {
+            await AccountInComeService.isEqual_writeOffAmount_accountAmount(accountInComeUpdateDto.accountInComeAmountMx, accountInComeUpdateDto.accountInComeSheetMx);
+        }
 
         return this.mysqldbAls.sqlTransaction(async () => {
 
@@ -235,6 +238,10 @@ export class AccountInComeService {
                 return Promise.reject(new Error('审核失败,收款单状态不正确'));
             }
 
+            accountInCome.level1Review = 1;
+            accountInCome.level1Name = userName;
+            accountInCome.level1Date = new Date();
+
             await this.accountInComeEntity.level1Review(accountInComeId, userName);
 
             //创建出纳记录数组
@@ -268,6 +275,23 @@ export class AccountInComeService {
                         reMark: "",
                     }
                     await this.accountsReceivableService.createAccountsReceivableSubject(accountsReceivableSubjectMx);
+
+                    if (accountInComeSheetMx.amountsMantissa > 0) {
+                        const accountsReceivableSubjectMx: IAccountsReceivableSubjectMx = {
+                            accountsReceivableSubjectMxId: 0,
+                            accountsReceivableId: accountInComeSheetMx.correlationId,
+                            inDate: accountInCome.indate,
+                            correlationId: accountInCome.accountInComeId,
+                            correlationType: CodeType.accountInCome,
+                            debit: -accountInComeSheetMx.amountsMantissa,
+                            credit: 0,
+                            creater: accountInCome.creater,
+                            createdAt: accountInCome.createdAt,
+                            abstract: `冲尾数`,
+                            reMark: "",
+                        }
+                        await this.accountsReceivableService.createAccountsReceivableSubject(accountsReceivableSubjectMx);
+                    }
                 }
             }
 
@@ -278,6 +302,7 @@ export class AccountInComeService {
     public async unLevel1Review(accountInComeId: number) {
         return this.mysqldbAls.sqlTransaction(async () => {
             const accountInCome = await this.findById(accountInComeId);
+            const accountInComeSheetMxList = await this.accountInComeSheetMxService.findById(accountInComeId);
             if (accountInCome.level1Review !== 1 || accountInCome.level2Review !== 0 || accountInCome.del_uuid !== 0) {
                 return Promise.reject(new Error("审核失败,单据状态不正确"));
             }
@@ -286,9 +311,11 @@ export class AccountInComeService {
             //删除出纳记录
             await this.accountRecordService.deleteByCorrelation(accountInCome.accountInComeId, CodeType.accountInCome);
 
-            //删除收款单相关的 账款明细记录
-            //查询 明细记录计算得出已核销未核销
-            await this.accountsReceivableService.deleteMxByCorrelation(accountInCome.accountInComeId, CodeType.accountInCome);
+            if (accountInComeSheetMxList.length > 0) {
+                //删除收款单相关的 账款明细记录
+                //查询 明细记录计算得出已核销未核销
+                await this.accountsReceivableService.deleteMxByCorrelation(accountInCome.accountInComeId, CodeType.accountInCome);
+            }
 
             //删除此单生成的应收账款
             await this.accountsReceivableService.deleteByCorrelation(accountInCome.accountInComeId, CodeType.accountInCome);
@@ -313,7 +340,7 @@ export class AccountInComeService {
         //创建预收账款
         const accountsReceivable: IAccountsReceivable = {
             accountsReceivableId: 0,
-            accountsReceivableType: AccountCategoryType.advancePayment,
+            accountsReceivableType: AccountCategoryType.advancePayment2,
             inDate: accountInCome.indate,
             clientid: accountInCome.clientid,
 
@@ -325,7 +352,7 @@ export class AccountInComeService {
             notCheckAmounts: amounts,
 
             creater: accountInCome.level1Name,
-            createdAt: new Date(),
+            createdAt: accountInCome.level1Date,
             updater: "",
             updatedAt: null,
             del_uuid: 0,

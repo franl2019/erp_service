@@ -1,9 +1,9 @@
 import { IOutbound } from "../outbound";
-import { IOutbound_mx } from "../../outbound_mx/outbound_mx";
+import { IOutboundMx } from "../../outbound_mx/outbound_mx";
 import { IsArray, IsInt, IsString } from "class-validator";
 
 export interface IOutboundDto extends IOutbound {
-  outboundMx: IOutbound_mx[];
+  outboundMx: IOutboundMx[];
 }
 
 export class OutboundDto implements IOutboundDto {
@@ -57,5 +57,5 @@ export class OutboundDto implements IOutboundDto {
   @IsString()
   deleter: string;
   @IsArray()
-  outboundMx: IOutbound_mx[];
+  outboundMx: IOutboundMx[];
 }

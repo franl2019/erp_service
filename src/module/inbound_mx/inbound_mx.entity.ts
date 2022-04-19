@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { ResultSetHeader } from "mysql2/promise";
-import { IInbound_mx, Inbound_mx } from "./inbound_mx";
+import { IInboundMx, InboundMx } from "./inbound_mx";
 import { MysqldbAls } from "../mysqldb/mysqldbAls";
 import { IFindInboundMx } from "./dto/findInboundMx";
 
@@ -60,7 +60,7 @@ export class InboundMxEntity {
   }
 
   //查找进仓单的明细(无关联，纯实例)
-  public async findById(inboundId: number): Promise<Inbound_mx[]> {
+  public async findById(inboundId: number): Promise<InboundMx[]> {
     const conn = await this.mysqldbAls.getConnectionInAls();
     const sql = `SELECT 
  	              inbound_mx.inboundid, 
@@ -86,15 +86,15 @@ export class InboundMxEntity {
                  WHERE 
                   inbound_mx.inboundid = ?`;
     const [res] = await conn.query(sql, [inboundId]);
-    if ((res as Inbound_mx[]).length > 0) {
-      return (res as Inbound_mx[]);
+    if ((res as InboundMx[]).length > 0) {
+      return (res as InboundMx[]);
     } else {
       return Promise.reject(new Error("找不到进仓单明细"));
     }
   }
 
   //创建进仓单的明细
-  public async create(inboundMxList: IInbound_mx[]) {
+  public async create(inboundMxList: IInboundMx[]) {
     const conn = await this.mysqldbAls.getConnectionInAls();
     const sql = `INSERT INTO inbound_mx (
                  	inbound_mx.inboundid, 

@@ -1,5 +1,5 @@
 import {IAccountsVerifySheetMx} from "../../accountsVerifySheetMx/accountsVerifySheetMx";
-import {IsInt, IsNumber} from "class-validator";
+import {IsInt, IsNumber, NotEquals} from "class-validator";
 
 export class AccountsVerifySheetMxUpdateDto implements IAccountsVerifySheetMx {
     //账款核销明细Id
@@ -7,6 +7,7 @@ export class AccountsVerifySheetMxUpdateDto implements IAccountsVerifySheetMx {
     accountsVerifySheetMxId: number;
     //账款核销Id
     @IsInt()
+    @NotEquals(0)
     accountsVerifySheetId: number;
     //单据金额 10  单据金额>=已核销金额+冲尾数金额+本次核销金额  未核销金额>=冲尾数金额+本次核销金额
     @IsNumber()
@@ -16,18 +17,22 @@ export class AccountsVerifySheetMxUpdateDto implements IAccountsVerifySheetMx {
     amountsVerified: number;
     //未核销金额 5
     @IsNumber()
+    @NotEquals(0)
     amountsNotVerify: number;
     //冲尾数金额 1
     @IsNumber()
     amountsMantissa: number;
     //本次核销金额 4
     @IsNumber()
+    @NotEquals(0)
     amountsThisVerify: number;
     //账款Id
     @IsInt()
+    @NotEquals(0)
     correlationId: number;
     //账款类别
     @IsInt()
+    @NotEquals(0)
     correlationType: number;
     @IsInt()
     printId: number;

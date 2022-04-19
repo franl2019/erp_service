@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { Outbound_mxEntity } from "./outbound_mx.entity";
-import { IOutbound_mx } from "./outbound_mx";
+import { IOutboundMx } from "./outbound_mx";
 import { CreateOutboundDto } from "./dto/createOutbound.dto";
 import { verifyParam } from "../../utils/verifyParam";
 
@@ -23,8 +23,8 @@ export class Outbound_mxService {
   }
 
   //增加出仓单明细
-  public async create(outboundMxList: IOutbound_mx[]) {
-    const verifiedOutboundMxList:IOutbound_mx[] = [];
+  public async create(outboundMxList: IOutboundMx[]) {
+    const verifiedOutboundMxList:IOutboundMx[] = [];
     //验证出仓单明细参数是否正确
     for (let i = 0; i < outboundMxList.length; i++) {
       const outboundMx = new CreateOutboundDto(outboundMxList[i]);

@@ -1,18 +1,18 @@
-import { FindOneInventoryDto } from "./dto/findOneInventory.dto";
-import { MysqldbAls } from "../mysqldb/mysqldbAls";
-import { Injectable } from "@nestjs/common";
-import { FindInventoryDto } from "./dto/findInventory.dto";
-import { ResultSetHeader } from "mysql2/promise";
-import { IFindInventory, IInventory, Inventory } from "./inventory";
-import { AddInventoryDto } from "./dto/addInventory.dto";
-import { ClientService } from "../client/client.service";
+import {FindOneInventoryDto} from "./dto/findOneInventory.dto";
+import {MysqldbAls} from "../mysqldb/mysqldbAls";
+import {Injectable} from "@nestjs/common";
+import {FindInventoryDto} from "./dto/findInventory.dto";
+import {ResultSetHeader} from "mysql2/promise";
+import {IFindInventory, IInventory, Inventory} from "./inventory";
+import {AddInventoryDto} from "./dto/addInventory.dto";
+import {ClientService} from "../client/client.service";
 
 @Injectable()
 export class InventoryEntity {
 
   constructor(
-    private readonly mysqldbAls: MysqldbAls,
-    private readonly clientService:ClientService,
+      private readonly mysqldbAls: MysqldbAls,
+      private readonly clientService: ClientService,
   ) {
   }
 
@@ -20,7 +20,7 @@ export class InventoryEntity {
   public async findOne(findOneDto: FindOneInventoryDto): Promise<IInventory> {
     const conn = await this.mysqldbAls.getConnectionInAls();
     let sql =
-      `SELECT 
+        `SELECT 
         inventory.inventoryid,
         inventory.spec_d,
         inventory.materials_d,
@@ -102,7 +102,7 @@ export class InventoryEntity {
     if (selectDto.clientid !== 0) {
       sql = sql + ` AND inventory.clientid IN (?) `;
       const gs = await this.clientService.selectGsClient();
-      param.push([gs,selectDto.clientid]);//记得加公司
+      param.push([gs, selectDto.clientid]);//记得加公司
     }
 
     //按操作区域查询
@@ -178,7 +178,7 @@ export class InventoryEntity {
       sql = sql + ` AND inventory.qty > 0`;
     }
 
-    if (selectDto.page !== undefined && selectDto.page !== null && selectDto.pagesize !== undefined && selectDto.pagesize !== null) {
+    if (selectDto.page && selectDto.pagesize) {
       sql = sql + ` LIMIT ?,?`;
       param.push(selectDto.page, selectDto.pagesize);
     }

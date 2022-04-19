@@ -21,6 +21,18 @@ export class AccountsReceivableService {
     ) {
     }
 
+    //不能是负数
+    private static notCheckAmountsCannotBeNegative(notCheckAmounts: number) {
+
+        //账套,是否能负数
+        // if(false){
+        //     return true
+        // }
+        if (notCheckAmounts < 0) {
+            return Promise.reject(new Error('未核销数不能为负数'));
+        }
+    }
+
     public async findById(accountsReceivableId: number) {
         return await this.accountsReceivableEntity.findById(accountsReceivableId);
     }
@@ -34,6 +46,7 @@ export class AccountsReceivableService {
         return this.mysqldbAls.sqlTransaction(async () => {
             //创建应收账款
             const result = await this.accountsReceivableEntity.create(accountsReceivable);
+
             accountsReceivable.accountsReceivableId = result.insertId;
             //创建应收账款科目明细
             const accountsReceivableSubjectMx: IAccountsReceivableSubjectMx = {
@@ -42,12 +55,35 @@ export class AccountsReceivableService {
                 correlationId: accountsReceivable.correlationId,
                 correlationType: accountsReceivable.correlationType,
                 credit: 0,
-                debit: accountsReceivable.amounts,
+                debit: 0,
                 inDate: accountsReceivable.inDate,
                 reMark: "",
                 abstract: "",
                 creater: accountsReceivable.creater,
                 createdAt: accountsReceivable.createdAt,
+            }
+
+            switch (accountsReceivable.accountsReceivableType) {
+                case AccountCategoryType.advancePayment2:
+                    //预收账款 负债类 贷方增加 借方减少
+                    if (accountsReceivable.amounts > 0) {
+                        accountsReceivableSubjectMx.credit = accountsReceivable.amounts;
+                    } else if (accountsReceivable.amounts < 0) {
+                        //因为负数所以拿绝对值
+                        accountsReceivableSubjectMx.debit = Math.abs(accountsReceivable.amounts);
+                    }
+                    break;
+                case AccountCategoryType.accountsReceivable1 || AccountCategoryType.otherReceivables3:
+                    //应收账款 资产类 借方增加 贷方减少
+                    if (accountsReceivable.amounts > 0) {
+                        accountsReceivableSubjectMx.debit = accountsReceivable.amounts;
+                    } else if (accountsReceivable.amounts < 0) {
+                        //因为负数所以拿绝对值
+                        accountsReceivableSubjectMx.credit = Math.abs(accountsReceivable.amounts);
+                    }
+                    break;
+                default:
+                    break;
             }
 
             await this.createAccountsReceivableSubject(accountsReceivableSubjectMx);
@@ -56,6 +92,8 @@ export class AccountsReceivableService {
 
     //创建应收账款凭证
     public async createAccountsReceivableSubject(accountsReceivableSubjectMx: IAccountsReceivableSubjectMx) {
+
+        console.log('创建应收账款凭证subject')
         return await this.mysqldbAls.sqlTransaction(async () => {
             //新增应收账款科目明细
             await this.accountsReceivableSubjectMxService.create(accountsReceivableSubjectMx);
@@ -71,15 +109,19 @@ export class AccountsReceivableService {
     //按相关单删除应收账款
     public async deleteByCorrelation(correlationId: number, correlationType: number) {
         const accountReceivableList = await this.find({
+            accountsReceivableTypeList: [],
+            amounts: 0,
+            checkedAmounts: 0,
+            notCheckAmounts: 0,
             accountsReceivableId: 0,
-            accountsReceivableType: null,
             clientid: 0,
             correlationId: correlationId,
             correlationType: correlationType,
+            correlationCode: "",
             startDate: "",
             endDate: "",
             page: 0,
-            pagesize: 0,
+            pagesize: 0
         });
 
 
@@ -87,41 +129,44 @@ export class AccountsReceivableService {
             const accountReceivable = accountReceivableList[i];
             if (accountReceivable.checkedAmounts === 0) {
                 await this.accountsReceivableEntity.deleteById(accountReceivable.accountsReceivableId);
-            }else{
+            } else {
                 return Promise.reject(new Error("删除应收账款失败,有已核销数"));
             }
         }
-
-        await this.accountsReceivableMxService.deleteByCorrelation(correlationId, correlationType);
-        await this.accountsReceivableSubjectMxService.deleteByCorrelation(correlationId, correlationType);
     }
 
     //按相关单删除应收账款明细
     public async deleteMxByCorrelation(correlationId: number, correlationType: number) {
         return this.mysqldbAls.sqlTransaction(async () => {
-            //查询明细 按相关单号 删除后重新计算应收账款
+            //删除明细
             await this.accountsReceivableMxService.deleteByCorrelation(correlationId, correlationType);
-            await this.accountsReceivableSubjectMxService.deleteByCorrelation(correlationId, correlationType);
-            const accountReceivableList = await this.find({
-                accountsReceivableId: 0,
-                accountsReceivableType: null,
-                clientid: 0,
-                correlationId: correlationId,
-                correlationType: correlationType,
-                startDate: "",
-                endDate: "",
-                page: 0,
-                pagesize: 0,
-            })
 
-            for (let i = 0; i < accountReceivableList.length; i++) {
-                await this.recalculateAccountsReceivable(accountReceivableList[i].accountsReceivableId);
+            const accountsReceivableSubjectMxList = await this.accountsReceivableSubjectMxService.findByCorrelation(correlationId, correlationType);
+
+            if(accountsReceivableSubjectMxList&&accountsReceivableSubjectMxList.length>0){
+                await this.accountsReceivableSubjectMxService.deleteByCorrelation(correlationId, correlationType);
+            }
+
+            //需要重新计算应收账款ID列表
+            let needsToBeRecalculatedAccountsReceivableIdList:number[] = [];
+            for (let i = 0; i < accountsReceivableSubjectMxList.length; i++) {
+                if(accountsReceivableSubjectMxList[i].accountsReceivableId!==0){
+                    needsToBeRecalculatedAccountsReceivableIdList.push(accountsReceivableSubjectMxList[i].accountsReceivableId);
+                }
+            }
+            //id去重
+            needsToBeRecalculatedAccountsReceivableIdList = Array.from(new Set(needsToBeRecalculatedAccountsReceivableIdList));
+
+            //根据凭证id刷新应收账款未核销数
+            for (let i = 0; i < needsToBeRecalculatedAccountsReceivableIdList.length; i++) {
+                await this.recalculateAccountsReceivable(needsToBeRecalculatedAccountsReceivableIdList[i]);
             }
         })
     }
 
     //新增应收账款明细
     private async createAccountsReceivableMx(accountsReceivableSubjectMx: IAccountsReceivableSubjectMx) {
+        console.log('创建应收账款明细mx')
 
         const accountsReceivableMx: IAccountsReceivableMx = {
             accountReceivableMxId: 0,
@@ -141,32 +186,40 @@ export class AccountsReceivableService {
         }
 
         const accountsReceivable = await this.findById(accountsReceivableSubjectMx.accountsReceivableId)
-
         switch (accountsReceivable.accountsReceivableType) {
             //应收账款
-            case AccountCategoryType.accountsReceivable | AccountCategoryType.otherReceivables:
-                //借方增加,应付账款增加
-                if (accountsReceivableSubjectMx.debit) {
+            case AccountCategoryType.accountsReceivable1 || AccountCategoryType.otherReceivables3:
+                //应收账款 资产类 借方增加 贷方减少
+                if (accountsReceivableSubjectMx.debit > 0) {
+                    accountsReceivableMx.receivables = accountsReceivableSubjectMx.debit;
+                } else if (accountsReceivableSubjectMx.debit < 0) {
                     accountsReceivableMx.receivables = accountsReceivableSubjectMx.debit;
                 }
 
-                //贷方增加,实收增加
-                if (accountsReceivableSubjectMx.credit) {
-                    accountsReceivableMx.advancesReceived = accountsReceivableSubjectMx.credit;
+                //应收账款 资产类 借方增加 贷方减少
+                if (accountsReceivableSubjectMx.credit > 0) {
+                    accountsReceivableMx.actuallyReceived = accountsReceivableSubjectMx.credit;
+                } else if (accountsReceivableSubjectMx.credit < 0) {
+                    accountsReceivableMx.receivables = Math.abs(accountsReceivableSubjectMx.credit);
                 }
                 break;
-                //预收账款
-            case AccountCategoryType.advancePayment:
-                //借方+,预收账款+
-                if (accountsReceivableSubjectMx.debit) {
-                    accountsReceivableMx.advancesReceived = accountsReceivableSubjectMx.debit;
+            //预收账款
+            case AccountCategoryType.advancePayment2:
+                //负债类 贷方增加 借方减少
+                if (accountsReceivableSubjectMx.credit > 0) {
+                    accountsReceivableMx.advancesReceived = accountsReceivableSubjectMx.credit;
+                } else if (accountsReceivableSubjectMx.credit < 0) {
+                    accountsReceivableMx.advancesReceived = accountsReceivableSubjectMx.credit;
                 }
-                //贷方-,预收账款-
-                if (accountsReceivableSubjectMx.credit) {
-                    accountsReceivableMx.advancesReceived = -accountsReceivableSubjectMx.credit
+
+                if (accountsReceivableSubjectMx.debit > 0) {
+                    accountsReceivableMx.advancesReceived = -accountsReceivableSubjectMx.debit;
+                } else if (accountsReceivableSubjectMx.debit < 0) {
+                    accountsReceivableMx.advancesReceived = Math.abs(accountsReceivableSubjectMx.debit);
                 }
                 break;
             default:
+                console.log('default')
                 break
         }
         await this.accountsReceivableMxService.create(accountsReceivableMx);
@@ -174,8 +227,15 @@ export class AccountsReceivableService {
 
     //重新计算应收账款核销金额
     private async recalculateAccountsReceivable(accountsReceivableId: number) {
+        console.log('重新计算应收账款核销金额')
         const accountsReceivable = await this.findById(accountsReceivableId);
         const accountsReceivableSubjectMxList = await this.accountsReceivableSubjectMxService.findById(accountsReceivableId);
+
+        //没有核销明细不用计算 return
+        if (accountsReceivableSubjectMxList.length === 0) {
+            return
+        }
+
         const amounts = accountsReceivable.amounts;
         let checkedAmounts: number;
         let notCheckAmounts: number = 0;
@@ -183,14 +243,35 @@ export class AccountsReceivableService {
         // 借方 + 贷方
         for (let i = 0; i < accountsReceivableSubjectMxList.length; i++) {
             const accountsReceivableSubjectMx = accountsReceivableSubjectMxList[i];
-            notCheckAmounts = Number(
-                round(
-                    chain(bignumber(notCheckAmounts))
-                        .add(bignumber(accountsReceivableSubjectMx.debit))
-                        .add(bignumber(accountsReceivableSubjectMx.credit))
-                        .done(), 4)
-            );
+
+            switch (accountsReceivable.accountsReceivableType) {
+                case AccountCategoryType.accountsReceivable1 || AccountCategoryType.otherReceivables3:
+                    //应收账款 借方-贷方=余额
+                    notCheckAmounts = Number(
+                        round(
+                            chain(bignumber(notCheckAmounts))
+                                .add(bignumber(accountsReceivableSubjectMx.debit))
+                                .subtract(bignumber(accountsReceivableSubjectMx.credit))
+                                .done(), 4)
+                    );
+                    break;
+                case AccountCategoryType.advancePayment2:
+                    //预收账款 贷方-借方=余额
+                    notCheckAmounts = Number(
+                        round(
+                            chain(bignumber(notCheckAmounts))
+                                .add(bignumber(accountsReceivableSubjectMx.credit))
+                                .subtract(bignumber(accountsReceivableSubjectMx.debit))
+                                .done(), 4)
+                    );
+                    break;
+                default:
+                    break;
+            }
+
         }
+
+        await AccountsReceivableService.notCheckAmountsCannotBeNegative(notCheckAmounts);
 
         checkedAmounts = Number(
             round(

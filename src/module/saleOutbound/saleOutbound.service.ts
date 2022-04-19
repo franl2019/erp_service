@@ -8,6 +8,9 @@ import * as mathjs from "mathjs";
 import {AccountCategoryType} from "../accountsVerifySheetMx/accountCategoryType";
 import {AccountsReceivableService} from "../accountsReceivable/accountsReceivable.service";
 import {MysqldbAls} from "../mysqldb/mysqldbAls";
+import {IOutboundMx} from "../outbound_mx/outbound_mx";
+
+const {chain, bignumber, round} = mathjs;
 
 @Injectable()
 export class SaleOutboundService {
@@ -19,18 +22,46 @@ export class SaleOutboundService {
     ) {
     }
 
+    private static calculateAccountsReceivable(outboundMxList: IOutboundMx[]): number {
+        //单据应收金额
+        let amounts: number = 0;
+
+        for (let i = 0; i < outboundMxList.length; i++) {
+            const outboundMx = outboundMxList[i];
+
+            const amount: number = Number(
+                round(
+                    chain(bignumber(outboundMx.priceqty))
+                        .multiply(bignumber(outboundMx.netprice))
+                        .done()
+                    , 4)
+            );
+
+            amounts = Number(
+                round(
+                    chain(bignumber(amounts))
+                        .add(bignumber(amount))
+                        .done()
+                ,4)
+            )
+        }
+
+        return amounts
+    }
+
     public async find(findDto: FindSaleOutboundDto) {
-        findDto.outboundtype = 8;
+        findDto.outboundtype = CodeType.XS;
+
         return await this.outboundService.find(findDto);
     }
 
     public async create(saleOutboundDto: SaleOutboundDto, state: IState) {
-        saleOutboundDto.outboundtype = 8;
+        saleOutboundDto.outboundtype = CodeType.XS;
         return await this.outboundService.createOutbound(saleOutboundDto, state);
     }
 
     public async update(saleOutboundDto: SaleOutboundDto, state: IState) {
-        saleOutboundDto.outboundtype = 8;
+        saleOutboundDto.outboundtype = CodeType.XS;
         return await this.outboundService.editOutbound(saleOutboundDto, state);
     }
 
@@ -54,21 +85,15 @@ export class SaleOutboundService {
         return await this.mysqldbAls.sqlTransaction(async () => {
             await this.outboundService.l2Review(outboundId, userName);
             const outbound = await this.outboundService.findById(outboundId)
-            const outboundMxList = await this.outboundService.findMxById(outboundId);
+            const outboundMxList: IOutboundMx[] = await this.outboundService.findMxById(outboundId);
 
             //计算出仓单，应收金额
-            //单据应收金额
-            let amounts: number = 0;
-
-            for (let i = 0; i < outboundMxList.length; i++) {
-                const outboundMx = outboundMxList[i];
-                amounts = Number(mathjs.chain(mathjs.bignumber(outboundMx.priceqty)).multiply(mathjs.bignumber(outboundMx.netprice)));
-            }
+            const amounts = SaleOutboundService.calculateAccountsReceivable(outboundMxList);
 
             //增加应收账款
             await this.accountsReceivableService.createAccountsReceivable({
                 accountsReceivableId: 0,
-                accountsReceivableType: AccountCategoryType.accountsReceivable,
+                accountsReceivableType: AccountCategoryType.accountsReceivable1,
                 amounts: amounts,
                 checkedAmounts: 0,
                 notCheckAmounts: amounts,

@@ -46,16 +46,16 @@ export class AccountsPayableService {
             }
 
             switch (accountsPayable.accountsPayableType) {
-                //预付账款
-                case AccountCategoryType.prepayments:
+                //预付账款5 资产类 借增 贷减
+                case AccountCategoryType.prepayments5:
                     if (accountsPayable.amounts > 0) {
                         accountsPayableSubjectMx.debit = accountsPayable.amounts;
                     } else if (accountsPayable.amounts < 0) {
                         accountsPayableSubjectMx.credit = Math.abs(accountsPayable.amounts);
                     }
                     break;
-                //应付账款 || 其他应付
-                case AccountCategoryType.accountsPayable || AccountCategoryType.otherPayable:
+                //应付账款4 || 其他应付5 负债类 贷增 借减
+                case AccountCategoryType.accountsPayable4 || AccountCategoryType.otherPayable6:
                     if (accountsPayable.amounts > 0) {
                         //正数贷方 负债类 贷方增加
                         accountsPayableSubjectMx.credit = accountsPayable.amounts;
@@ -114,11 +114,15 @@ export class AccountsPayableService {
     public async deleteMxByCorrelation(correlationId: number, correlationType: number) {
         console.log('应付账款deleteMxByCorrelation')
         return this.mysqldbAls.sqlTransaction(async () => {
-
-
+            //删除Mx
             await this.accountsPayableMxService.deleteByCorrelationId(correlationId, correlationType);
+
+            //查询单据产生的凭证
             const accountsPayableSubjectMxList = await this.accountsPayableSubjectMxService.findByCorrelation(correlationId, correlationType);
+
+            //如果有凭证
             if(accountsPayableSubjectMxList&&accountsPayableSubjectMxList.length>0){
+                //删除相关凭证
                 await this.accountsPayableSubjectMxService.deleteByCorrelation(correlationId, correlationType);
 
                 //需要重新计算应付账款ID列表
@@ -128,8 +132,10 @@ export class AccountsPayableService {
                         needsToBeRecalculatedAccountsPayableIdList.push(accountsPayableSubjectMxList[i].accountsPayableId);
                     }
                 }
+                //id去重
                 needsToBeRecalculatedAccountsPayableIdList = Array.from(new Set(needsToBeRecalculatedAccountsPayableIdList));
 
+                //根据凭证id刷新应付账款未核销数
                 for (let i = 0; i < needsToBeRecalculatedAccountsPayableIdList.length; i++) {
                     await this.recalculateAccountPayable(needsToBeRecalculatedAccountsPayableIdList[i]);
                 }
@@ -160,7 +166,7 @@ export class AccountsPayableService {
         const accountsPayable = await this.findById(accountsPayableSubjectMx.accountsPayableId);
         switch (accountsPayable.accountsPayableType) {
             //应付账款
-            case AccountCategoryType.accountsPayable || AccountCategoryType.otherPayable:
+            case AccountCategoryType.accountsPayable4 || AccountCategoryType.otherPayable6:
                 console.log("应付账款")
                 //负债类 贷方增加
                 if (accountsPayableSubjectMx.credit > 0) {
@@ -177,10 +183,10 @@ export class AccountsPayableService {
                     accountsPayableMx.actuallyPayment = accountsPayableSubjectMx.debit;
                 } else if (accountsPayableSubjectMx.debit < 0) {
                     //借方负数 应付款 增加
-                    accountsPayableMx.accountPayable = accountsPayableSubjectMx.debit
+                    accountsPayableMx.accountPayable = Math.abs(accountsPayableSubjectMx.debit)
                 }
                 break;
-            case AccountCategoryType.prepayments:
+            case AccountCategoryType.prepayments5:
                 console.log("预付账款")
                 //资产类 借方增加
                 if (accountsPayableSubjectMx.debit > 0) {
@@ -217,17 +223,37 @@ export class AccountsPayableService {
         let notCheckAmounts: number = 0;
 
         for (let i = 0; i < accountsPayableSubjectMxList.length; i++) {
+
+
             const accountsPayableSubjectMx = accountsPayableSubjectMxList[i];
-            notCheckAmounts = Number(
-                round(
-                    chain(bignumber(notCheckAmounts))
-                        .add(bignumber(accountsPayableSubjectMx.credit))
-                        .subtract(bignumber(accountsPayableSubjectMx.debit))
-                        .done(), 4)
-            );
+
+            switch (accountsPayable.accountsPayableType) {
+                //应付账款 其他应付 负债类 贷增借减
+                case AccountCategoryType.accountsPayable4 || AccountCategoryType.otherPayable6:
+                    notCheckAmounts = Number(
+                        round(
+                            chain(bignumber(notCheckAmounts))
+                                .add(bignumber(accountsPayableSubjectMx.credit))
+                                .subtract(bignumber(accountsPayableSubjectMx.debit))
+                                .done(), 4)
+                    );
+                    break;
+                    //预付账款 资产类 借增 贷减
+                case AccountCategoryType.prepayments5:
+                    notCheckAmounts = Number(
+                        round(
+                            chain(bignumber(notCheckAmounts))
+                                .add(bignumber(accountsPayableSubjectMx.debit))
+                                .subtract(bignumber(accountsPayableSubjectMx.credit))
+                                .done(), 4)
+                    );
+                    break;
+                default:
+                    break;
+            }
         }
 
-        await AccountsPayableService.negativeForNotCheckAmounts(notCheckAmounts);
+        await AccountsPayableService.notCheckAmountsCannotBeNegative(notCheckAmounts);
 
         checkedAmounts = Number(
             round(
@@ -242,15 +268,15 @@ export class AccountsPayableService {
         await this.accountsPayableEntity.update(accountsPayable);
     }
 
-    //未检查金额为负数
-     private static async negativeForNotCheckAmounts(notCheckAmounts:number){
+    //不能是负数
+     private static notCheckAmountsCannotBeNegative(notCheckAmounts:number){
 
         //账套,是否能负数
         // if(false){
         //     return true
         // }
         if(notCheckAmounts<0){
-            return Promise.reject(new Error('应付账款未核销数不能小于0,不能为负数'));
+            return Promise.reject(new Error('未核销数不能为负数'));
         }
     }
 }

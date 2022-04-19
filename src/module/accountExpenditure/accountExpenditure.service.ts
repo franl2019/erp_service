@@ -128,8 +128,6 @@ export class AccountExpenditureService {
             )
         }
 
-
-
         //本次核销合计大于收款金额
         if (mathjs.equal(mathjs.bignumber(sumAmountsThisVerify), mathjs.bignumber(sumAccountsPayable))) {
             return Promise.resolve(true);
@@ -242,7 +240,7 @@ export class AccountExpenditureService {
                     await this.accountRecordService.create(accountRecord);
                     await this.accountsPayableService.createAccountPayable({
                         accountsPayableId: 0,
-                        accountsPayableType: AccountCategoryType.prepayments,
+                        accountsPayableType: AccountCategoryType.prepayments5,
                         correlationId: accountExpenditure.accountExpenditureId,
                         correlationType: CodeType.accountExpenditure,
                         amounts: accountRecord.creditQty,
@@ -298,7 +296,7 @@ export class AccountExpenditureService {
                             credit: -accountExpenditureSheetMx.amountsMantissa,
                             creater: accountExpenditure.level1Name,
                             createdAt: accountExpenditure.level1Date,
-                            abstract: `采购付款单冲尾数${accountExpenditureSheetMx.amountsMantissa}`,
+                            abstract: `冲尾数`,
                             reMark: "",
                         })
                     }

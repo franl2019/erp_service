@@ -9,6 +9,7 @@ import {IAccountsPayable} from "../accountsPayable/accountsPayable";
 import {AccountCategoryType} from "../accountsVerifySheetMx/accountCategoryType";
 import {CodeType} from "../autoCode/codeType";
 import {AccountsPayableService} from "../accountsPayable/accountsPayable.service";
+import {IInboundMx} from "../inbound_mx/inbound_mx";
 
 @Injectable()
 export class BuyInboundService {
@@ -16,8 +17,32 @@ export class BuyInboundService {
     constructor(
         private readonly mysqldbAls: MysqldbAls,
         private readonly inboundService: InboundService,
-        private readonly accountsPayableService:AccountsPayableService
+        private readonly accountsPayableService: AccountsPayableService
     ) {
+    }
+
+    //计算应付账款金额
+    private static calculateAccountsPayable(inboundMxList: IInboundMx[]) {
+        let amounts: number = 0;
+        for (let i = 0; i < inboundMxList.length; i++) {
+            const inboundMxAmount = Number(
+                mathjs.round(
+                    mathjs.chain(
+                        mathjs.bignumber(inboundMxList[i].priceqty)
+                    ).multiply(
+                        mathjs.bignumber(inboundMxList[i].netprice)
+                    ).done(), 4)
+            );
+            amounts = Number(
+                mathjs.round(
+                    mathjs.chain(bignumber(amounts))
+                        .add(bignumber(inboundMxAmount))
+                        .done()
+                    , 4)
+            )
+        }
+
+        return amounts
     }
 
     public async find(findDto: FindBuyInboundDto) {
@@ -55,28 +80,11 @@ export class BuyInboundService {
             const inbound = await this.inboundService.findById(inboundId);
             //根据进仓单明细计算应付金额
             const inboundMxList = await this.inboundService.findMxById(inboundId);
-            let amounts: number = 0;
-            for (let i = 0; i < inboundMxList.length; i++) {
-                const inboundMxAmount = Number(
-                    mathjs.round(
-                        mathjs.chain(
-                            mathjs.bignumber(inboundMxList[i].priceqty)
-                        ).multiply(
-                            mathjs.bignumber(inboundMxList[i].netprice)
-                        ).done(), 4)
-                );
-                amounts = Number(
-                    mathjs.round(
-                        mathjs.chain(bignumber(amounts))
-                            .add(bignumber(inboundMxAmount))
-                            .done()
-                        , 4)
-                )
-            }
+            const amounts: number = BuyInboundService.calculateAccountsPayable(inboundMxList);
 
-            const accountsPayable:IAccountsPayable = {
+            const accountsPayable: IAccountsPayable = {
                 accountsPayableId: 0,
-                accountsPayableType: AccountCategoryType.accountsPayable,
+                accountsPayableType: AccountCategoryType.accountsPayable4,
                 correlationId: inbound.inboundid,
                 correlationType: CodeType.buyInbound,
                 buyid: inbound.buyid,
@@ -101,9 +109,9 @@ export class BuyInboundService {
 
     //撤销财审
     public async unLevel2Review(inboundId: number, userName: string) {
-        return this.mysqldbAls.sqlTransaction(async ()=>{
-            await this.accountsPayableService.deleteMxByCorrelation(inboundId,CodeType.buyInbound);
-            await this.accountsPayableService.deleteByCorrelation(inboundId,CodeType.buyInbound);
+        return this.mysqldbAls.sqlTransaction(async () => {
+            await this.accountsPayableService.deleteMxByCorrelation(inboundId, CodeType.buyInbound);
+            await this.accountsPayableService.deleteByCorrelation(inboundId, CodeType.buyInbound);
             await this.inboundService.unLevel2Review(inboundId, userName);
 
         })

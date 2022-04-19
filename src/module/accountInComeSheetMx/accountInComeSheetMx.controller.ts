@@ -1,4 +1,4 @@
-import {Controller} from "@nestjs/common";
+import {Body, Controller, Post} from "@nestjs/common";
 import {AccountInComeSheetMxService} from "./accountInComeSheetMx.service";
 import {AccountInComeSheetMxFindDto} from "./dto/accountInComeSheetMxFind.dto";
 
@@ -10,8 +10,9 @@ export class AccountInComeSheetMxController {
     ) {
     }
 
-    public async find(accountInComeAmountFindDto: AccountInComeSheetMxFindDto) {
-        const data = await this.accountInComeSheetMxService.findById(accountInComeAmountFindDto.accountInComeId);
+    @Post('find')
+    public async find(@Body() accountInComeSheetMxFindDto: AccountInComeSheetMxFindDto) {
+        const data = await this.accountInComeSheetMxService.findById(accountInComeSheetMxFindDto.accountInComeId);
         return {
             code: 200,
             msg: '查询成功',

@@ -1,4 +1,4 @@
-export interface IOutbound_mx{
+export interface IOutboundMx {
   outboundid:number;
   printid:number;
   inventoryid:number;
@@ -24,7 +24,7 @@ export interface IOutbound_mx{
   warehouseid:number
 }
 
-export class Outbound_mx implements IOutbound_mx{
+export class OutboundMx implements IOutboundMx{
   outboundid:number;
   printid:number;
   inventoryid:number;

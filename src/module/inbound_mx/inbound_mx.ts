@@ -1,4 +1,4 @@
-export interface IInbound_mx {
+export interface IInboundMx {
   inboundid:number;
   printid:number;
   clientid:number;
@@ -19,7 +19,7 @@ export interface IInbound_mx {
   pricetype:number;
 }
 
-export class Inbound_mx implements IInbound_mx{
+export class InboundMx implements IInboundMx{
   inboundid:number;
   printid:number;
   clientid:number;

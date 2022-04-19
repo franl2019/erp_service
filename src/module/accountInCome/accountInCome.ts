@@ -26,5 +26,5 @@ export interface IAccountInCome {
 }
 
 export interface IAccountInComeFind extends IAccountInCome {
-
+    clientname:string
 }

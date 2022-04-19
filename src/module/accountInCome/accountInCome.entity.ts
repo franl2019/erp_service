@@ -70,9 +70,11 @@ export class AccountInComeEntity {
                         account_income.level2Date,
                         account_income.del_uuid,
                         account_income.deleter,
-                        account_income.deletedAt
+                        account_income.deletedAt,
+                        client.clientname
                    FROM
                         account_income
+                        left join client on client.clientid = account_income.clientid
                    WHERE 
                         account_income.del_uuid = 0`;
         const params = [];

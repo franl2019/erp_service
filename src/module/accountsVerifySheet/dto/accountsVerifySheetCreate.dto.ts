@@ -33,4 +33,10 @@ export class AccountsVerifySheetCreateDto implements IAccountsVerifySheetAndMx{
     updater: string;
     @IsArray()
     accountsVerifySheetMx: IAccountsVerifySheetMx[];
+    @IsString()
+    reMark1:string;
+    @IsString()
+    reMark2:string;
+    @IsString()
+    reMark3:string;
 }

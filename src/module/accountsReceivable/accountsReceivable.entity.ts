@@ -3,6 +3,8 @@ import {IAccountsReceivable, IAccountsReceivableFind} from "./accountsReceivable
 import {AccountsReceivableFindDto} from "./dto/accountsReceivableFind.dto";
 import {ResultSetHeader} from "mysql2/promise";
 import {Injectable} from "@nestjs/common";
+import {AccountCategoryType} from "../accountsVerifySheetMx/accountCategoryType";
+import { CodeType } from "../autoCode/codeType";
 
 @Injectable()
 export class AccountsReceivableEntity {
@@ -54,11 +56,26 @@ export class AccountsReceivableEntity {
                                 accounts_receivable.creater,
                                 accounts_receivable.createdAt,
                                 accounts_receivable.updater,
-                                accounts_receivable.updatedAt
+                                accounts_receivable.updatedAt,
+                                client.clientname,
+                                (
+                                    CASE
+                                    WHEN outbound.outboundcode <> '' THEN
+                                        outbound.outboundcode
+                                    WHEN account_income.accountInComeCode <> '' THEN
+                                        account_income.accountInComeCode
+                                    ELSE
+                                        '[无]'
+                                    END
+                                ) AS correlationCode
                             FROM
                                 accounts_receivable
+                                LEFT JOIN client ON client.clientid = accounts_receivable.clientid
+                                LEFT JOIN outbound ON outbound.outboundid = accounts_receivable.correlationId AND accounts_receivable.correlationType = ${CodeType.XS}
+                                LEFT JOIN account_income ON accounts_receivable.correlationId = account_income.accountInComeId AND accounts_receivable.correlationType = ${CodeType.accountInCome}
                             WHERE
-                                accounts_receivable.del_uuid = 0`;
+                                accounts_receivable.del_uuid = 0
+                                AND accounts_receivable.notCheckAmounts <> 0`;
         const params = [];
 
         if (findDto.clientid) {
@@ -71,15 +88,46 @@ export class AccountsReceivableEntity {
             params.push(findDto.accountsReceivableId);
         }
 
-        if (findDto.accountsReceivableType) {
-            sql = sql + ` AND accounts_receivable.accountsReceivableType = ?`;
-            params.push(findDto.accountsReceivableType);
+        if (findDto.accountsReceivableTypeList && findDto.accountsReceivableTypeList.length > 0) {
+            findDto.accountsReceivableTypeList = findDto.accountsReceivableTypeList.map((accountsReceivableType)=>{
+                if(accountsReceivableType === AccountCategoryType.accountsReceivable1 ||
+                    accountsReceivableType === AccountCategoryType.otherReceivables3 ||
+                    accountsReceivableType === AccountCategoryType.advancePayment2
+                ){
+                    return accountsReceivableType
+                }
+            })
+
+            sql = sql + ` AND accounts_receivable.accountsReceivableType IN (?)`;
+            params.push(findDto.accountsReceivableTypeList);
         }
 
         if (findDto.correlationId && findDto.correlationType) {
             sql = sql + ` AND accounts_receivable.correlationId = ?`;
             sql = sql + ` AND accounts_receivable.correlationType = ?`;
             params.push(findDto.correlationId, findDto.correlationType);
+        }
+
+        if (findDto.correlationCode.length>0) {
+            sql = sql + ` AND (outbound.outboundcode LIKE ? OR 
+                              account_income.accountInComeCode
+                              LIKE ?)`;
+            params.push(`%${findDto.correlationCode}%`,`%${findDto.correlationCode}%`);
+        }
+
+        if(findDto.amounts){
+            sql = sql + ` AND accounts_receivable.amounts = ?`;
+            params.push(findDto.amounts);
+        }
+
+        if(findDto.checkedAmounts){
+            sql = sql + ` AND accounts_receivable.checkedAmounts = ?`;
+            params.push(findDto.checkedAmounts);
+        }
+
+        if(findDto.notCheckAmounts){
+            sql = sql + ` AND accounts_receivable.notCheckAmounts = ?`;
+            params.push(findDto.notCheckAmounts);
         }
 
         //按出仓日期范围查询

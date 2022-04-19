@@ -8,6 +8,7 @@ import {AccountsPayableModule} from "../accountsPayable/accountsPayable.module";
 import {AccountsReceivableModule} from "../accountsReceivable/accountsReceivable.module";
 import {AccountsPayableMxModule} from "../accountsPayableMx/accountsPayableMx.module";
 import {AccountsReceivableMxModule} from "../accountsReceivableMx/accountsReceivableMx.module";
+import {AutoCodeMxModule} from "../autoCodeMx/autoCodeMx.module";
 
 @Module({
     imports: [
@@ -16,7 +17,8 @@ import {AccountsReceivableMxModule} from "../accountsReceivableMx/accountsReceiv
         AccountsPayableModule,
         AccountsPayableMxModule,
         AccountsReceivableModule,
-        AccountsReceivableMxModule
+        AccountsReceivableMxModule,
+        AutoCodeMxModule
     ],
     controllers: [AccountsVerifySheetController],
     providers: [AccountsVerifySheetService, AccountsVerifySheetEntity],

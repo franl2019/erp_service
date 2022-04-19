@@ -37,6 +37,33 @@ export class AccountsReceivableSubjectMxEntity {
         }
     }
 
+    public async findByCorrelation(correlationId: number,correlationType:number) {
+        const conn = await this.mysqldbAls.getConnectionInAls();
+        const sql = `SELECT 
+                        accounts_receivable_subject_mx.accountsReceivableSubjectMxId,
+                        accounts_receivable_subject_mx.accountsReceivableId,
+                        accounts_receivable_subject_mx.correlationId,
+                        accounts_receivable_subject_mx.correlationType,
+                        accounts_receivable_subject_mx.inDate,
+                        accounts_receivable_subject_mx.debit,
+                        accounts_receivable_subject_mx.credit,
+                        accounts_receivable_subject_mx.creater,
+                        accounts_receivable_subject_mx.createdAt,
+                        accounts_receivable_subject_mx.abstract,
+                        accounts_receivable_subject_mx.reMark
+                     FROM
+                        accounts_receivable_subject_mx
+                     WHERE
+                        accounts_receivable_subject_mx.correlationId = ?
+                        AND accounts_receivable_subject_mx.correlationType = ?`;
+        const [res] = await conn.query(sql, [correlationId,correlationType]);
+        if ((res as IAccountsReceivableSubjectMx[]).length > 0) {
+            return (res as IAccountsReceivableSubjectMx[]);
+        } else {
+            return [];
+        }
+    }
+
     public async create(accountsReceivableSubjectMx: IAccountsReceivableSubjectMx) {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `INSERT INTO accounts_receivable_subject_mx (

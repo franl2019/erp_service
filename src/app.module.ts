@@ -44,6 +44,9 @@ import {
 } from "./module/accountsReceivableSubjectMx/accountsReceivableSubjectMx.module";
 import {AccountExpenditureSheetMxModule} from "./module/accountExpenditureSheetMx/accountExpenditureSheetMx.module";
 import {AccountExpenditureAmountMxModule} from "./module/accountExpenditureAmountMx/accountExpenditureAmountMx.module";
+import {AccountsVerifySheetModule} from "./module/accountsVerifySheet/accountsVerifySheet.module";
+import {AccountsVerifySheetMxModule} from "./module/accountsVerifySheetMx/accountsVerifySheetMx.module";
+import {ReportModule} from "./module/report/report.module";
 
 @Module({
     imports: [
@@ -106,7 +109,13 @@ import {AccountExpenditureAmountMxModule} from "./module/accountExpenditureAmoun
         //支出单收款明细
         AccountExpenditureAmountMxModule,
         //支出单核销明细
-        AccountExpenditureSheetMxModule
+        AccountExpenditureSheetMxModule,
+        //核销单
+        AccountsVerifySheetModule,
+        AccountsVerifySheetMxModule,
+
+        //报表
+        ReportModule
     ],
     providers: [
         {

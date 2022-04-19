@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { MysqldbAls } from "../mysqldb/mysqldbAls";
-import { IOutbound_mx } from "./outbound_mx";
+import { IOutboundMx } from "./outbound_mx";
 import { ResultSetHeader } from "mysql2/promise";
 import { IFindOutboundMx } from "./findOutbound_mx";
 
@@ -67,7 +67,7 @@ export class Outbound_mxEntity {
   }
 
   //查找出仓单明细(实例)
-  public async find_entity(outboundid: number): Promise<IOutbound_mx[]> {
+  public async find_entity(outboundid: number): Promise<IOutboundMx[]> {
     const conn = this.mysqldbAls.getConnectionInAls();
     const sql = `SELECT
                 outbound_mx.outboundid, 
@@ -98,15 +98,15 @@ export class Outbound_mxEntity {
                WHERE
                 outbound_mx.outboundid = ?`;
     const [rows] = await conn.query(sql, [outboundid]);
-    if ((rows as IOutbound_mx[]).length > 0) {
-      return rows as IOutbound_mx[];
+    if ((rows as IOutboundMx[]).length > 0) {
+      return rows as IOutboundMx[];
     } else {
       return Promise.reject(new Error("查找出仓单的明细错误"));
     }
   }
 
   //增加出仓单明细
-  public async create(outboundMxList: IOutbound_mx[]) {
+  public async create(outboundMxList: IOutboundMx[]) {
     const conn = await this.mysqldbAls.getConnectionInAls();
     const sql = `INSERT INTO outbound_mx (
                   outbound_mx.outboundid, 

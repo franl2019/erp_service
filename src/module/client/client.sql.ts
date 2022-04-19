@@ -1,11 +1,11 @@
-import { ResultSetHeader } from "mysql2/promise";
-import { Client } from "./client";
-import { AddClientDto } from "./dto/addClient.dto";
-import { UpdateClientDto } from "./dto/updateClient.dto";
-import { Injectable } from "@nestjs/common";
-import { SelectClientDto } from "./dto/selectClient.dto";
-import { DeleteClientDto } from "./dto/deleteClient.dto";
-import { MysqldbAls } from "../mysqldb/mysqldbAls";
+import {ResultSetHeader} from "mysql2/promise";
+import {Client} from "./client";
+import {AddClientDto} from "./dto/addClient.dto";
+import {UpdateClientDto} from "./dto/updateClient.dto";
+import {Injectable} from "@nestjs/common";
+import {SelectClientDto} from "./dto/selectClient.dto";
+import {DeleteClientDto} from "./dto/deleteClient.dto";
+import {MysqldbAls} from "../mysqldb/mysqldbAls";
 
 @Injectable()
 export class ClientSql {
@@ -58,7 +58,7 @@ export class ClientSql {
       sql = sql + ` AND (clientcode LIKE ? OR clientname LIKE ?)`;
       param.push(`%${client.search}%`, `%${client.search}%`);
     }
-    if (client.page !== undefined && client.page !== null && client.pagesize !== undefined && client.pagesize !== null) {
+    if (client.page && client.pagesize) {
       sql = sql + ` LIMIT ?,?`;
       param.push(client.page, client.pagesize);
     }

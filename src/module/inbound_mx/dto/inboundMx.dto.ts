@@ -1,7 +1,7 @@
 import { IsInt, IsNumber, IsString } from "class-validator";
-import { IInbound_mx } from "../inbound_mx";
+import { IInboundMx } from "../inbound_mx";
 
-export class InboundMxDto implements IInbound_mx {
+export class InboundMxDto implements IInboundMx {
   @IsInt()
   inboundid: number;
   @IsInt()
@@ -39,7 +39,7 @@ export class InboundMxDto implements IInbound_mx {
   @IsInt()
   pricetype: number;
 
-  constructor(inbound_mx: IInbound_mx) {
+  constructor(inbound_mx: IInboundMx) {
     this.inboundid = inbound_mx.inboundid;
     this.printid = inbound_mx.printid;
     this.clientid = inbound_mx.clientid;

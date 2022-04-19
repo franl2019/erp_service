@@ -7,7 +7,9 @@ import {ResultSetHeader} from "mysql2/promise";
 @Injectable()
 export class AccountsVerifySheetEntity {
 
-    constructor(private readonly mysqldbAls: MysqldbAls) {
+    constructor(
+        private readonly mysqldbAls: MysqldbAls
+    ) {
     }
 
     public async findById(accountsVerifySheetId: number) {
@@ -21,6 +23,10 @@ export class AccountsVerifySheetEntity {
                         accounts_verify_sheet.clientid_b,
                         accounts_verify_sheet.buyid,
                         accounts_verify_sheet.buyid_b,
+                        accounts_verify_sheet.creater,
+                        accounts_verify_sheet.createdAt,
+                        accounts_verify_sheet.updater,
+                        accounts_verify_sheet.updatedAt,
                         accounts_verify_sheet.level1Review,
                         accounts_verify_sheet.level1Name,
                         accounts_verify_sheet.level1Date,
@@ -29,7 +35,10 @@ export class AccountsVerifySheetEntity {
                         accounts_verify_sheet.level2Date,
                         accounts_verify_sheet.del_uuid,
                         accounts_verify_sheet.deleter,
-                        accounts_verify_sheet.deleteAt
+                        accounts_verify_sheet.deleteAt,
+                        accounts_verify_sheet.reMark1,
+                        accounts_verify_sheet.reMark2,
+                        accounts_verify_sheet.reMark3
                      FROM
                         accounts_verify_sheet
                      WHERE
@@ -54,6 +63,10 @@ export class AccountsVerifySheetEntity {
                         accounts_verify_sheet.clientid_b,
                         accounts_verify_sheet.buyid,
                         accounts_verify_sheet.buyid_b,
+                        accounts_verify_sheet.creater,
+                        accounts_verify_sheet.createdAt,
+                        accounts_verify_sheet.updater,
+                        accounts_verify_sheet.updatedAt,
                         accounts_verify_sheet.level1Review,
                         accounts_verify_sheet.level1Name,
                         accounts_verify_sheet.level1Date,
@@ -62,9 +75,20 @@ export class AccountsVerifySheetEntity {
                         accounts_verify_sheet.level2Date,
                         accounts_verify_sheet.del_uuid,
                         accounts_verify_sheet.deleter,
-                        accounts_verify_sheet.deleteAt
+                        accounts_verify_sheet.deleteAt,
+                        accounts_verify_sheet.reMark1,
+                        accounts_verify_sheet.reMark2,
+                        accounts_verify_sheet.reMark3,
+                        client.clientname,
+                        client_b.clientname as clientname_b,
+                        buy.buyname,
+                        buy_b.buyname as buyname_b
                      FROM
                         accounts_verify_sheet
+                        LEFT JOIN client ON client.clientid = accounts_verify_sheet.clientid 
+                        LEFT JOIN client as client_b ON client_b.clientid = accounts_verify_sheet.clientid_b 
+                        LEFT JOIN buy ON buy.buyid = accounts_verify_sheet.buyid 
+                        LEFT JOIN buy as buy_b ON buy_b.buyid = accounts_verify_sheet.buyid_b
                      WHERE
                         accounts_verify_sheet.del_uuid = 0`;
         const params = [];
@@ -124,6 +148,7 @@ export class AccountsVerifySheetEntity {
     }
 
     public async create(accountsVerifySheet: IAccountsVerifySheet) {
+        console.log(accountsVerifySheet)
         const conn = this.mysqldbAls.getConnectionInAls();
         const sql = `INSERT INTO accounts_verify_sheet (
                         accounts_verify_sheet.accountsVerifySheetCode,
@@ -134,7 +159,10 @@ export class AccountsVerifySheetEntity {
                         accounts_verify_sheet.buyid,
                         accounts_verify_sheet.buyid_b,
                         accounts_verify_sheet.creater,
-                        accounts_verify_sheet.createdAt
+                        accounts_verify_sheet.createdAt,
+                        accounts_verify_sheet.reMark1,
+                        accounts_verify_sheet.reMark2,
+                        accounts_verify_sheet.reMark3
                      ) VALUES ?`;
         const [res] = await conn.query<ResultSetHeader>(sql, [[[
             accountsVerifySheet.accountsVerifySheetCode,
@@ -145,7 +173,10 @@ export class AccountsVerifySheetEntity {
             accountsVerifySheet.buyid,
             accountsVerifySheet.buyid_b,
             accountsVerifySheet.creater,
-            accountsVerifySheet.createdAt
+            accountsVerifySheet.createdAt,
+            accountsVerifySheet.reMark1,
+            accountsVerifySheet.reMark2,
+            accountsVerifySheet.reMark3
         ]]]);
 
         if (res.affectedRows > 0) {
@@ -167,7 +198,10 @@ export class AccountsVerifySheetEntity {
                         accounts_verify_sheet.buyid = ?,
                         accounts_verify_sheet.buyid_b = ?,
                         accounts_verify_sheet.updater = ?,
-                        accounts_verify_sheet.updatedAt = ?
+                        accounts_verify_sheet.updatedAt = ?,
+                        accounts_verify_sheet.reMark1 = ?,
+                        accounts_verify_sheet.reMark2 = ?,
+                        accounts_verify_sheet.reMark3 = ?
                      WHERE
                         accounts_verify_sheet.del_uuid = 0
                         AND accounts_verify_sheet.accountsVerifySheetId = ?`;
@@ -178,9 +212,12 @@ export class AccountsVerifySheetEntity {
             accountsVerifySheet.clientid_b,
             accountsVerifySheet.buyid,
             accountsVerifySheet.buyid_b,
-            accountsVerifySheet.accountsVerifySheetId,
             accountsVerifySheet.updater,
-            accountsVerifySheet.updatedAt
+            accountsVerifySheet.updatedAt,
+            accountsVerifySheet.reMark1,
+            accountsVerifySheet.reMark2,
+            accountsVerifySheet.reMark3,
+            accountsVerifySheet.accountsVerifySheetId
         ]);
 
         if (res.affectedRows > 0) {
@@ -197,7 +234,7 @@ export class AccountsVerifySheetEntity {
                      SET
                         accounts_verify_sheet.del_uuid = ?,
                         accounts_verify_sheet.deleter = ?,
-                        accounts_verify_sheet.deletedAt = ?
+                        accounts_verify_sheet.deleteAt = ?
                      WHERE
                         accounts_verify_sheet.del_uuid = 0
                         AND accounts_verify_sheet.accountsVerifySheetId = ?`;

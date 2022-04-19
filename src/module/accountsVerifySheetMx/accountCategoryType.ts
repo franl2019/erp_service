@@ -8,10 +8,10 @@ export const enum AccountCategoryType {
     *[5]预付账款
     *[6]其他应付
     * */
-    accountsReceivable = 1,
-    advancePayment = 2,
-    otherReceivables = 3,
-    accountsPayable = 4,
-    prepayments = 5,
-    otherPayable = 6
+    accountsReceivable1 = 1,
+    advancePayment2 = 2,
+    otherReceivables3 = 3,
+    accountsPayable4 = 4,
+    prepayments5 = 5,
+    otherPayable6 = 6
 }

@@ -47,7 +47,7 @@ export class BuySql {
       sql = sql + ` AND (buy.buycode LIKE ? OR buy.buyname LIKE ?)`;
       param.push(`%${buy.search}%`, `%${buy.search}%`);
     }
-    if (buy.page !== undefined && buy.page !== null && buy.pagesize !== undefined && buy.pagesize !== null) {
+    if (buy.page && buy.pagesize) {
       sql = sql + ` LIMIT ?,?`;
       param.push(buy.page, buy.pagesize);
     }

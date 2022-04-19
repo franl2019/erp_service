@@ -27,16 +27,20 @@ export class AccountInComeAmountMxEntity {
                         account_income_amount_mx.payer,
                         account_income_amount_mx.reMack1,
                         account_income_amount_mx.reMack2,
-                        account_income_amount_mx.reMack3
+                        account_income_amount_mx.reMack3,
+                        account.accountName,
+                        currency.currencyName
                      FROM
                         account_income_amount_mx
+                        LEFT JOIN account on account.accountId = account_income_amount_mx.accountId
+                        LEFT JOIN currency on currency.currencyid = account_income_amount_mx.currencyid
                      WHERE
                         account_income_amount_mx.accountInComeId = ?`;
         const [res] = await conn.query(sql, [accountInComeId]);
         if ((res as IAccountInComeAmountMx[]).length > 0) {
             return (res as IAccountInComeAmountMx[]);
         } else {
-            return Promise.reject(new Error('查询收款单收款明细单个失败'));
+            return [];
         }
     }
 
@@ -58,7 +62,7 @@ export class AccountInComeAmountMxEntity {
                         account_income_amount_mx.reMack3
                     ) VALUES ?`
         const [res] = await conn.query<ResultSetHeader>(sql, [accountInComeAmountMxList.map(accountInComeAmountMx => [
-            [
+
                 accountInComeAmountMx.accountInComeId,
                 accountInComeAmountMx.printId,
                 accountInComeAmountMx.settlementMethod,
@@ -72,7 +76,7 @@ export class AccountInComeAmountMxEntity {
                 accountInComeAmountMx.reMack1,
                 accountInComeAmountMx.reMack2,
                 accountInComeAmountMx.reMack3
-            ]
+
         ])]);
         if (res.affectedRows > 0) {
             return res;

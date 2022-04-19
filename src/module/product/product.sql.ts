@@ -49,7 +49,7 @@ export class ProductSql {
       param.push(`%${product.search}%`, `%${product.search}%`);
     }
 
-    if (product.page !== undefined && product.page !== null && product.pagesize !== undefined && product.pagesize !== null) {
+    if (product.page && product.pagesize) {
       sql = sql + ` LIMIT ?,?`;
       param.push(product.page, product.pagesize);
     }

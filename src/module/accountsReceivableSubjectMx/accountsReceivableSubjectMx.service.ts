@@ -12,6 +12,10 @@ export class AccountsReceivableSubjectMxService {
         return await this.accountsReceivableSubjectMxEntity.findById(accountsReceivableId);
     }
 
+    public async findByCorrelation(correlationId: number,correlationType:number) {
+        return await this.accountsReceivableSubjectMxEntity.findByCorrelation(correlationId,correlationType);
+    }
+
     public async create(accountsReceivableSubjectMx: IAccountsReceivableSubjectMx) {
         return await this.accountsReceivableSubjectMxEntity.create(accountsReceivableSubjectMx);
     }

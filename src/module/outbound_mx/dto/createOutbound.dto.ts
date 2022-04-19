@@ -1,7 +1,7 @@
-import { IOutbound_mx } from "../outbound_mx";
+import { IOutboundMx } from "../outbound_mx";
 import { IsInt, IsNumber, IsString } from "class-validator";
 
-export class CreateOutboundDto implements IOutbound_mx {
+export class CreateOutboundDto implements IOutboundMx {
   @IsInt()
   outboundid: number;
   @IsInt()
@@ -49,7 +49,7 @@ export class CreateOutboundDto implements IOutbound_mx {
   @IsInt()
   warehouseid: number;
 
-  constructor(outboundMx: IOutbound_mx) {
+  constructor(outboundMx: IOutboundMx) {
     this.outboundid = outboundMx.outboundid;
     this.printid = outboundMx.printid;
     this.inventoryid = outboundMx.inventoryid;

@@ -96,9 +96,9 @@ export class AccountsPayableEntity {
         if (findDto.accountsPayableTypeList&&findDto.accountsPayableTypeList.length > 0) {
 
             findDto.accountsPayableTypeList = findDto.accountsPayableTypeList.map((accountsPayableType) => {
-                if (accountsPayableType === AccountCategoryType.accountsPayable ||
-                    accountsPayableType === AccountCategoryType.otherPayable ||
-                    accountsPayableType === AccountCategoryType.prepayments
+                if (accountsPayableType === AccountCategoryType.accountsPayable4 ||
+                    accountsPayableType === AccountCategoryType.otherPayable6 ||
+                    accountsPayableType === AccountCategoryType.prepayments5
                 ) {
                     return accountsPayableType
                 }
@@ -118,12 +118,6 @@ export class AccountsPayableEntity {
                               account_expenditure.accountExpenditureCode
                               LIKE ?)`;
             params.push(`%${findDto.correlationCode}%`,`%${findDto.correlationCode}%`);
-        }
-
-        if (findDto.correlationId && findDto.correlationType) {
-            sql = sql + ` AND accounts_payable.correlationId = ?`;
-            sql = sql + ` AND accounts_payable.correlationType = ?`;
-            params.push(findDto.correlationId, findDto.correlationType);
         }
 
         if(findDto.amounts){
