@@ -147,9 +147,9 @@ export class InboundEntity {
         }
 
         //按出仓日期范围查询
-        if (findDto.startInDate.length > 0 && findDto.endInDate.length > 0) {
+        if (findDto.startDate.length > 0 && findDto.endDate.length > 0) {
             sql = sql + ` AND DATE(inbound.indate) BETWEEN ? AND ?`;
-            params.push(findDto.startInDate, findDto.endInDate);
+            params.push(findDto.startDate, findDto.endDate);
         }
 
         //按id查询
@@ -160,8 +160,8 @@ export class InboundEntity {
 
         //按出仓单编号查询
         if (findDto.inboundcode.length > 0) {
-            sql = sql + ` AND inbound.inboundcode LIKE ?`;
-            params.push(`${findDto.inboundcode}%`);
+            sql = sql + ` AND inbound.inboundcode = ?`;
+            params.push(findDto.inboundcode);
         }
 
         //按出仓单相关号码查询

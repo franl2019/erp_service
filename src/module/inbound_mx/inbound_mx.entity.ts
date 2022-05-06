@@ -97,7 +97,7 @@ export class InboundMxEntity {
   public async create(inboundMxList: IInboundMx[]) {
     const conn = await this.mysqldbAls.getConnectionInAls();
     const sql = `INSERT INTO inbound_mx (
-                 	inbound_mx.inboundid, 
+                  inbound_mx.inboundid, 
                   inbound_mx.printid, 
                   inbound_mx.clientid, 
                   inbound_mx.productid, 

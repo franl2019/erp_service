@@ -10,8 +10,8 @@ export interface IFindOutboundDto {
   warehouseids: number[];
   operateareaids: number[];
   clientid: number;
-  startOutDate: string;
-  endOutDate: string;
+  startDate: string;
+  endDate: string;
   outboundid: number;
   outboundcode: string;
   outboundtype: number;
@@ -29,9 +29,9 @@ export class FindOutboundDto implements IFindOutboundDto {
   @IsInt()
   clientid: number;
   @IsString()
-  startOutDate: string;
+  startDate: string;
   @IsString()
-  endOutDate: string;
+  endDate: string;
   @IsInt()
   outboundid: number;
   @IsString()

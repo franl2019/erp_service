@@ -1,5 +1,6 @@
 import {IFindInboundDto} from "../../inbound/dto/findInbound.dto";
 import {IsArray, IsInt, IsString} from "class-validator";
+import {CodeType} from "../../autoCode/codeType";
 
 export class FindProductionInboundDto implements IFindInboundDto{
     @IsArray()
@@ -9,14 +10,14 @@ export class FindProductionInboundDto implements IFindInboundDto{
     @IsInt()
     clientid: number;
     @IsString()
-    startInDate: string;
+    startDate: string;
     @IsString()
-    endInDate: string;
+    endDate: string;
     @IsInt()
     inboundid: number;
     @IsString()
     inboundcode: string;
-    inboundtype: number = 2;
+    inboundtype: CodeType = CodeType.SC;
     @IsString()
     relatednumber: string;
     @IsInt()

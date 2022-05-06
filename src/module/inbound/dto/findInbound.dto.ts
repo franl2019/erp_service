@@ -4,8 +4,8 @@ export interface IFindInboundDto {
   warehouseids: number[];
   operateareaids: number[];
   clientid: number;
-  startInDate: string;
-  endInDate: string;
+  startDate: string;
+  endDate: string;
   inboundid: number;
   inboundcode: string;
   inboundtype: number;
@@ -22,9 +22,9 @@ export class FindInboundDto implements IFindInboundDto{
   @IsInt()
   clientid: number;
   @IsString()
-  startInDate: string;
+  startDate: string;
   @IsString()
-  endInDate: string;
+  endDate: string;
   @IsInt()
   inboundid: number;
   @IsString()

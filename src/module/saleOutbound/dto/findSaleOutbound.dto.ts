@@ -9,9 +9,9 @@ export class FindSaleOutboundDto implements IFindOutboundDto{
     @IsInt()
     clientid: number;
     @IsString()
-    startOutDate: string;
+    startDate: string;
     @IsString()
-    endOutDate: string;
+    endDate: string;
     @IsInt()
     outboundid: number;
     @IsString()

@@ -8,6 +8,7 @@ import {AddInventoryDto} from "../inventory/dto/addInventory.dto";
 import {Inbound_mxService} from "../inbound_mx/inbound_mx.service";
 import {Inbound} from "./inbound";
 import {AutoCodeMxService} from "../autoCodeMx/autoCodeMx.service";
+import {ResultSetHeader} from "mysql2/promise";
 
 @Injectable()
 export class InboundService {
@@ -37,7 +38,7 @@ export class InboundService {
     }
 
     //新增进仓单
-    public async createInbound(inboundDto: IInboundDto) {
+    public async createInbound(inboundDto: IInboundDto):Promise<ResultSetHeader> {
         return this.mysqldbAls.sqlTransaction(async () => {
             //生成自动单号
             inboundDto.inboundcode = await this.autoCodeMxService.getAutoCode(inboundDto.inboundtype);
@@ -54,6 +55,11 @@ export class InboundService {
             }
             //创建进仓单的明细
             await this.inboundMxService.create(inboundDto.inboundmx);
+
+            return {
+                id:createResult.insertId,
+                code:inboundDto.inboundcode,
+            }
         });
     }
 
@@ -219,7 +225,7 @@ export class InboundService {
         })
     }
 
-    public async unLevel2Review(inboundId: number, userName: string) {
+    public async unLevel2Review(inboundId: number) {
         return this.mysqldbAls.sqlTransaction(async () => {
             //查询单头信息
             const inbound = await this.findById(inboundId);

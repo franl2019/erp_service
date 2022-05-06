@@ -87,9 +87,9 @@ export class OutboundEntity {
     }
 
     //按出仓日期范围查询
-    if (findDto.startOutDate.length > 0 && findDto.endOutDate.length > 0) {
+    if (findDto.startDate.length > 0 && findDto.endDate.length > 0) {
       sql = sql + ` AND DATE(outbound.outdate) BETWEEN ? AND ?`;
-      params.push(findDto.startOutDate, findDto.endOutDate);
+      params.push(findDto.startDate, findDto.endDate);
     }
 
     //按id查询

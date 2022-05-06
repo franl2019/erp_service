@@ -53,8 +53,23 @@ export class BuyInboundService {
         return await this.inboundService.createInbound(buyInboundDto);
     }
 
+    public async create_l1Review(buyInboundDto: BuyInboundDto){
+        return this.mysqldbAls.sqlTransaction(async ()=>{
+            const result = await this.inboundService.createInbound(buyInboundDto);
+            await this.inboundService.level1Review(result.insertId, buyInboundDto.creater);
+            return result
+        })
+    }
+
     public async update(buyInboundDto: BuyInboundDto) {
         return await this.inboundService.update(buyInboundDto);
+    }
+
+    public async update_l1Review(buyInboundDto: BuyInboundDto){
+        return this.mysqldbAls.sqlTransaction(async ()=>{
+            await this.inboundService.update(buyInboundDto);
+            return await this.inboundService.level1Review(buyInboundDto.inboundid, buyInboundDto.updater);
+        })
     }
 
     public async delete_data(inboundId: number, userName: string) {
@@ -108,11 +123,11 @@ export class BuyInboundService {
     }
 
     //撤销财审
-    public async unLevel2Review(inboundId: number, userName: string) {
+    public async unLevel2Review(inboundId: number) {
         return this.mysqldbAls.sqlTransaction(async () => {
             await this.accountsPayableService.deleteMxByCorrelation(inboundId, CodeType.buyInbound);
             await this.accountsPayableService.deleteByCorrelation(inboundId, CodeType.buyInbound);
-            await this.inboundService.unLevel2Review(inboundId, userName);
+            await this.inboundService.unLevel2Review(inboundId);
 
         })
     }

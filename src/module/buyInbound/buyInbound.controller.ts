@@ -7,6 +7,7 @@ import {DeleteBuyInboundDto} from "./dto/deleteBuyInbound.dto";
 import {Level1ReviewBuyInboundDto} from "./dto/level1ReviewBuyInbound.dto";
 import {FindBuyInboundDto} from "./dto/findBuyInbound.dto";
 import {BuyInboundLevel2ReviewDto} from "./dto/BuyInboundLevel2Review.dto";
+import {CodeType} from "../autoCode/codeType";
 
 @Controller('erp/buyInbound')
 export class BuyInboundController {
@@ -34,15 +35,30 @@ export class BuyInboundController {
     }
 
     @Post("create")
-    public async add(@Body() buyInboundDto: BuyInboundDto, @ReqState() state: State) {
+    public async create(@Body() buyInboundDto: BuyInboundDto, @ReqState() state: State) {
         buyInboundDto.inboundtype = 1;
         buyInboundDto.creater = state.user.username;
         buyInboundDto.createdAt = new Date();
 
-        await this.buyInboundService.create(buyInboundDto);
+        const createResult = await this.buyInboundService.create(buyInboundDto);
         return {
             code: 200,
-            msg: "保存成功"
+            msg: "保存成功",
+            createResult
+        };
+    }
+
+    @Post("create_l1Review")
+    public async create_l1Review(@Body() buyInboundDto: BuyInboundDto, @ReqState() state: State) {
+        buyInboundDto.inboundtype = CodeType.buyInbound;
+        buyInboundDto.creater = state.user.username;
+        buyInboundDto.createdAt = new Date();
+
+        const createResult = await this.buyInboundService.create_l1Review(buyInboundDto);
+        return {
+            code: 200,
+            msg: "保存成功,审核成功",
+            createResult
         };
     }
 
@@ -56,6 +72,19 @@ export class BuyInboundController {
         return {
             code: 200,
             msg: "更新成功"
+        };
+    }
+
+    @Post("update_l1Review")
+    public async update_l1Review(@Body() buyInboundDto: BuyInboundDto, @ReqState() state: State) {
+        buyInboundDto.inboundtype = CodeType.buyInbound;
+        buyInboundDto.updater = state.user.username;
+        buyInboundDto.updatedAt = new Date();
+
+        await this.buyInboundService.update_l1Review(buyInboundDto);
+        return {
+            code: 200,
+            msg: "更新成功,审核成功"
         };
     }
 
@@ -105,8 +134,8 @@ export class BuyInboundController {
     }
 
     @Post("unLevel2Review")
-    public async unLevel2Review(@Body() buyInboundLevel2ReviewDto: BuyInboundLevel2ReviewDto, @ReqState() state: State) {
-        await this.buyInboundService.unLevel2Review(buyInboundLevel2ReviewDto.inboundid,state.user.username);
+    public async unLevel2Review(@Body() buyInboundLevel2ReviewDto: BuyInboundLevel2ReviewDto) {
+        await this.buyInboundService.unLevel2Review(buyInboundLevel2ReviewDto.inboundid);
         return {
             code: 200,
             msg: "财务撤审成功"

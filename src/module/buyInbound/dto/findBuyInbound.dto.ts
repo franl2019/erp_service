@@ -9,9 +9,9 @@ export class FindBuyInboundDto implements IFindInboundDto{
     @IsInt()
     clientid: number;
     @IsString()
-    startInDate: string;
+    startDate: string;
     @IsString()
-    endInDate: string;
+    endDate: string;
     @IsInt()
     inboundid: number;
     @IsString()
