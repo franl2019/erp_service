@@ -1,4 +1,4 @@
-import { IOutboundMx } from "./outbound_mx";
+import { IOutboundMx } from "./outboundMx";
 
 export interface IFindOutboundMx extends IOutboundMx {
   warehousename: string;

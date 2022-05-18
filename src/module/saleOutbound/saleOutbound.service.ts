@@ -8,7 +8,7 @@ import * as mathjs from "mathjs";
 import {AccountCategoryType} from "../accountsVerifySheetMx/accountCategoryType";
 import {AccountsReceivableService} from "../accountsReceivable/accountsReceivable.service";
 import {MysqldbAls} from "../mysqldb/mysqldbAls";
-import {IOutboundMx} from "../outbound_mx/outbound_mx";
+import {IOutboundMx} from "../outboundMx/outboundMx";
 
 const {chain, bignumber, round} = mathjs;
 

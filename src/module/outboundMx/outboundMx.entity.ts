@@ -1,11 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { MysqldbAls } from "../mysqldb/mysqldbAls";
-import { IOutboundMx } from "./outbound_mx";
+import { IOutboundMx } from "./outboundMx";
 import { ResultSetHeader } from "mysql2/promise";
-import { IFindOutboundMx } from "./findOutbound_mx";
+import { IFindOutboundMx } from "./findOutboundMx";
 
 @Injectable()
-export class Outbound_mxEntity {
+export class OutboundMxEntity {
 
   constructor(
     private readonly mysqldbAls: MysqldbAls

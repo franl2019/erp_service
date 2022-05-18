@@ -1,14 +1,17 @@
-import { IsInt, IsNumber, IsString } from "class-validator";
-import { IInboundMx } from "../inbound_mx";
+import {IsInt, IsNumber, IsString, NotEquals} from "class-validator";
+import { IInboundMx } from "../inboundMx";
 
 export class InboundMxDto implements IInboundMx {
   @IsInt()
+  @NotEquals(0)
   inboundid: number;
   @IsInt()
   printid: number;
   @IsInt()
+  @NotEquals(0)
   clientid: number;
   @IsInt()
+  @NotEquals(0)
   productid: number;
   @IsString()
   spec_d: string;
@@ -19,10 +22,13 @@ export class InboundMxDto implements IInboundMx {
   @IsString()
   remark: string;
   @IsNumber()
+  @NotEquals(0)
   inqty: number;
   @IsNumber()
+  @NotEquals(0)
   bzqty: number;
   @IsNumber()
+  @NotEquals(0)
   priceqty: number;
   @IsNumber()
   price: number;
@@ -31,10 +37,13 @@ export class InboundMxDto implements IInboundMx {
   @IsNumber()
   netprice: number;
   @IsNumber()
+  @NotEquals(0)
   agio: number;
   @IsNumber()
+  @NotEquals(0)
   agio1: number;
   @IsNumber()
+  @NotEquals(0)
   agio2: number;
   @IsInt()
   pricetype: number;
@@ -58,6 +67,5 @@ export class InboundMxDto implements IInboundMx {
     this.agio1 = inbound_mx.agio1;
     this.agio2 = inbound_mx.agio2;
     this.pricetype = inbound_mx.pricetype;
-
   }
 }

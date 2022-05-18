@@ -21,6 +21,9 @@ export class ClientService {
     private readonly clientAreaSql: ClientAreaSql) {
   }
 
+  public async findOne(clientid: number){
+    return await this.clientSql.findOne(clientid);
+  }
 
   public async select(client: SelectClientDto, state: State) {
     client.operateareaids = state.user.client_operateareaids;
@@ -53,7 +56,7 @@ export class ClientService {
     return await this.mysqldbAls.sqlTransaction(async () => {
       client.updater = state.user.username;
       client.updatedAt = new Date();
-      const client_DB = await this.clientSql.getClient(client.clientid);
+      const client_DB = await this.clientSql.findOne(client.clientid);
       //验证操作区域权限，没有该客户的操作区域不能修改，更新的操作区域没有权限也不能更新
       if (state.user.client_operateareaids.indexOf(client_DB.operateareaid) === -1 || state.user.client_operateareaids.indexOf(client.operateareaid) === -1) {
         await Promise.reject(new Error("缺少该操作区域权限,更新失败"));
@@ -71,7 +74,7 @@ export class ClientService {
     client.deletedAt = new Date();
     client.deleter = state.user.username;
     return await this.mysqldbAls.sqlTransaction(async () => {
-      const client_DB = await this.clientSql.getClient(client.clientid);
+      const client_DB = await this.clientSql.findOne(client.clientid);
       //验证操作区域权限，没有该客户的操作区域不能修改，更新的操作区域没有权限也不能更新
       if (state.user.client_operateareaids.indexOf(client_DB.operateareaid) === -1) {
         await Promise.reject(new Error("缺少该操作区域权限,更新失败"));
@@ -105,7 +108,7 @@ export class ClientService {
 
   public async level1Review(client: L1reviewClientDto, state: State) {
     return await this.mysqldbAls.sqlTransaction(async () => {
-      const client_DB = await this.clientSql.getClient(client.clientid);
+      const client_DB = await this.clientSql.findOne(client.clientid);
       let res;
       switch (client.level1review) {
         case 0:
@@ -144,7 +147,7 @@ export class ClientService {
 
   public async level2Review(client: L2reviewClientDto, state: State) {
     return await this.mysqldbAls.sqlTransaction(async () => {
-      const client_DB = await this.clientSql.getClient(client.clientid);
+      const client_DB = await this.clientSql.findOne(client.clientid);
       let res;
       switch (client.level2review) {
         case 0:

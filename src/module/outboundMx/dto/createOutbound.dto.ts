@@ -1,5 +1,5 @@
-import { IOutboundMx } from "../outbound_mx";
-import { IsInt, IsNumber, IsString } from "class-validator";
+import { IOutboundMx } from "../outboundMx";
+import {IsInt, IsNumber, IsString, NotEquals} from "class-validator";
 
 export class CreateOutboundDto implements IOutboundMx {
   @IsInt()
@@ -8,8 +8,11 @@ export class CreateOutboundDto implements IOutboundMx {
   printid: number;
   @IsInt()
   inventoryid: number;
+
   @IsInt()
+  @NotEquals(0)
   productid: number;
+
   @IsString()
   spec_d: string;
   @IsString()
@@ -19,8 +22,10 @@ export class CreateOutboundDto implements IOutboundMx {
   @IsString()
   remark: string;
   @IsNumber()
+  @NotEquals(0)
   outqty: number;
   @IsNumber()
+  @NotEquals(0)
   bzqty: number;
   @IsNumber()
   priceqty: number;
@@ -36,17 +41,26 @@ export class CreateOutboundDto implements IOutboundMx {
   floatprice2: number;
   @IsNumber()
   floatprice3: number;
+
   @IsNumber()
+  @NotEquals(0)
   agio: number;
+
   @IsNumber()
+  @NotEquals(0)
   agio1: number;
   @IsNumber()
+  @NotEquals(0)
   agio2: number;
   @IsInt()
   pricetype: number;
+
   @IsInt()
+  @NotEquals(0)
   clientid: number;
+
   @IsInt()
+  @NotEquals(0)
   warehouseid: number;
 
   constructor(outboundMx: IOutboundMx) {

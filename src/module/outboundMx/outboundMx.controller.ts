@@ -1,10 +1,10 @@
 import { Body, Controller, Post } from "@nestjs/common";
 import { FindOutboundMxDto } from "./dto/findOutboundMx.dto";
-import { Outbound_mxService } from "./outbound_mx.service";
+import { OutboundMxService } from "./outboundMx.service";
 
 @Controller("erp/outbound_mx")
-export class Outbound_mxController {
-  constructor(private readonly outboundMxService: Outbound_mxService) {
+export class OutboundMxController {
+  constructor(private readonly outboundMxService: OutboundMxService) {
   }
 
   //查询出仓单明细

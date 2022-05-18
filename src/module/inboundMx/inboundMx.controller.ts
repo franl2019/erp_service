@@ -1,11 +1,11 @@
 import { Body, Controller, Post } from "@nestjs/common";
-import { Inbound_mxService } from "./inbound_mx.service";
+import { InboundMxService } from "./inboundMx.service";
 import { findInboundMxDto } from "./dto/findInboundMx.dto";
 
 @Controller("erp/inboundmx/")
-export class Inbound_mxController {
+export class InboundMxController {
 
-  constructor(private readonly inbound_mxService: Inbound_mxService) {
+  constructor(private readonly inbound_mxService: InboundMxService) {
   }
 
   @Post("select")

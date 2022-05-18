@@ -1,5 +1,5 @@
 import { IsArray, IsInt, IsString } from "class-validator";
-import { InboundMxDto } from "../../inbound_mx/dto/inboundMx.dto";
+import { InboundMxDto } from "../../inboundMx/dto/inboundMx.dto";
 import { IInbound } from "../inbound";
 
 export interface IInboundDto extends IInbound{

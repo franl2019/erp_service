@@ -1,6 +1,6 @@
 import {IInboundDto} from "../../inbound/dto/Inbound.dto";
 import {IsArray, IsInt, IsString} from "class-validator";
-import {InboundMxDto} from "../../inbound_mx/dto/inboundMx.dto";
+import {InboundMxDto} from "../../inboundMx/dto/inboundMx.dto";
 
 export class ProductionInboundDto implements IInboundDto {
     @IsInt()

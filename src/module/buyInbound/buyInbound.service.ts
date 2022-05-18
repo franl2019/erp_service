@@ -9,7 +9,7 @@ import {IAccountsPayable} from "../accountsPayable/accountsPayable";
 import {AccountCategoryType} from "../accountsVerifySheetMx/accountCategoryType";
 import {CodeType} from "../autoCode/codeType";
 import {AccountsPayableService} from "../accountsPayable/accountsPayable.service";
-import {IInboundMx} from "../inbound_mx/inbound_mx";
+import {IInboundMx} from "../inboundMx/inboundMx";
 
 @Injectable()
 export class BuyInboundService {

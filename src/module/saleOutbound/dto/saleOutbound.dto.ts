@@ -1,6 +1,6 @@
 import {IOutboundDto} from "../../outbound/dto/outbound.dto";
 import {IsArray, IsInt, IsString} from "class-validator";
-import {IOutboundMx} from "../../outbound_mx/outbound_mx";
+import {IOutboundMx} from "../../outboundMx/outboundMx";
 
 export class SaleOutboundDto implements IOutboundDto{
     @IsInt()

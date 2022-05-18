@@ -12,14 +12,14 @@ export class ClientSql {
   constructor(private readonly mysqldbAls: MysqldbAls) {
   }
 
-  public async getClient(clientid: number): Promise<Client> {
+  public async findOne(clientid: number): Promise<Client> {
     const conn = await this.mysqldbAls.getConnectionInAls();
-    const sql: string = `SELECT * FROM client WHERE del_uuid = 0 AND clientid =?`;
+    const sql: string = `SELECT * FROM client WHERE client.del_uuid = 0 AND client.clientid =?`;
     const [res] = await conn.query(sql, [clientid]);
     if ((res as Client[]).length > 0) {
       return (res as Client[])[0];
     } else {
-      return Promise.reject(new Error("找不到这个客户"));
+      return Promise.reject(new Error("找不到客户资料"));
     }
   }
 

@@ -1,4 +1,4 @@
-import { IInboundMx } from "../inbound_mx";
+import { IInboundMx } from "../inboundMx";
 
 export interface IFindInboundMx extends IInboundMx{
   clientname:string;

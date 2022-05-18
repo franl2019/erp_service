@@ -1,6 +1,6 @@
 import { IOutbound } from "../outbound";
-import { IOutboundMx } from "../../outbound_mx/outbound_mx";
-import { IsArray, IsInt, IsString } from "class-validator";
+import { IOutboundMx } from "../../outboundMx/outboundMx";
+import {IsArray, IsInt, IsString, NotEquals} from "class-validator";
 
 export interface IOutboundDto extends IOutbound {
   outboundMx: IOutboundMx[];
@@ -47,12 +47,18 @@ export class OutboundDto implements IOutboundDto {
   @IsString()
   updater: string;
   updatedAt: Date;
+
   @IsInt()
+  @NotEquals(0)
   warehouseid: number;
+
   @IsInt()
+  @NotEquals(0)
   clientid: number;
+
   @IsInt()
   del_uuid: number;
+
   deletedAt: Date;
   @IsString()
   deleter: string;

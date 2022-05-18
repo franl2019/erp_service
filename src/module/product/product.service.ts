@@ -20,6 +20,10 @@ export class ProductService {
     private readonly productSql: ProductSql) {
   }
 
+  public async findOne(productId:number){
+    return await this.productSql.findOne(productId);
+  }
+
   public async select(product: SelectProductDto, state: State) {
     product.warehouseids = state.user.warehouseids;
     return await this.productSql.getProducts(product);
@@ -44,7 +48,7 @@ export class ProductService {
     return await this.mysqldbAls.sqlTransaction(async () => {
       product.updater = state.user.username;
       product.updatedAt = new Date();
-      const product_DB = await this.productSql.getProduct(product.productid);
+      const product_DB = await this.productSql.findOne(product.productid);
       //验证操作区域权限，没有该客户的操作区域不能修改，更新的操作区域没有权限也不能更新
       if (state.user.warehouseids.indexOf(product_DB.warehouseid) === -1 || state.user.warehouseids.indexOf(product.warehouseid) === -1) {
         await Promise.reject(new Error("缺少该仓库权限,更新失败"));
@@ -62,7 +66,7 @@ export class ProductService {
     product.deletedAt = new Date();
     product.deleter = state.user.username;
     return await this.mysqldbAls.sqlTransaction(async () => {
-      const product_DB = await this.productSql.getProduct(product.productid);
+      const product_DB = await this.productSql.findOne(product.productid);
       //验证操作区域权限，没有该客户的操作区域不能修改，更新的操作区域没有权限也不能更新
       if (state.user.warehouseids.indexOf(product_DB.warehouseid) === -1) {
         await Promise.reject(new Error("缺少该仓库权限,更新失败"));
@@ -96,7 +100,7 @@ export class ProductService {
 
   public async level1Review(product: L1ReviewProductDto, state: State) {
     return await this.mysqldbAls.sqlTransaction(async () => {
-      const product_DB = await this.productSql.getProduct(product.productid);
+      const product_DB = await this.productSql.findOne(product.productid);
       let res;
       switch (product.level1review) {
         case 0:
@@ -134,7 +138,7 @@ export class ProductService {
 
   public async level2Review(product: L2ReviewProductDto, state: State) {
     return await this.mysqldbAls.sqlTransaction(async () => {
-      const product_DB = await this.productSql.getProduct(product.productid);
+      const product_DB = await this.productSql.findOne(product.productid);
       let res;
       switch (product.level2review) {
         case 0:

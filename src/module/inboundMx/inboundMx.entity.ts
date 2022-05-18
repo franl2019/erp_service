@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { ResultSetHeader } from "mysql2/promise";
-import { IInboundMx, InboundMx } from "./inbound_mx";
+import { IInboundMx, InboundMx } from "./inboundMx";
 import { MysqldbAls } from "../mysqldb/mysqldbAls";
 import { IFindInboundMx } from "./dto/findInboundMx";
 

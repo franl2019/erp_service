@@ -15,6 +15,10 @@ export class WarehouseService {
     private readonly warehouseSql: WarehouseSql) {
   }
 
+  public async findOne(warehouseId:number){
+    return await this.warehouseSql.findOne(warehouseId);
+  }
+
   public async select() {
     return await this.warehouseSql.getWarehouses();
   }

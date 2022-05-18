@@ -3,7 +3,7 @@ import {OutboundEntity} from "./outbound.entity";
 import {Outbound} from "./outbound";
 import {MysqldbAls} from "../mysqldb/mysqldbAls";
 import {IOutboundDto} from "./dto/outbound.dto";
-import {Outbound_mxService} from "../outbound_mx/outbound_mx.service";
+import {OutboundMxService} from "../outboundMx/outboundMx.service";
 import {State} from "../../interface/IState";
 import {IFindOutboundDto} from "./dto/find.dto";
 import {AddInventoryDto} from "../inventory/dto/addInventory.dto";
@@ -16,7 +16,7 @@ export class OutboundService {
     constructor(
         private readonly mysqlAls: MysqldbAls,
         private readonly outboundEntity: OutboundEntity,
-        private readonly outboundMxService: Outbound_mxService,
+        private readonly outboundMxService: OutboundMxService,
         private readonly autoCodeMxService: AutoCodeMxService,
         private readonly inventoryService: InventoryService,
     ) {

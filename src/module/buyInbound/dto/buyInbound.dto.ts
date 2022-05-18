@@ -1,6 +1,6 @@
 import {IInboundDto} from "../../inbound/dto/Inbound.dto";
-import {IsArray, IsInt, IsString} from "class-validator";
-import {InboundMxDto} from "../../inbound_mx/dto/inboundMx.dto";
+import {IsArray, IsInt, IsString, NotEquals} from "class-validator";
+import {InboundMxDto} from "../../inboundMx/dto/inboundMx.dto";
 
 export class BuyInboundDto implements IInboundDto{
     @IsInt()
@@ -40,10 +40,12 @@ export class BuyInboundDto implements IInboundDto{
     updater: string;
     updatedAt: Date;
     @IsInt()
+    @NotEquals(0)
     warehouseid: number;
     @IsInt()
     clientid: number;
     @IsInt()
+    @NotEquals(0)
     buyid: number;
     @IsInt()
     del_uuid: number;

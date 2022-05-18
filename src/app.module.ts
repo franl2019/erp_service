@@ -18,12 +18,12 @@ import {UserWarehouseMxModule} from './module/userWarehouseMx/userWarehouseMx.mo
 import {InboundModule} from './module/inbound/inbound.module';
 import {AutoCodeModule} from './module/autoCode/autoCode.module';
 import {AutoCodeMxModule} from './module/autoCodeMx/autoCodeMx.module';
-import {InboundMxModule} from './module/inbound_mx/inbound_mx.module';
+import {InboundMxModule} from './module/inboundMx/inboundMx.module';
 import {InventoryModule} from './module/inventory/inventory.module';
 import {MysqldbModule} from './module/mysqldb/mysqldb.module';
 import {TableColumnStateModule} from './module/tableColumnState/tableColumnState.module';
 import {OutboundModule} from './module/outbound/outbound.module';
-import {Outbound_mxModule} from './module/outbound_mx/outbound_mx.module';
+import {OutboundMxModule} from './module/outboundMx/outboundMx.module';
 import {AccountModule} from './module/account/account.module';
 import {UserAccountMxModule} from './module/userAccountMx/userAccountMx.module';
 import {ProductionInboundModule} from './module/productionInbound/productionInbound.module';
@@ -79,7 +79,7 @@ import {ReportModule} from "./module/report/report.module";
         UserAccountMxModule,
         //出仓单模块
         OutboundModule,
-        Outbound_mxModule,
+        OutboundMxModule,
         //销售出仓
         SaleOutboundModule,
         //出纳账户明细

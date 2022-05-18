@@ -14,14 +14,14 @@ export class WarehouseSql {
   constructor(private readonly mysqldbAls: MysqldbAls) {
   }
 
-  public async getWarehouse(warehouseid: number): Promise<Warehouse> {
+  public async findOne(warehouseid: number): Promise<Warehouse> {
     const conn = await this.mysqldbAls.getConnectionInAls();
-    const sql: string = `SELECT * FROM warehouse WHERE warehouseid = ? AND del_uuid = 0`;
+    const sql: string = `SELECT * FROM warehouse WHERE warehouse.warehouseid = ? AND warehouse.del_uuid = 0`;
     const [res] = await conn.query(sql, [warehouseid]);
     if ((res as Warehouse[]).length > 0) {
       return (res as Warehouse[])[0];
     } else {
-      return Promise.reject(new Error("找不到单个仓库"));
+      return Promise.reject(new Error("找不到这个仓库资料"));
     }
   }
 

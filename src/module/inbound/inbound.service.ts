@@ -5,22 +5,42 @@ import {IInboundDto} from "./dto/Inbound.dto";
 import {MysqldbAls} from "../mysqldb/mysqldbAls";
 import {InventoryService} from "../inventory/inventory.service";
 import {AddInventoryDto} from "../inventory/dto/addInventory.dto";
-import {Inbound_mxService} from "../inbound_mx/inbound_mx.service";
+import {InboundMxService} from "../inboundMx/inboundMx.service";
 import {Inbound} from "./inbound";
 import {AutoCodeMxService} from "../autoCodeMx/autoCodeMx.service";
 import {ResultSetHeader} from "mysql2/promise";
+import {InboundMxDto} from "../inboundMx/dto/inboundMx.dto";
 
 @Injectable()
 export class InboundService {
     constructor(
         private readonly mysqldbAls: MysqldbAls,
         private readonly inboundEntity: InboundEntity,
-        private readonly inboundMxService: Inbound_mxService,
+        private readonly inboundMxService: InboundMxService,
         private readonly autoCodeMxService: AutoCodeMxService,
         private readonly inventoryService: InventoryService
     ) {
     }
 
+    private static setInboundIdOfMx(inboundId: number, inboundMxs: InboundMxDto[]) {
+        //将单头信息填写到明细中
+        for (let i = 0; i < inboundMxs.length; i++) {
+            const inboundMx = inboundMxs[i];
+            inboundMx.inboundid = inboundId;
+        }
+    }
+
+    private static setClientIdOfMx(clientId: number, inboundMxs: InboundMxDto[]) {
+        //将单头信息填写到明细中
+        for (let i = 0; i < inboundMxs.length; i++) {
+            const inboundMx = inboundMxs[i];
+
+            //不能全部都等于单头(可以按明细不同客户进仓,可以账套)
+            if (inboundMx.clientid === 0) {
+                inboundMx.clientid = clientId;
+            }
+        }
+    }
 
     //查询进仓单单头list
     public async find(findDto: FindInboundDto) {
@@ -33,32 +53,29 @@ export class InboundService {
     }
 
     //查询进仓单明细
-    public async findMxById(inboundId:number){
+    public async findMxById(inboundId: number) {
         return await this.inboundMxService.findById(inboundId)
     }
 
     //新增进仓单
-    public async createInbound(inboundDto: IInboundDto):Promise<ResultSetHeader> {
+    public async createInbound(inboundDto: IInboundDto): Promise<ResultSetHeader> {
         return this.mysqldbAls.sqlTransaction(async () => {
             //生成自动单号
             inboundDto.inboundcode = await this.autoCodeMxService.getAutoCode(inboundDto.inboundtype);
             //创建进仓单的单头
             const inbound = new Inbound(inboundDto);
             const createResult = await this.inboundEntity.create(inbound);
-            //将单头信息填写到明细中
-            for (let i = 0; i < inboundDto.inboundmx.length; i++) {
-                inboundDto.inboundmx [i].inboundid = createResult.insertId;
-                //如果明细没有客户，以单头客户为准
-                if (inboundDto.inboundmx [i].clientid === 0) {
-                    inboundDto.inboundmx [i].clientid = inbound.clientid;
-                }
-            }
+            //设置明细inboundId
+            InboundService.setInboundIdOfMx(inbound.inboundid, inboundDto.inboundmx);
+            //设置明细clientId
+            InboundService.setClientIdOfMx(inbound.clientid,inboundDto.inboundmx);
+
             //创建进仓单的明细
             await this.inboundMxService.create(inboundDto.inboundmx);
 
             return {
-                id:createResult.insertId,
-                code:inboundDto.inboundcode,
+                id: createResult.insertId,
+                code: inboundDto.inboundcode,
             }
         });
     }
@@ -76,14 +93,10 @@ export class InboundService {
             const inbound = new Inbound(inboundDto);
             await this.inboundEntity.update(inbound);
 
-            //将单头信息填写到明细中
-            for (let i = 0; i < inboundDto.inboundmx.length; i++) {
-                inboundDto.inboundmx [i].inboundid = inboundDto.inboundid;
-                //如果明细没有客户，以单头客户为准
-                if (inboundDto.inboundmx [i].clientid === 0) {
-                    inboundDto.inboundmx [i].clientid = inbound.clientid;
-                }
-            }
+            //设置明细inboundId
+            InboundService.setInboundIdOfMx(inbound.inboundid, inboundDto.inboundmx);
+            //设置明细clientId
+            InboundService.setClientIdOfMx(inbound.clientid,inboundDto.inboundmx);
 
             //删除现有明细
             await this.inboundMxService.delete_date(inbound.inboundid);
@@ -140,20 +153,20 @@ export class InboundService {
             await this.inboundEntity.update(inbound);
 
             //获取需要进仓的明细
-            const inboundmxList = await this.inboundMxService.findById(inboundid);
-            for (let i = 0; i < inboundmxList.length; i++) {
-                const inboundmx = inboundmxList[i];
+            const inboundMxList = await this.inboundMxService.findById(inboundid);
+            for (let i = 0; i < inboundMxList.length; i++) {
+                const inboundMx = inboundMxList[i];
                 const inventory = new AddInventoryDto();
-                inventory.productid = inboundmx.productid;
-                inventory.spec_d = inboundmx.spec_d;
-                inventory.materials_d = inboundmx.materials_d;
-                inventory.remark = inboundmx.remark;
-                inventory.remarkmx = inboundmx.remarkmx;
-                inventory.qty = inboundmx.inqty;
+                inventory.productid = inboundMx.productid;
+                inventory.spec_d = inboundMx.spec_d;
+                inventory.materials_d = inboundMx.materials_d;
+                inventory.remark = inboundMx.remark;
+                inventory.remarkmx = inboundMx.remarkmx;
+                inventory.qty = inboundMx.inqty;
                 inventory.updatedAt = new Date();
                 inventory.updater = userName
-                inventory.latest_sale_price = inboundmx.netprice;
-                inventory.clientid = inboundmx.clientid;
+                inventory.latest_sale_price = inboundMx.netprice;
+                inventory.clientid = inboundMx.clientid;
 
                 if (inventory.clientid === 0) {
                     inventory.clientid = inbound.clientid;
