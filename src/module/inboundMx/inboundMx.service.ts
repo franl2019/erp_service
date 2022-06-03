@@ -34,6 +34,7 @@ export class InboundMxService {
         switch (inboundMx.pricetype) {
             case 0:
                 inboundMx.priceqty = inboundMx.inqty;
+                //浮动价？
                 inboundMx.netprice =
                     Number(
                         round(chain(bignumber(inboundMx.price))

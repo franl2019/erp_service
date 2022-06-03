@@ -1,9 +1,10 @@
-export class ProductArea {
+export interface IProductArea {
   productareaid: number;
   productareacode: string;
   productareaname: string;
   sonflag: number;
   parentid: number;
+  parentCode:string;
   creater: string;
   createdAt: Date;
   updater: string;

@@ -34,7 +34,7 @@ export class SaleOutboundService {
                     chain(bignumber(outboundMx.priceqty))
                         .multiply(bignumber(outboundMx.netprice))
                         .done()
-                    , 4)
+                    , 2)
             );
 
             amounts = Number(
@@ -42,7 +42,7 @@ export class SaleOutboundService {
                     chain(bignumber(amounts))
                         .add(bignumber(amount))
                         .done()
-                ,4)
+                    , 2)
             )
         }
 
@@ -55,9 +55,25 @@ export class SaleOutboundService {
         return await this.outboundService.find(findDto);
     }
 
-    public async create(saleOutboundDto: SaleOutboundDto, state: IState) {
+    public async create(saleOutboundDto: SaleOutboundDto, username: string) {
         saleOutboundDto.outboundtype = CodeType.XS;
-        return await this.outboundService.createOutbound(saleOutboundDto, state);
+        const result = await this.outboundService.create(saleOutboundDto, username);
+        return {
+            id:result.insertId,
+            code:saleOutboundDto.outboundcode
+        }
+    }
+
+    public async create_l1Review(saleOutboundDto: SaleOutboundDto, username: string) {
+        return this.mysqldbAls.sqlTransaction(async () => {
+            saleOutboundDto.outboundtype = CodeType.XS;
+            const result = await this.outboundService.create(saleOutboundDto, username);
+            await this.outboundService.l1Review(result.insertId, username);
+            return {
+                id:result.insertId,
+                code:saleOutboundDto.outboundcode
+            }
+        })
     }
 
     public async update(saleOutboundDto: SaleOutboundDto, state: IState) {
@@ -73,8 +89,8 @@ export class SaleOutboundService {
         return await this.outboundService.undelete_data(outboundId);
     }
 
-    public async level1Review(outboundId: number, state: IState) {
-        return await this.outboundService.l1Review(outboundId, state);
+    public async level1Review(outboundId: number, userName: string) {
+        return await this.outboundService.l1Review(outboundId, userName);
     }
 
     public async unLevel1Review(outboundId: number, state: IState) {

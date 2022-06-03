@@ -1,41 +1,39 @@
+import {bignumber, chain, equal, round} from "mathjs";
+import {CodeType} from "../autoCode/codeType";
 import {Injectable} from "@nestjs/common";
-import {AccountsVerifySheetEntity} from "./accountsVerifySheet.entity";
-import {AccountsVerifySheetFindDto} from "./dto/accountsVerifySheetFind.dto";
 import {MysqldbAls} from "../mysqldb/mysqldbAls";
-import {AccountsVerifySheetCreateDto} from "./dto/accountsVerifySheetCreate.dto";
-import {AccountsVerifySheetMxCreateDto} from "./dto/accountsVerifySheetMxCreate.dto";
 import {verifyParam} from "../../utils/verifyParam";
+import {IAccountsPayable} from "../accountsPayable/accountsPayable";
 import {AutoCodeMxService} from "../autoCodeMx/autoCodeMx.service";
-import {AccountsVerifySheetUpdateDto} from "./dto/accountsVerifySheetUpdate.dto";
-import {AccountsVerifySheetMxUpdateDto} from "./dto/accountsVerifySheetMxUpdate.dto";
-import {AccountsVerifySheetMxService} from "../accountsVerifySheetMx/accountsVerifySheetMx.service";
+import {AccountCategoryType} from "../accountsVerifySheetMx/accountCategoryType";
+import {IAccountsReceivable} from "../accountsReceivable/accountsReceivable";
+import {IAccountsVerifySheet} from "./accountsVerifySheet";
 import {AccountsPayableService} from "../accountsPayable/accountsPayable.service";
 import {IAccountsVerifySheetMx} from "../accountsVerifySheetMx/accountsVerifySheetMx";
-import {AccountsReceivableService} from "../accountsReceivable/accountsReceivable.service";
-import {AccountsPayableMxService} from "../accountsPayableMx/accountsPayableMx.service";
-import {AccountsReceivableMxService} from "../accountsReceivableMx/accountsReceivableMx.service";
-import {bignumber, chain, equal, round} from "mathjs";
 import {AccountsVerifySheetType} from "./accountsVerifySheetType";
-import {AccountCategoryType} from "../accountsVerifySheetMx/accountCategoryType";
-import {CodeType} from "../autoCode/codeType";
-import {IAccountsVerifySheet} from "./accountsVerifySheet";
-import {IAccountsReceivable} from "../accountsReceivable/accountsReceivable";
-import {IAccountsReceivableSubjectMx} from "../accountsReceivableSubjectMx/accountsReceivableSubjectMx";
-import {IAccountsPayable} from "../accountsPayable/accountsPayable";
+import {AccountsPayableMxService} from "../accountsPayableMx/accountsPayableMx.service";
 import {IAccountsPayableSubjectMx} from "../accountsPayableMxSubject/accountsPayableSubjectMx";
+import {AccountsReceivableService} from "../accountsReceivable/accountsReceivable.service";
+import {AccountsVerifySheetEntity} from "./accountsVerifySheet.entity";
+import {AccountsVerifySheetFindDto} from "./dto/accountsVerifySheetFind.dto";
+import {AccountsVerifySheetMxService} from "../accountsVerifySheetMx/accountsVerifySheetMx.service";
+import {AccountsVerifySheetCreateDto} from "./dto/accountsVerifySheetCreate.dto";
+import {AccountsVerifySheetUpdateDto} from "./dto/accountsVerifySheetUpdate.dto";
+import {IAccountsReceivableSubjectMx} from "../accountsReceivableSubjectMx/accountsReceivableSubjectMx";
+import {AccountsVerifySheetMxCreateDto} from "./dto/accountsVerifySheetMxCreate.dto";
+import {AccountsVerifySheetMxUpdateDto} from "./dto/accountsVerifySheetMxUpdate.dto";
 
 @Injectable()
 export class AccountsVerifySheetService {
 
     constructor(
         private readonly mysqldbAls: MysqldbAls,
-        private readonly accountsVerifySheetEntity: AccountsVerifySheetEntity,
-        private readonly accountsVerifySheetMxService: AccountsVerifySheetMxService,
+        private readonly autoCodeMxService: AutoCodeMxService,
         private readonly accountsPayableService: AccountsPayableService,
         private readonly accountsPayableMxService: AccountsPayableMxService,
+        private readonly accountsVerifySheetEntity: AccountsVerifySheetEntity,
         private readonly accountsReceivableService: AccountsReceivableService,
-        private readonly accountsReceivableMxService: AccountsReceivableMxService,
-        private readonly autoCodeMxService: AutoCodeMxService,
+        private readonly accountsVerifySheetMxService: AccountsVerifySheetMxService,
     ) {
     }
 
@@ -153,10 +151,10 @@ export class AccountsVerifySheetService {
         return await this.accountsVerifySheetEntity.find(findDto);
     }
 
-    public async create(createDto: AccountsVerifySheetCreateDto) {
+    public async create(createDto: AccountsVerifySheetCreateDto):Promise<{id:number,code:string}> {
 
         return await this.mysqldbAls.sqlTransaction(async () => {
-            createDto.accountsVerifySheetCode = await this.autoCodeMxService.getAutoCode(CodeType.HXD);
+            createDto.accountsVerifySheetCode = await this.autoCodeMxService.getSheetAutoCode(CodeType.HXD);
 
             //创建单头
             const result = await this.accountsVerifySheetEntity.create(createDto);
@@ -176,7 +174,18 @@ export class AccountsVerifySheetService {
                 return Promise.reject(new Error('核销单明细为空，无法保存'));
             }
             await this.accountsVerifySheetMxService.create(accountsVerifySheetMxList);
-            return result;
+            return {
+                id:result.insertId,
+                code:createDto.accountsVerifySheetCode
+            };
+        })
+    }
+
+    public async create_l1Review(createDto: AccountsVerifySheetCreateDto) {
+        return await this.mysqldbAls.sqlTransaction(async () => {
+          const createResult = await this.create(createDto);
+          await this.level1Review(createResult.id,createDto.creater);
+          return createResult
         })
     }
 

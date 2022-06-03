@@ -1,9 +1,10 @@
-export class ClientArea {
+export interface IClientArea {
   clientareaid: number;
   clientareacode: string;
   clientareaname: string;
   sonflag: number;
   parentid: number;
+  parentCode:string;
   creater: string;
   createdAt: Date;
   updater: string;

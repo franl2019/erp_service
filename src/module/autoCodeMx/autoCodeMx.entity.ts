@@ -6,10 +6,30 @@ import { MysqldbAls } from "../mysqldb/mysqldbAls";
 
 @Injectable()
 export class AutoCodeMxEntity {
-  constructor(private readonly mysqldbAls: MysqldbAls) {
+  constructor(
+      private readonly mysqldbAls: MysqldbAls
+  ) {
   }
 
-  public async getInboundAutocodeMx(codeType:number): Promise<AutoCodeMx> {
+  public async findOne(codeType:number): Promise<AutoCodeMx> {
+    const conn =  await this.mysqldbAls.getConnectionInAls();
+    const sql = `SELECT 
+                    autocode_mx.codeType,
+                    autocode_mx.codeNo,
+                    autocode_mx.createdAt 
+                 FROM 
+                    autocode_mx
+                 WHERE
+                    autocode_mx.codeType = ?`;
+    const [res] = await conn.query(sql, [codeType]);
+    if ((res as AutoCodeMx[]).length > 0) {
+      return (res as AutoCodeMx[])[0];
+    } else {
+      return null;
+    }
+  }
+
+  public async getSheetAutoCodeMxForToday(codeType:number): Promise<AutoCodeMx> {
     const conn =  await this.mysqldbAls.getConnectionInAls();
     const sql = `SELECT 
                     autocode_mx.codeType,

@@ -8,6 +8,6 @@ import { MysqldbModule } from "../mysqldb/mysqldb.module";
   imports:[MysqldbModule],
   providers: [ProductAreaService,ProductAreaSql],
   controllers: [ProductAreaController],
-  exports:[ProductAreaService,ProductAreaSql]
+  exports:[ProductAreaService]
 })
 export class ProductAreaModule {}

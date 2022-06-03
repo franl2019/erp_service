@@ -1,6 +1,7 @@
 import { IsInt, IsNotEmpty, IsString, NotEquals } from "class-validator";
+import { IBuy } from "../buy";
 
-export class UpdateBuyDto {
+export class UpdateBuyDto implements IBuy{
   @IsInt()
   @NotEquals(0)
   buyid: number;
@@ -51,6 +52,9 @@ export class UpdateBuyDto {
   @IsString()
   remark10: string;
 
+  createdAt: Date;
+  creater: string;
+
   updater: string;
   updatedAt: Date;
 
@@ -60,4 +64,17 @@ export class UpdateBuyDto {
   @IsInt()
   @NotEquals(0)
   operateareaid: number;
+
+
+  level1date: Date;
+  level1name: string;
+  level1review: number;
+  level2date: Date;
+  level2name: string;
+  level2review: number;
+
+
+  del_uuid: number;
+  deletedAt: Date;
+  deleter: string;
 }

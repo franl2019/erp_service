@@ -15,7 +15,7 @@ export class ProductAreaController {
 
   @Post("select")
   async select() {
-    const data = await this.productAreaService.select();
+    const data = await this.productAreaService.find();
     return {
       code: 200,
       msg: "查询成功",
@@ -37,7 +37,7 @@ export class ProductAreaController {
   async add(@Body() addDto: AddProductAreaDto, @ReqState() state:State) {
     addDto.creater = state.user.username;
     addDto.createdAt = new Date();
-    await this.productAreaService.add(addDto);
+    await this.productAreaService.create(addDto);
     return {
       code: 200,
       msg: "保存成功"
@@ -61,15 +61,6 @@ export class ProductAreaController {
     return {
       code: 200,
       msg: "删除成功"
-    };
-  }
-
-  @Post("undelete")
-  async undelete(@Body() deleteDto: DeleteProductAreaDto) {
-    await this.productAreaService.undelete(deleteDto);
-    return {
-      code: 200,
-      msg: "取消删除成功"
     };
   }
 }

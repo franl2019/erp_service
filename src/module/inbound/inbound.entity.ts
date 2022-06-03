@@ -89,9 +89,9 @@ export class InboundEntity {
                         inbound.deleter,
                         (
                            SELECT
-                             SUM(
-                                inbound_mx.priceqty * inbound_mx.netprice
-                                 )
+                             round(
+                                SUM(inbound_mx.priceqty * inbound_mx.netprice),2
+                             )
                            FROM
                              inbound_mx
                            WHERE
@@ -176,6 +176,8 @@ export class InboundEntity {
             params.push(findDto.page, findDto.pagesize);
         }
 
+        sql = sql + ` ORDER BY inbound.inboundcode DESC`
+
         const [res] = await conn.query(sql, params);
         return (res as FindInboundList[]);
     }
@@ -250,12 +252,182 @@ export class InboundEntity {
 
     public async update(inbound: IInbound) {
         const conn = await this.mysqldbAls.getConnectionInAls();
-        const sql: string = `UPDATE inbound SET ? WHERE inbound.inboundid = ?`;
-        const [res] = await conn.query<ResultSetHeader>(sql, [inbound, inbound.inboundid]);
+        const sql: string = `UPDATE 
+                                  inbound 
+                             SET
+                                  inbound.inboundtype = ?,
+                                  inbound.indate = ?,
+                                  inbound.moneytype = ?,
+                                  inbound.relatednumber = ?,
+                                  inbound.remark1 = ?,
+                                  inbound.remark2 = ?,
+                                  inbound.remark3 = ?,
+                                  inbound.remark4 = ?,
+                                  inbound.remark5 = ?,
+                                  inbound.updater = ?,
+                                  inbound.updatedAt = ?,
+                                  inbound.warehouseid = ?,
+                                  inbound.clientid = ?,
+                                  inbound.buyid = ?
+                             WHERE 
+                                inbound.inboundid = ?`;
+        const [res] = await conn.query<ResultSetHeader>(sql, [
+            inbound.inboundtype,
+            inbound.indate,
+            inbound.moneytype,
+            inbound.relatednumber,
+            inbound.remark1,
+            inbound.remark2,
+            inbound.remark3,
+            inbound.remark4,
+            inbound.remark5,
+            inbound.updater,
+            inbound.updatedAt,
+            inbound.warehouseid,
+            inbound.clientid,
+            inbound.buyid,
+            inbound.inboundid]);
         if (res.affectedRows > 0) {
             return res;
         } else {
             return Promise.reject(new Error("更新进仓单的单头失败"));
+        }
+    }
+
+    public async delete_data(inboundid:number,userName:string) {
+        const conn = await this.mysqldbAls.getConnectionInAls();
+        const sql: string = `UPDATE 
+                                  inbound 
+                             SET
+                                  inbound.del_uuid = ?,
+                                  inbound.deletedAt = ?,
+                                  inbound.deleter = ? 
+                             WHERE 
+                                inbound.inboundid = ?`;
+        const [res] = await conn.query<ResultSetHeader>(sql, [
+            inboundid,
+            new Date(),
+            userName,
+            inboundid]);
+        if (res.affectedRows > 0) {
+            return res;
+        } else {
+            return Promise.reject(new Error("更新进仓单删除标记失败"));
+        }
+    }
+
+    public async undelete_data(inboundid:number) {
+        const conn = await this.mysqldbAls.getConnectionInAls();
+        const sql: string = `UPDATE 
+                                  inbound 
+                             SET
+                                  inbound.del_uuid = 0,
+                                  inbound.deletedAt = '',
+                                  inbound.deleter = '' 
+                             WHERE 
+                                inbound.inboundid = ?`;
+        const [res] = await conn.query<ResultSetHeader>(sql, [
+            inboundid
+        ]);
+        if (res.affectedRows > 0) {
+            return res;
+        } else {
+            return Promise.reject(new Error("进仓单取消删除标记更新失败"));
+        }
+    }
+
+    public async l1Review(inboundid:number,userName:string) {
+        const conn = await this.mysqldbAls.getConnectionInAls();
+        const sql: string = `UPDATE 
+                                  inbound 
+                             SET
+                                   inbound.level1review = 1,
+                                   inbound.level1name = ?,
+                                   inbound.level1date = ?
+                             WHERE 
+                                inbound.level1review = 0
+                                AND inbound.level2review = 0
+                                AND inbound.del_uuid = 0
+                                AND inbound.inboundid = ?`;
+        const [res] = await conn.query<ResultSetHeader>(sql, [
+            userName,
+            new Date(),
+            inboundid]);
+        if (res.affectedRows > 0) {
+            return res;
+        } else {
+            return Promise.reject(new Error("更新进仓单审核标记失败"));
+        }
+    }
+
+    public async l2Review(inboundid:number,userName:string) {
+        const conn = await this.mysqldbAls.getConnectionInAls();
+        const sql: string = `UPDATE 
+                                  inbound 
+                             SET
+                                   inbound.level2review = 1,
+                                   inbound.level2name = ?,
+                                   inbound.level2date = ?
+                             WHERE 
+                                inbound.level1review = 1
+                                AND inbound.level2review = 0
+                                AND inbound.del_uuid = 0
+                                AND inbound.inboundid = ?`;
+        const [res] = await conn.query<ResultSetHeader>(sql, [
+            userName,
+            new Date(),
+            inboundid
+        ]);
+        if (res.affectedRows > 0) {
+            return res;
+        } else {
+            return Promise.reject(new Error("更新进仓单财务审核标记失败"));
+        }
+    }
+
+    public async unl1Review(inboundid:number) {
+        const conn = await this.mysqldbAls.getConnectionInAls();
+        const sql: string = `UPDATE 
+                                  inbound 
+                             SET
+                                   inbound.level1review = 0,
+                                   inbound.level1name = '',
+                                   inbound.level1date = ''
+                             WHERE 
+                                inbound.level1review = 1
+                                AND inbound.level2review = 0
+                                AND inbound.del_uuid = 0
+                                AND inbound.inboundid = ?`;
+        const [res] = await conn.query<ResultSetHeader>(sql, [
+            inboundid
+        ]);
+        if (res.affectedRows > 0) {
+            return res;
+        } else {
+            return Promise.reject(new Error("进仓单更新撤审标记失败"));
+        }
+    }
+
+    public async unl2Review(inboundid:number) {
+        const conn = await this.mysqldbAls.getConnectionInAls();
+        const sql: string = `UPDATE 
+                                  inbound 
+                             SET
+                                   inbound.level2review = 0,
+                                   inbound.level2name = '',
+                                   inbound.level2date = ''
+                             WHERE 
+                                inbound.level1review = 1
+                                AND inbound.level2review = 1
+                                AND inbound.del_uuid = 0
+                                AND inbound.inboundid = ?`;
+        const [res] = await conn.query<ResultSetHeader>(sql, [
+            inboundid
+        ]);
+        if (res.affectedRows > 0) {
+            return res;
+        } else {
+            return Promise.reject(new Error("进仓单撤审财务审核失败"));
         }
     }
 }

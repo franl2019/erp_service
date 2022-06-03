@@ -1,4 +1,4 @@
-export class Client {
+export interface IClient {
   clientid: number;
   clientcode: string;
   clientname: string;

@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { BuyAreaService } from './buyArea.service';
 import { BuyAreaController } from './buyArea.controller';
-import { BuyAreaSql } from "./buyArea.sql";
+import { BuyAreaEntity } from "./buyArea.entity";
 import { MysqldbModule } from "../mysqldb/mysqldb.module";
 
 @Module({
   imports:[MysqldbModule],
-  providers: [BuyAreaService,BuyAreaSql],
+  providers: [BuyAreaService,BuyAreaEntity],
   controllers: [BuyAreaController],
-  exports:[BuyAreaService,BuyAreaSql]
+  exports:[BuyAreaService]
 })
 export class BuyAreaModule {}

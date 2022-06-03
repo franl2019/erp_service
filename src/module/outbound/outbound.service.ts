@@ -9,6 +9,7 @@ import {IFindOutboundDto} from "./dto/find.dto";
 import {AddInventoryDto} from "../inventory/dto/addInventory.dto";
 import {InventoryService} from "../inventory/inventory.service";
 import {AutoCodeMxService} from "../autoCodeMx/autoCodeMx.service";
+import {ResultSetHeader} from "mysql2/promise";
 
 @Injectable()
 export class OutboundService {
@@ -36,11 +37,11 @@ export class OutboundService {
     }
 
     //创建出仓单
-    public async createOutbound(createOutboundDto: IOutboundDto, state: State) {
+    public async create(createOutboundDto: IOutboundDto, username: string):Promise<ResultSetHeader> {
         return this.mysqlAls.sqlTransaction(async () => {
             //创建单号
-            createOutboundDto.outboundcode = await this.autoCodeMxService.getAutoCode(createOutboundDto.outboundtype);
-            createOutboundDto.creater = state.user.username;
+            createOutboundDto.outboundcode = await this.autoCodeMxService.getSheetAutoCode(createOutboundDto.outboundtype);
+            createOutboundDto.creater = username;
             createOutboundDto.createdAt = new Date();
             //创建单头
             const outbound = new Outbound(createOutboundDto);
@@ -51,6 +52,7 @@ export class OutboundService {
             }
             //创建明细
             await this.outboundMxService.create(createOutboundDto.outboundMx);
+            return createResult
         });
     }
 
@@ -98,13 +100,8 @@ export class OutboundService {
                 return Promise.reject(new Error("进仓单已删除，请勿重复删除"));
             }
 
-            //为需要删除的出仓单，标记删除信息
-            outbound.del_uuid = outbound.outboundid;
-            outbound.deleter = state.user.username;
-            outbound.deletedAt = new Date();
-
             //修改出仓单
-            await this.outboundEntity.update(outbound);
+            await this.outboundEntity.delete_data(outbound.outboundid,state.user.username);
         });
     }
 
@@ -122,18 +119,13 @@ export class OutboundService {
                 return Promise.reject(new Error("进仓单未删除，无法取消删除"));
             }
 
-            //清除删除标记
-            outbound.del_uuid = 0;
-            outbound.deleter = "";
-            outbound.deletedAt = null;
-
             //修改出仓单
-            await this.outboundEntity.update(outbound);
+            await this.outboundEntity.undelete_data(outbound.outboundid);
         });
     }
 
     //审核出仓单
-    public async l1Review(outboundId: number, state: State) {
+    public async l1Review(outboundId: number, userName:string) {
         return this.mysqlAls.sqlTransaction(async () => {
             const outbound = await this.outboundEntity.findById(outboundId);
             //检查是否未审核
@@ -146,11 +138,7 @@ export class OutboundService {
                 return Promise.reject(new Error("进仓单已删除，无法审核"));
             }
 
-            //更新出仓单审核状态
-            outbound.level1review = 1;
-            outbound.level1name = state.user.username;
-            outbound.level1date = new Date();
-            await this.outboundEntity.update(outbound);
+            await this.outboundEntity.l1Review(outbound.outboundid,userName);
 
             //扣减库存
             //获取需要进仓的明细
@@ -165,7 +153,7 @@ export class OutboundService {
                 inventory.remarkmx = outboundMx.remarkmx;
                 inventory.qty = outboundMx.outqty;
                 inventory.updatedAt = new Date();
-                inventory.updater = state.user.username;
+                inventory.updater = userName;
                 inventory.latest_sale_price = outboundMx.netprice;
                 inventory.clientid = outboundMx.clientid;
                 inventory.warehouseid = outboundMx.warehouseid;
@@ -199,10 +187,7 @@ export class OutboundService {
             }
 
             //更新出仓单审核状态
-            outbound.level1review = 0;
-            outbound.level1name = "";
-            outbound.level1date = null;
-            await this.outboundEntity.update(outbound);
+            await this.outboundEntity.unl1Review(outbound.outboundid);
 
             //扣减库存
             //获取需要进仓的明细
@@ -246,10 +231,7 @@ export class OutboundService {
             }
 
             //更新出仓单审核状态
-            outbound.level2review = 1;
-            outbound.level2name = userName;
-            outbound.level2date = new Date();
-            await this.outboundEntity.update(outbound);
+            await this.outboundEntity.l2Review(outbound.outboundid,userName);
         })
     }
 
@@ -264,10 +246,7 @@ export class OutboundService {
             }
 
             //更新出仓单审核状态
-            outbound.level2review = 0;
-            outbound.level2name = "";
-            outbound.level2date = null;
-            await this.outboundEntity.update(outbound);
+            await this.outboundEntity.unl2Review(outbound.outboundid);
         });
     }
 

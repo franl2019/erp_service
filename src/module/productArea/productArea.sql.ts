@@ -2,8 +2,7 @@ import { ResultSetHeader } from "mysql2/promise";
 import { AddProductAreaDto } from "./dto/addProductArea.dto";
 import { UpdateProductAreaDto } from "./dto/updateProductArea.dto";
 import { Injectable } from "@nestjs/common";
-import { DeleteProductAreaDto } from "./dto/deleteProductArea.dto";
-import { ProductArea } from "./productArea";
+import {IProductArea} from "./productArea";
 import { MysqldbAls } from "../mysqldb/mysqldbAls";
 import { Product } from "../product/product";
 
@@ -15,12 +14,30 @@ export class ProductAreaSql {
   }
 
   //查询产品类别
-  public async getProductArea(productareaid: number): Promise<ProductArea> {
+  public async findOne(productareaid: number): Promise<IProductArea> {
     const conn = await this.mysqldbAls.getConnectionInAls();
-    const sql: string = `SELECT * FROM productarea WHERE del_uuid = 0 AND productareaid = ?`;
+    const sql: string = `SELECT 
+                            productarea.productareaid,
+                            productarea.productareacode,
+                            productarea.productareaname,
+                            productarea.sonflag,
+                            productarea.parentid,
+                            productarea.parentCode,
+                            productarea.creater,
+                            productarea.createdAt,
+                            productarea.updater,
+                            productarea.updatedAt,
+                            productarea.del_uuid,
+                            productarea.deletedAt,
+                            productarea.deleter
+                        FROM 
+                            productarea 
+                        WHERE 
+                            productarea.del_uuid = 0 
+                            AND productarea.productareaid = ?`;
     const [res] = await conn.query(sql, [productareaid]);
-    if ((res as ProductArea[]).length > 0) {
-      return (res as ProductArea[])[0];
+    if ((res as IProductArea[]).length > 0) {
+      return (res as IProductArea[])[0];
     } else {
       return Promise.reject(new Error("找不到单个产品类别"));
     }
@@ -28,11 +45,28 @@ export class ProductAreaSql {
   }
 
   //查询产品类别
-  public async getProductAreas(): Promise<ProductArea[]> {
+  public async find(): Promise<IProductArea[]> {
     const conn = await this.mysqldbAls.getConnectionInAls();
-    const sql: string = `SELECT * FROM productarea WHERE del_uuid = 0`;
+    const sql: string = `SELECT 
+                            productarea.productareaid,
+                            productarea.productareacode,
+                            productarea.productareaname,
+                            productarea.sonflag,
+                            productarea.parentid,
+                            productarea.parentCode,
+                            productarea.creater,
+                            productarea.createdAt,
+                            productarea.updater,
+                            productarea.updatedAt,
+                            productarea.del_uuid,
+                            productarea.deletedAt,
+                            productarea.deleter
+                         FROM 
+                            productarea
+                         WHERE
+                            productarea.del_uuid = 0`;
     const [res] = await conn.query(sql);
-    return (res as ProductArea[]);
+    return (res as IProductArea[]);
   }
 
   //查询产品类别下的产品资料
@@ -43,42 +77,47 @@ export class ProductAreaSql {
     return (res as Product[]);
   }
 
-  //查询删除产品类别
-  public async getDeleteProductArea(productareaid: number): Promise<ProductArea> {
-    const conn = await this.mysqldbAls.getConnectionInAls();
-    const sql: string = `SELECT * FROM productarea WHERE del_uuid <> 0 AND productareaid = ?`;
-    const [res] = await conn.query(sql, [productareaid]);
-    if ((res as ProductArea[]).length > 0) {
-      return (res as ProductArea[])[0];
-    } else {
-      return Promise.reject(new Error("找不到已删除单个产品类别"));
-    }
-
-  }
-
   //查询产品类别
-  public async getDeleteProductAreas(): Promise<ProductArea[]> {
+  public async getDeleteProductAreas(): Promise<IProductArea[]> {
     const conn = await this.mysqldbAls.getConnectionInAls();
     const sql: string = `SELECT * FROM productarea WHERE del_uuid <> 0`;
     const [res] = await conn.query(sql);
-    return (res as ProductArea[]);
+    return (res as IProductArea[]);
   }
 
   //获取产品类别下级区域
-  public async getChildrenProductArea(parentid: number): Promise<ProductArea[]> {
+  public async getChildrenProductArea(parentid: number): Promise<IProductArea[]> {
     const conn = await this.mysqldbAls.getConnectionInAls();
     const sql: string = `SELECT * FROM productarea WHERE del_uuid = 0 AND parentid = ?`;
     const [res] = await conn.query(sql, [parentid]);
-    return (res as ProductArea[]);
+    return (res as IProductArea[]);
   }
 
   //新增产品类别
-  public async add(productArea: AddProductAreaDto) {
+  public async create(productArea: AddProductAreaDto) {
     const conn = await this.mysqldbAls.getConnectionInAls();
-    const sql: string = "INSERT INTO productarea SET ?";
-    const [res] = await conn.query(sql, productArea);
-    if ((res as ResultSetHeader).affectedRows > 0) {
-      return (res as ResultSetHeader);
+    const sql: string = `INSERT INTO productarea (
+                            productarea.productareaid,
+                            productarea.productareacode,
+                            productarea.productareaname,
+                            productarea.sonflag,
+                            productarea.parentid,
+                            productarea.parentCode,
+                            productarea.creater,
+                            productarea.createdAt
+                        ) VALUES ?`;
+    const [res] = await conn.query<ResultSetHeader>(sql, [[[
+      productArea.productareaid,
+      productArea.productareacode,
+      productArea.productareaname,
+      productArea.sonflag,
+      productArea.parentid,
+      productArea.parentCode,
+      productArea.creater,
+      productArea.createdAt
+    ]]]);
+    if (res.affectedRows > 0) {
+      return res;
     } else {
       return Promise.reject(new Error("新增产品类别失败"));
     }
@@ -87,10 +126,30 @@ export class ProductAreaSql {
   //更新产品类别
   public async update(productarea: UpdateProductAreaDto) {
     const conn = await this.mysqldbAls.getConnectionInAls();
-    const sql: string = `UPDATE productarea SET ? WHERE productareaid = ?`;
-    const [res] = await conn.query(sql, [productarea, productarea.productareaid]);
-    if ((res as ResultSetHeader).affectedRows > 0) {
-      return (res as ResultSetHeader);
+    const sql: string = `UPDATE
+                            productarea
+                         SET 
+                            productarea.productareacode = ?,
+                            productarea.productareaname = ?,
+                            productarea.sonflag = ?,
+                            productarea.parentid = ?,
+                            productarea.parentCode = ?,
+                            productarea.updater = ?,
+                            productarea.updatedAt = ?
+                         WHERE 
+                            productarea.productareaid = ?`;
+    const [res] = await conn.query<ResultSetHeader>(sql, [
+      productarea.productareacode,
+      productarea.productareaname,
+      productarea.sonflag,
+      productarea.parentid,
+      productarea.parentCode,
+      productarea.updater,
+      productarea.updatedAt,
+      productarea.productareaid
+    ]);
+    if (res.affectedRows > 0) {
+      return res;
     } else {
       return Promise.reject(new Error("更新产品类别失败"));
     }
@@ -102,38 +161,37 @@ export class ProductAreaSql {
     const childrenList = await this.getChildrenProductArea(productareaid);
     //如果没有下级类别更新sonflag = 0
     if (childrenList.length === 0) {
-      const productArea_DB = await this.getProductArea(productareaid);
+      const productArea_DB = await this.findOne(productareaid);
       productArea_DB.sonflag = 0;
       await this.update(productArea_DB);
     } else {
-      const productArea_DB = await this.getProductArea(productareaid);
+      const productArea_DB = await this.findOne(productareaid);
       productArea_DB.sonflag = 1;
       await this.update(productArea_DB);
     }
-
   }
 
   //删除产品类别
-  public async delete_data(productArea: DeleteProductAreaDto) {
+  public async delete_data(productareaid: number,userName:string) {
     const conn = await this.mysqldbAls.getConnectionInAls();
-    const sql: string = `UPDATE productarea SET ? WHERE productareaid = ?`;
-    const [res] = await conn.query(sql, [productArea, productArea.productareaid]);
-    if ((res as ResultSetHeader).affectedRows > 0) {
-      return (res as ResultSetHeader);
+    const sql: string = `UPDATE 
+                            productarea
+                         SET 
+                            productarea.del_uuid = ?,
+                            productarea.deleter = ?,
+                            productarea.deletedAt = ?
+                         WHERE
+                            productareaid = ?`;
+    const [res] = await conn.query<ResultSetHeader>(sql, [
+      productareaid,
+      userName,
+      new Date(),
+      productareaid
+    ]);
+    if (res.affectedRows > 0) {
+      return res;
     } else {
       return Promise.reject(new Error("删除产品类别失败"));
-    }
-  }
-
-  //取消删除产品类别
-  public async undelete(productArea: DeleteProductAreaDto) {
-    const conn = await this.mysqldbAls.getConnectionInAls();
-    const sql: string = `UPDATE productarea SET ? WHERE productareaid = ? AND del_uuid = ?`;
-    const [res] = await conn.query(sql, [productArea, productArea.productareaid, productArea.productareaid]);
-    if ((res as ResultSetHeader).affectedRows > 0) {
-      return (res as ResultSetHeader);
-    } else {
-      return Promise.reject(new Error("取消删除产品类别失败"));
     }
   }
 }

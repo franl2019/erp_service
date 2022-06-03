@@ -10,6 +10,7 @@ import {Inbound} from "./inbound";
 import {AutoCodeMxService} from "../autoCodeMx/autoCodeMx.service";
 import {ResultSetHeader} from "mysql2/promise";
 import {InboundMxDto} from "../inboundMx/dto/inboundMx.dto";
+import {ClientService} from "../client/client.service";
 
 @Injectable()
 export class InboundService {
@@ -18,8 +19,20 @@ export class InboundService {
         private readonly inboundEntity: InboundEntity,
         private readonly inboundMxService: InboundMxService,
         private readonly autoCodeMxService: AutoCodeMxService,
-        private readonly inventoryService: InventoryService
+        private readonly inventoryService: InventoryService,
+        private readonly clientService: ClientService
     ) {
+    }
+
+    private async getGsClient() {
+        //默认以公司进仓
+        const gsClient = await this.clientService.getGsClient();
+
+        if (!gsClient && gsClient.clientid === 0) {
+            return Promise.reject(new Error('缺少公司标记'))
+        }
+
+        return gsClient
     }
 
     private static setInboundIdOfMx(inboundId: number, inboundMxs: InboundMxDto[]) {
@@ -61,14 +74,20 @@ export class InboundService {
     public async createInbound(inboundDto: IInboundDto): Promise<ResultSetHeader> {
         return this.mysqldbAls.sqlTransaction(async () => {
             //生成自动单号
-            inboundDto.inboundcode = await this.autoCodeMxService.getAutoCode(inboundDto.inboundtype);
+            inboundDto.inboundcode = await this.autoCodeMxService.getSheetAutoCode(inboundDto.inboundtype);
             //创建进仓单的单头
             const inbound = new Inbound(inboundDto);
+
+            if (inbound.clientid === 0) {
+                //默认以公司进仓
+                const gsClient = await this.getGsClient()
+                inbound.clientid = gsClient.clientid;
+            }
             const createResult = await this.inboundEntity.create(inbound);
             //设置明细inboundId
-            InboundService.setInboundIdOfMx(inbound.inboundid, inboundDto.inboundmx);
+            InboundService.setInboundIdOfMx(createResult.insertId, inboundDto.inboundmx);
             //设置明细clientId
-            InboundService.setClientIdOfMx(inbound.clientid,inboundDto.inboundmx);
+            InboundService.setClientIdOfMx(inbound.clientid, inboundDto.inboundmx);
 
             //创建进仓单的明细
             await this.inboundMxService.create(inboundDto.inboundmx);
@@ -91,12 +110,19 @@ export class InboundService {
 
             //创建进仓单的单头
             const inbound = new Inbound(inboundDto);
+
+            if (inbound.clientid === 0) {
+                //默认以公司进仓
+                const gsClient = await this.getGsClient()
+                inbound.clientid = gsClient.clientid;
+            }
+
             await this.inboundEntity.update(inbound);
 
             //设置明细inboundId
             InboundService.setInboundIdOfMx(inbound.inboundid, inboundDto.inboundmx);
             //设置明细clientId
-            InboundService.setClientIdOfMx(inbound.clientid,inboundDto.inboundmx);
+            InboundService.setClientIdOfMx(inbound.clientid, inboundDto.inboundmx);
 
             //删除现有明细
             await this.inboundMxService.delete_date(inbound.inboundid);
@@ -112,12 +138,9 @@ export class InboundService {
             if (inbound_db.level1review !== 0 && inbound_db.level2review !== 0) {
                 return Promise.reject(new Error("删除失败，进仓单已审核，请先撤审"));
             }
-            //填写删除人信息
-            inbound_db.del_uuid = inbound_db.inboundid;
-            inbound_db.deleter = userName;
-            inbound_db.deletedAt = new Date();
+
             //更新进仓单为已删除
-            await this.inboundEntity.update(inbound_db);
+            await this.inboundEntity.delete_data(inbound_db.inboundid, userName);
         });
     }
 
@@ -128,12 +151,9 @@ export class InboundService {
             if (inbound_db.del_uuid === inbound_db.inboundid && inbound_db.deleter.length > 0) {
                 return Promise.reject(new Error("取消删除失败，进仓单未删除"));
             }
-            //取消填写删除人信息
-            inbound_db.del_uuid = 0;
-            inbound_db.deleter = "";
-            inbound_db.deletedAt = null;
+
             //更新进仓单为已删除
-            await this.inboundEntity.update(inbound_db);
+            await this.inboundEntity.undelete_data(inbound_db.inboundid);
         });
     }
 
@@ -146,11 +166,7 @@ export class InboundService {
                 return Promise.reject(new Error("单据已审核"));
             }
 
-            inbound.level1review = 1;
-            inbound.level1date = new Date();
-            inbound.level1name = userName;
-
-            await this.inboundEntity.update(inbound);
+            await this.inboundEntity.l1Review(inbound.inboundid, userName);
 
             //获取需要进仓的明细
             const inboundMxList = await this.inboundMxService.findById(inboundid);
@@ -188,11 +204,7 @@ export class InboundService {
                 return Promise.reject(new Error("单据已审核"));
             }
 
-            inbound.level1review = 0;
-            inbound.level1date = null;
-            inbound.level1name = "";
-
-            await this.inboundEntity.update(inbound);
+            await this.inboundEntity.unl1Review(inbound.inboundid);
 
             //获取需要扣减的明细
             const inboundmxList = await this.inboundMxService.findById(inboundid);
@@ -230,11 +242,8 @@ export class InboundService {
                 return Promise.reject(new Error("财务审核失败，单据未审核"));
             }
 
-            //更新单头
-            inbound.level2review = 1;
-            inbound.level2name = userName;
-            inbound.level2date = new Date();
-            await this.inboundEntity.update(inbound);
+
+            await this.inboundEntity.l2Review(inbound.inboundid, userName);
         })
     }
 
@@ -247,11 +256,8 @@ export class InboundService {
                 return Promise.reject(new Error("财务撤审失败，单据未财务撤审"));
             }
 
-            //更新单头信息
-            inbound.level2review = 0;
-            inbound.level2name = "";
-            inbound.level2date = null;
-            await this.inboundEntity.update(inbound);
+
+            await this.inboundEntity.unl2Review(inbound.inboundid);
         })
     }
 

@@ -29,7 +29,9 @@ export class OutboundMxEntity {
                     outbound_mx.price, 
                     outbound_mx.bzprice, 
                     outbound_mx.priceqty, 
-                    SUM(outbound_mx.netprice * outbound_mx.priceqty) AS amt,
+                    round(
+                        SUM(outbound_mx.netprice * outbound_mx.priceqty),2
+                    ) AS amt,
                     outbound_mx.netprice, 
                     outbound_mx.floatprice1, 
                     outbound_mx.floatprice2, 
@@ -56,8 +58,8 @@ export class OutboundMxEntity {
                 WHERE
                    outbound_mx.outboundid = ?
                 GROUP BY
-                   outbound_mx.outboundid, 
-                   outbound_mx.printid`;
+                   outbound_mx.outboundid ASC, 
+                   outbound_mx.printid ASC`;
     const [rows] = await conn.query(sql, [outboundid]);
     if ((rows as IFindOutboundMx[]).length > 0) {
       return rows as IFindOutboundMx[];

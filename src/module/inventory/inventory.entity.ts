@@ -6,6 +6,7 @@ import {ResultSetHeader} from "mysql2/promise";
 import {IFindInventory, IInventory, Inventory} from "./inventory";
 import {AddInventoryDto} from "./dto/addInventory.dto";
 import {ClientService} from "../client/client.service";
+import {ProductAreaService} from "../productArea/productArea.service";
 
 @Injectable()
 export class InventoryEntity {
@@ -13,36 +14,36 @@ export class InventoryEntity {
   constructor(
       private readonly mysqldbAls: MysqldbAls,
       private readonly clientService: ClientService,
+      private readonly productAreaService:ProductAreaService
   ) {
   }
 
   //查询单个
   public async findOne(findOneDto: FindOneInventoryDto): Promise<IInventory> {
     const conn = await this.mysqldbAls.getConnectionInAls();
-    let sql =
-        `SELECT 
-        inventory.inventoryid,
-        inventory.spec_d,
-        inventory.materials_d,
-        inventory.remark,
-        inventory.remarkmx,
-        inventory.updatedAt,
-        inventory.updater,
-        inventory.latest_sale_price,
-        inventory.productid,
-        inventory.clientid,
-        inventory.warehouseid,
-        inventory.qty
-       FROM 
-        inventory
-       WHERE 
-        inventory.productid = ? 
-        AND inventory.clientid = ? 
-        AND inventory.warehouseid = ? 
-        AND inventory.spec_d = ? 
-        AND inventory.materials_d = ? 
-        AND inventory.remark = ? 
-        AND inventory.remarkmx = ?`;
+    let sql = `SELECT 
+                  inventory.inventoryid,
+                  inventory.spec_d,
+                  inventory.materials_d,
+                  inventory.remark,
+                  inventory.remarkmx,
+                  inventory.updatedAt,
+                  inventory.updater,
+                  inventory.latest_sale_price,
+                  inventory.productid,
+                  inventory.clientid,
+                  inventory.warehouseid,
+                  inventory.qty
+              FROM 
+                  inventory
+              WHERE 
+                  inventory.productid = ? 
+                  AND inventory.clientid = ? 
+                  AND inventory.warehouseid = ? 
+                  AND inventory.spec_d = ? 
+                  AND inventory.materials_d = ? 
+                  AND inventory.remark = ? 
+                  AND inventory.remarkmx = ?`;
     let param = [findOneDto.productid, findOneDto.clientid, findOneDto.warehouseid, findOneDto.spec_d, findOneDto.materials_d, findOneDto.remark, findOneDto.remarkmx];
     const [res] = await conn.query(sql, param);
     if ((res as IInventory[]).length > 0) {
@@ -101,7 +102,7 @@ export class InventoryEntity {
     //按客户查询 默认查询所有操作区域
     if (selectDto.clientid !== 0) {
       sql = sql + ` AND inventory.clientid IN (?) `;
-      const gs = await this.clientService.selectGsClient();
+      const gs = await this.clientService.getGsClient();
       param.push([gs, selectDto.clientid]);//记得加公司
     }
 
@@ -115,8 +116,10 @@ export class InventoryEntity {
 
     //按产品类别查询
     if (selectDto.productareaid) {
-      sql = sql + ` AND product.productareaid = ?`;
-      param.push(selectDto.productareaid);
+      sql = sql + ` AND product.productareaid IN (?)`;
+      const productArea = await this.productAreaService.findOne(selectDto.productareaid);
+      const childIdList = await this.productAreaService.getChildIdList(productArea)
+      param.push(childIdList);
     }
 
     //按产品名称查询

@@ -144,7 +144,7 @@ export class AccountExpenditureService {
         return await this.accountExpenditureEntity.find(accountExpenditureFindDto);
     }
 
-    public async create(accountExpenditureCreateDto: AccountExpenditureCreateDto) {
+    public async create(accountExpenditureCreateDto: AccountExpenditureCreateDto):Promise<{id:number;code:string}> {
         if (accountExpenditureCreateDto.buyid === 0) {
             return Promise.reject(new Error("请选择供应商"));
         }
@@ -161,7 +161,7 @@ export class AccountExpenditureService {
                 await AccountExpenditureService.isEqual_writeOffAmount_accountAmount(accountExpenditureCreateDto.accountExpenditureAmountMx, accountExpenditureCreateDto.accountExpenditureSheetMx);
             }
             //创建单号
-            accountExpenditureCreateDto.accountExpenditureCode = await this.autoCodeMxService.getAutoCode(CodeType.accountExpenditure);
+            accountExpenditureCreateDto.accountExpenditureCode = await this.autoCodeMxService.getSheetAutoCode(CodeType.accountExpenditure);
             //创建单头
             const result = await this.accountExpenditureEntity.create(accountExpenditureCreateDto);
             //明细添加单头Id
@@ -173,6 +173,19 @@ export class AccountExpenditureService {
                 const accountExpenditureSheetMxList = await AccountExpenditureService.addIdForSheetMxList(accountExpenditureCreateDto.accountExpenditureSheetMx, result.insertId);
                 await this.accountExpenditureSheetMxService.create(accountExpenditureSheetMxList);
             }
+
+            return {
+                id: result.insertId,
+                code: accountExpenditureCreateDto.accountExpenditureCode
+            }
+        })
+    }
+
+    public async create_l1Review(accountExpenditureCreateDto: AccountExpenditureCreateDto) {
+        return await this.mysqldbAls.sqlTransaction(async ()=>{
+            const result = await this.create(accountExpenditureCreateDto);
+            await this.level1Review(result.id,accountExpenditureCreateDto.creater);
+            return result
         })
     }
 
@@ -285,7 +298,7 @@ export class AccountExpenditureService {
                         reMark: "",
                     })
                     //冲尾数
-                    if(accountExpenditureSheetMx.amountsMantissa>0){
+                    if (accountExpenditureSheetMx.amountsMantissa > 0) {
                         await this.accountsPayableService.createAccountsPayableSubject({
                             accountsPayableSubjectMxId: 0,
                             accountsPayableId: accountExpenditureSheetMx.correlationId,

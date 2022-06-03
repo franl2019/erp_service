@@ -20,7 +20,7 @@ export class ClientController {
 
   @Post("select")
   async select(@Body() selectClientDto: SelectClientDto, @ReqState() state: State) {
-    const data = await this.clientService.select(selectClientDto, state);
+    const data = await this.clientService.find(selectClientDto, state);
     return {
       code: 200,
       msg: "查询成功",
@@ -30,7 +30,7 @@ export class ClientController {
 
   @Post("selectGsClient")
   async selectGsClient() {
-    const data = await this.clientService.selectGsClient();
+    const data = await this.clientService.getGsClient();
     return {
       code: 200,
       msg: "查询成功",
@@ -38,19 +38,9 @@ export class ClientController {
     };
   }
 
-  @Post("unselect")
-  async unselect(@Body() selectClientDto: SelectClientDto, @ReqState() state: State) {
-    const data = await this.clientService.unselect(selectClientDto, state);
-    return {
-      code: 200,
-      msg: "查询成功",
-      data
-    };
-  }
-
   @Post("add")
-  async add(@Body() addDto: AddClientDto, @ReqState() state: State) {
-    await this.clientService.add(addDto, state);
+  async create(@Body() addDto: AddClientDto, @ReqState() state: State) {
+    await this.clientService.create(addDto, state);
     return {
       code: 200,
       msg: "保存成功"
@@ -75,30 +65,39 @@ export class ClientController {
     };
   }
 
-  @Post("undelete")
-  async undelete(@Body() deleteDto: DeleteClientDto, @ReqState() state: State) {
-    await this.clientService.undelete(deleteDto, state);
+  @Post("level1Review")
+  async level1Review(@Body() l1reviewDto: L1reviewClientDto, @ReqState() state: State) {
+    await this.clientService.level1Review(l1reviewDto.clientid, state.user.username);
     return {
       code: 200,
-      msg: "取消删除成功"
+      msg:'审核成功'
     };
   }
 
-  @Post("level1Review")
-  async level1Review(@Body() l1reviewDto: L1reviewClientDto, @ReqState() state: State) {
-    const msg = await this.clientService.level1Review(l1reviewDto, state);
+  @Post("unLevel1Review")
+  async unLevel1Review(@Body() l1reviewDto: L1reviewClientDto, @ReqState() state: State) {
+    await this.clientService.unLevel1Review(l1reviewDto.clientid);
     return {
       code: 200,
-      msg
+      msg:'审核撤销成功'
     };
   }
 
   @Post("level2Review")
   async level2Review(@Body() l2reviewDto: L2reviewClientDto, @ReqState() state: State) {
-    const msg = await this.clientService.level2Review(l2reviewDto, state);
+    await this.clientService.level2Review(l2reviewDto.clientid, state.user.username);
     return {
       code: 200,
-      msg
+      msg:'财务审核成功'
+    };
+  }
+
+  @Post("unLevel2Review")
+  async unLevel2Review(@Body() l2reviewDto: L2reviewClientDto, @ReqState() state: State) {
+    await this.clientService.unLevel2Review(l2reviewDto.clientid);
+    return {
+      code: 200,
+      msg:'财务审核撤销成功'
     };
   }
 }

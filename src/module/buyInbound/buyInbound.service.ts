@@ -31,14 +31,14 @@ export class BuyInboundService {
                         mathjs.bignumber(inboundMxList[i].priceqty)
                     ).multiply(
                         mathjs.bignumber(inboundMxList[i].netprice)
-                    ).done(), 4)
+                    ).done(), 2)
             );
             amounts = Number(
                 mathjs.round(
                     mathjs.chain(bignumber(amounts))
                         .add(bignumber(inboundMxAmount))
                         .done()
-                    , 4)
+                    , 2)
             )
         }
 

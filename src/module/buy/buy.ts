@@ -35,11 +35,11 @@ export interface IBuy {
   buyareaid: number;
   operateareaid: number;
   del_uuid:number;
-  deleteAt:Date;
+  deletedAt:Date;
   deleter:string;
 }
 
-export class Buy {
+export class Buy implements IBuy{
   buyid: number;
   buycode: string;
   buyname: string;
@@ -76,6 +76,6 @@ export class Buy {
   buyareaid: number;
   operateareaid: number;
   del_uuid:number;
-  deleteAt:Date;
+  deletedAt:Date;
   deleter:string;
 }

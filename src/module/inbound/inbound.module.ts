@@ -7,9 +7,10 @@ import {InventoryModule} from "../inventory/inventory.module";
 import {AutoCodeMxModule} from "../autoCodeMx/autoCodeMx.module";
 import {AccountsPayableModule} from "../accountsPayable/accountsPayable.module";
 import {AccountsPayableMxModule} from "../accountsPayableMx/accountsPayableMx.module";
+import {ClientModule} from "../client/client.module";
 
 @Module({
-    imports: [MysqldbModule, InboundMxModule, InventoryModule, AutoCodeMxModule, AccountsPayableModule, AccountsPayableMxModule],
+    imports: [MysqldbModule, InboundMxModule, InventoryModule, AutoCodeMxModule, AccountsPayableModule, AccountsPayableMxModule,ClientModule],
     providers: [InboundService, InboundEntity],
     exports: [InboundService]
 })

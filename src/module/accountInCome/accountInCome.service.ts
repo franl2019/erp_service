@@ -84,8 +84,17 @@ export class AccountInComeService {
 
     //验证明细参数
     private static async validateDetailParameters(accountInComeCreateDto: AccountInComeCreateDto) {
+
+        if (accountInComeCreateDto.clientid === 0) {
+            return Promise.reject(new Error('客户不能为空'));
+        }
+
         //收入单 出纳账户收款明细
         const accountInComeAmountMxList = accountInComeCreateDto.accountInComeAmountMx;
+
+        if (accountInComeAmountMxList.length === 0) {
+            return Promise.reject(new Error('付款明细为空'));
+        }
 
         //验证出纳账户收款明细
         for (let i = 0; i < accountInComeAmountMxList.length; i++) {
@@ -149,7 +158,7 @@ export class AccountInComeService {
         return await this.accountInComeEntity.findById(accountInComeId);
     }
 
-    public async create(accountInComeCreateDto: AccountInComeCreateDto) {
+    public async create(accountInComeCreateDto: AccountInComeCreateDto): Promise<{ id: number; code: string }> {
         await AccountInComeService.validateDetailParameters(accountInComeCreateDto);
         if (accountInComeCreateDto.accountInComeSheetMx.length > 0) {
             await AccountInComeService.isEqual_writeOffAmount_accountAmount(accountInComeCreateDto.accountInComeAmountMx, accountInComeCreateDto.accountInComeSheetMx);
@@ -158,7 +167,7 @@ export class AccountInComeService {
         return this.mysqldbAls.sqlTransaction(async () => {
 
             //创建单号
-            accountInComeCreateDto.accountInComeCode = await this.autoCodeMxService.getAutoCode(CodeType.accountInCome);
+            accountInComeCreateDto.accountInComeCode = await this.autoCodeMxService.getSheetAutoCode(CodeType.accountInCome);
 
             //创建单头
             const createResult = await this.accountInComeEntity.create(accountInComeCreateDto);
@@ -173,6 +182,19 @@ export class AccountInComeService {
             if (accountInComeCreateDto.accountInComeSheetMx.length > 0) {
                 await this.accountInComeSheetMxService.create(accountInComeCreateDto.accountInComeSheetMx);
             }
+
+            return {
+                id: createResult.insertId,
+                code: accountInComeCreateDto.accountInComeCode
+            }
+        })
+    }
+
+    public async create_l1Review(accountInComeCreateDto: AccountInComeCreateDto): Promise<{ id: number; code: string }> {
+        return await this.mysqldbAls.sqlTransaction(async () => {
+            const result = await this.create(accountInComeCreateDto);
+            await this.level1Review(result.id, accountInComeCreateDto.creater)
+            return result
         })
     }
 

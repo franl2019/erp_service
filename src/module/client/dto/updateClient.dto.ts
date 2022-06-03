@@ -1,6 +1,7 @@
 import { IsInt, IsNotEmpty, IsNumber, IsString, NotEquals } from "class-validator";
+import {IClient} from "../client";
 
-export class UpdateClientDto {
+export class UpdateClientDto implements IClient{
   @IsInt()
   @NotEquals(0)
   clientid: number;
@@ -73,6 +74,8 @@ export class UpdateClientDto {
   @IsString()
   remark10: string;
 
+  createdAt: Date;
+  creater: string;
 
   updater: string;
   updatedAt: Date;
@@ -88,4 +91,15 @@ export class UpdateClientDto {
 
   @IsInt()
   gs: number;
+
+  level1date: Date;
+  level1name: string;
+  level1review: number;
+  level2date: Date;
+  level2name: string;
+  level2review: number;
+
+  del_uuid: number;
+  deletedAt: Date;
+  deleter: string;
 }

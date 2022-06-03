@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ClientAreaService } from './clientArea.service';
 import { ClientAreaController } from './clientArea.controller';
-import { ClientAreaSql } from "./clientArea.sql";
+import { ClientAreaEntity } from "./clientArea.entity";
 import { MysqldbModule } from "../mysqldb/mysqldb.module";
 
 @Module({
   imports:[MysqldbModule],
-  providers: [ClientAreaService,ClientAreaSql],
+  providers: [ClientAreaService,ClientAreaEntity],
   controllers: [ClientAreaController],
-  exports:[ClientAreaService,ClientAreaSql]
+  exports:[ClientAreaService,ClientAreaEntity]
 })
 export class ClientAreaModule {}

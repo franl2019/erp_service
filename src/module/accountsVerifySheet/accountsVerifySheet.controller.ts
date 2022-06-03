@@ -28,10 +28,23 @@ export class AccountsVerifySheetController {
     public async create(@Body() createDto: AccountsVerifySheetCreateDto, @ReqState() state: IState) {
         createDto.creater = state.user.username;
         createDto.createdAt = new Date();
-        await this.accountsVerifySheetService.create(createDto);
+        const createResult = await this.accountsVerifySheetService.create(createDto);
         return {
             code: 200,
-            msg: '保存成功'
+            msg: '保存成功',
+            createResult
+        }
+    }
+
+    @Post('create_l1Review')
+    public async create_l1Review(@Body() createDto: AccountsVerifySheetCreateDto, @ReqState() state: IState) {
+        createDto.creater = state.user.username;
+        createDto.createdAt = new Date();
+        const createResult = await this.accountsVerifySheetService.create_l1Review(createDto);
+        return {
+            code: 200,
+            msg: '保存审核成功',
+            createResult
         }
     }
 

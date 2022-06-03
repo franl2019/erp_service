@@ -47,6 +47,9 @@ import {AccountExpenditureAmountMxModule} from "./module/accountExpenditureAmoun
 import {AccountsVerifySheetModule} from "./module/accountsVerifySheet/accountsVerifySheet.module";
 import {AccountsVerifySheetMxModule} from "./module/accountsVerifySheetMx/accountsVerifySheetMx.module";
 import {ReportModule} from "./module/report/report.module";
+import {BuyAutoCodeModule} from "./module/buyAutoCode/buyAutoCode.module";
+import {ProductAutoCodeModule} from "./module/productAutoCode/productAutoCode.module";
+import {ClientAutoCodeModule} from "./module/clientAutoCode/clientAutoCode.module";
 
 @Module({
     imports: [
@@ -113,6 +116,13 @@ import {ReportModule} from "./module/report/report.module";
         //核销单
         AccountsVerifySheetModule,
         AccountsVerifySheetMxModule,
+
+        //供应商自动编号
+        BuyAutoCodeModule,
+        //产品自动编号
+        ProductAutoCodeModule,
+        //客户自动编号
+        ClientAutoCodeModule,
 
         //报表
         ReportModule

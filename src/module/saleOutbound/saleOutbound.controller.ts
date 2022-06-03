@@ -32,11 +32,22 @@ export class SaleOutboundController {
     }
 
     @Post("create")
-    public async add(@Body() outboundDto: OutboundDto, @ReqState() state: State) {
-        await this.saleOutboundService.create(outboundDto, state);
+    public async create(@Body() outboundDto: OutboundDto, @ReqState() state: State) {
+        const createResult = await this.saleOutboundService.create(outboundDto, state.user.username);
         return {
             code: 200,
-            msg: "保存成功"
+            msg: "保存成功",
+            createResult
+        };
+    }
+
+    @Post("create_l1Review")
+    public async create_l1Review(@Body() outboundDto: OutboundDto, @ReqState() state: State) {
+        const createResult = await this.saleOutboundService.create_l1Review(outboundDto, state.user.username);
+        return {
+            code: 200,
+            msg: "保存成功",
+            createResult
         };
     }
 
@@ -69,7 +80,7 @@ export class SaleOutboundController {
 
     @Post("l1Review")
     public async level1Review(@Body() level1ReviewSaleOutboundDto: Level1ReviewSaleOutboundDto, @ReqState() state: State) {
-        await this.saleOutboundService.level1Review(level1ReviewSaleOutboundDto.outboundid, state);
+        await this.saleOutboundService.level1Review(level1ReviewSaleOutboundDto.outboundid, state.user.username);
         return {
             code: 200,
             msg: "审核成功"

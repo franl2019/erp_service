@@ -1,167 +1,86 @@
-import { Injectable } from "@nestjs/common";
-import { BuySql } from "./buy.sql";
-import { SelectBuyDto } from "./dto/selectBuy.dto";
-import { AddBuyDto } from "./dto/addBuy.dto";
-import { UpdateBuyDto } from "./dto/updateBuy.dto";
-import { DeleteBuyDto } from "./dto/deleteBuy.dto";
-import { L1reviewBuyDto } from "./dto/l1reviewBuy.dto";
-import { L2reviewDto } from "./dto/l2review.dto";
-import { State } from "../../interface/IState";
-import { BuyAreaSql } from "../buyArea/buyArea.sql";
-import { MysqldbAls } from "../mysqldb/mysqldbAls";
+import {Injectable} from "@nestjs/common";
+import {BuyEntity} from "./buy.entity";
+import {SelectBuyDto} from "./dto/selectBuy.dto";
+import {AddBuyDto} from "./dto/addBuy.dto";
+import {UpdateBuyDto} from "./dto/updateBuy.dto";
+import {State} from "../../interface/IState";
+import {MysqldbAls} from "../mysqldb/mysqldbAls";
+import {BuyAreaService} from "../buyArea/buyArea.service";
+import {BuyAutoCodeService} from "../buyAutoCode/buyAutoCode.service";
 
 
 @Injectable()
 export class BuyService {
 
-  constructor(
-    private readonly mysqldbAls: MysqldbAls,
-    private readonly buySql: BuySql,
-    private readonly buyAreaSql: BuyAreaSql) {
-  }
-
-
-  public async select(buy: SelectBuyDto, state: State) {
-    buy.operateareaids = state.user.buy_operateareaids;
-    return await this.buySql.getBuys(buy);
-  }
-
-  public async unselect(buy: SelectBuyDto, state: State) {
-    buy.operateareaids = state.user.buy_operateareaids;
-    return await this.buySql.getDeletedBuys(buy);
-  }
-
-  public async add(buy: AddBuyDto, state: State) {
-    buy.creater = state.user.username;
-    buy.createdAt = new Date();
-    if (state.user.buy_operateareaids.indexOf(buy.operateareaid) === -1) {
-      await Promise.reject(new Error("缺少该操作区域权限,保存失败"));
+    constructor(
+        private readonly mysqldbAls: MysqldbAls,
+        private readonly buyEntity: BuyEntity,
+        private readonly buyAreaService: BuyAreaService,
+        private readonly buyAutoCodeService: BuyAutoCodeService
+    ) {
     }
-    //检查供应商地区是否存在
-    await this.buyAreaSql.getBuyArea(buy.buyareaid);
-    return await this.buySql.add(buy);
-  }
 
-  public async update(buy: UpdateBuyDto, state: State) {
-    buy.updater = state.user.username;
-    buy.updatedAt = new Date();
-    return await this.mysqldbAls.sqlTransaction(async () => {
-      const buy_DB = await this.buySql.getBuy(buy.buyid);
-      //验证操作区域权限，没有该供应商的操作区域不能修改，更新的操作区域没有权限也不能更新
-      if (state.user.buy_operateareaids.indexOf(buy_DB.operateareaid) === -1 || state.user.buy_operateareaids.indexOf(buy.operateareaid) === -1) {
-        await Promise.reject(new Error("缺少该操作区域权限,更新失败"));
-      }
-      //如果没有审核和财审可以修改供应商资料
-      if (buy_DB.level1review + buy_DB.level2review === 0) {
-        await this.buySql.update(buy);
-      } else {
-        await Promise.reject(new Error("供应商已审核无法更新保存，请先撤审"));
-      }
-    });
 
-  }
+    public async find(buy: SelectBuyDto, state: State) {
+        buy.operateareaids = state.user.buy_operateareaids;
+        return await this.buyEntity.find(buy);
 
-  public async delete_data(buy: DeleteBuyDto, state: State) {
-    buy.del_uuid = buy.buyid;
-    buy.deletedAt = new Date();
-    buy.deleter = state.user.username;
-    return await this.mysqldbAls.sqlTransaction(async () => {
-      const buy_DB = await this.buySql.getBuy(buy.buyid);
-      //验证操作区域权限，没有该供应商的操作区域不能修改，更新的操作区域没有权限也不能更新
-      if (state.user.buy_operateareaids.indexOf(buy_DB.operateareaid) === -1) {
-        await Promise.reject(new Error("缺少该操作区域权限,更新失败"));
-      }
-      //如果没有审核和财审可以修改供应商资料
-      if (buy_DB.level1review + buy_DB.level2review === 0) {
-        await this.buySql.delete_data(buy);
-      } else {
-        await Promise.reject(new Error("供应商已审核无法删除，请先撤审"));
-      }
-    });
-  }
+    }
 
-  public async undelete(buy: DeleteBuyDto, state: State) {
-    buy.del_uuid = 0;
-    buy.deletedAt = null;
-    buy.deleter = null;
-    return await this.mysqldbAls.sqlTransaction(async () => {
-      const buy_DB = await this.buySql.getDeletedBuy(buy.buyid);
-      //验证操作区域权限，没有该供应商的操作区域不能修改，更新的操作区域没有权限也不能更新
-      if (state.user.buy_operateareaids.indexOf(buy_DB.operateareaid) === -1) {
-        await Promise.reject(new Error("缺少该操作区域权限,更新失败"));
-      }
-      await this.buySql.undelete(buy);
-    });
-  }
+    public async findDeleted(buy: SelectBuyDto, state: State) {
+        buy.operateareaids = state.user.buy_operateareaids;
+        return await this.buyEntity.getDeletedBuys(buy);
+    }
 
-  public async level1Review(buy: L1reviewBuyDto, state: State) {
-    return await this.mysqldbAls.sqlTransaction(async () => {
-      const buy_DB = await this.buySql.getBuy(buy.buyid);
-      let res;
-      switch (buy.level1review) {
-        case 0:
-          if (buy_DB.level1review === 1 && buy_DB.level2review === 0) {
-            buy_DB.level1review = 0;
-            buy_DB.level1name = null;
-            buy_DB.level1date = null;
-            await this.buySql.update(buy_DB);
-            res = "撤审成功";
-          } else {
-            await Promise.reject(new Error("供应商未审核，无法撤审"));
-          }
-          break;
-        case 1:
-          if (buy_DB.level1review === 0 && buy_DB.level2review === 0) {
-            buy_DB.level1review = 1;
-            buy_DB.level1name = state.user.username;
-            buy_DB.level1date = new Date();
-            await this.buySql.update(buy_DB);
-            res = "审核成功";
-          } else {
-            await Promise.reject(new Error("供应商已审核，无需重复"));
-          }
-          break;
-        default:
-          break;
-      }
-      return res;
-    });
+    public async create(buy: AddBuyDto, userName:string) {
+        buy.creater = userName;
+        buy.createdAt = new Date();
 
-  }
+        return this.mysqldbAls.sqlTransaction(async ()=>{
+            //检查供应商地区是否存在
+            const buyArea = await this.buyAreaService.findOne(buy.buyareaid);
+            if (buy.buycode.length === 0) {
+                buy.buycode = await this.buyAutoCodeService.getBuyAutoCode(buyArea.parentCode);
+            }
 
-  public async level2Review(buy: L2reviewDto, state: State) {
-    return await this.mysqldbAls.sqlTransaction(async () => {
-      const buy_DB = await this.buySql.getBuy(buy.buyid);
-      let res;
-      switch (buy.level2review) {
-        case 0:
-          if (buy_DB.level1review === 1 && buy_DB.level2review === 1) {
-            buy_DB.level2review = 0;
-            buy_DB.level2name = "";
-            buy_DB.level2date = null;
-            await this.buySql.update(buy_DB);
-            res = "撤审成功";
-          } else {
-            await Promise.reject(new Error("财务审核未审核，无法撤审"));
-          }
-          break;
-        case 1:
-          if (buy_DB.level1review === 1 && buy_DB.level2review === 0) {
-            buy_DB.level2review = 1;
-            buy_DB.level2name = state.user.username;
-            buy_DB.level2date = new Date();
-            await this.buySql.update(buy_DB);
-            res = "审核成功";
-          } else {
-            await Promise.reject(new Error("财务审核已审核，无需重复"));
-          }
-          break;
-        default:
-          break;
-      }
-      return res;
-    });
+            return await this.buyEntity.create(buy);
+        })
+    }
 
-  }
+    public async update(buy: UpdateBuyDto, userName: string) {
+        buy.updater = userName;
+        buy.updatedAt = new Date();
+
+        return this.mysqldbAls.sqlTransaction(async ()=>{
+            //检查供应商地区是否存在
+            await this.buyAreaService.findOne(buy.buyareaid);
+
+            return await this.buyEntity.update(buy);
+        })
+    }
+
+    public async delete_data(buyId: number, userName: string) {
+        return await this.buyEntity.delete_data(buyId, userName);
+    }
+
+    public async undelete(buyId: number) {
+        return await this.buyEntity.undelete(buyId);
+    }
+
+    public async level1Review(buyId: number, userName: string) {
+        return await this.buyEntity.l1Review(buyId, userName);
+    }
+
+    public async unLevel1Review(buyId: number) {
+        return await this.buyEntity.unl1Review(buyId);
+    }
+
+    public async level2Review(buyId: number, userName: string) {
+        return await this.buyEntity.l2Review(buyId, userName);
+    }
+
+    public async unLevel2Review(buyId: number) {
+        return await this.buyEntity.unl2Review(buyId);
+    }
 
 }

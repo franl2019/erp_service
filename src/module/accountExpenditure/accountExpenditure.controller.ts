@@ -30,10 +30,23 @@ export class AccountExpenditureController {
     public async create(@Body() accountExpenditureCreateDto: AccountExpenditureCreateDto, @ReqState() state: IState) {
         accountExpenditureCreateDto.creater = state.user.username;
         accountExpenditureCreateDto.createdAt = new Date();
-        await this.accountExpenditureService.create(accountExpenditureCreateDto);
+        const createResult = await this.accountExpenditureService.create(accountExpenditureCreateDto);
         return {
             code: 200,
-            msg: "保存成功"
+            msg: "保存成功",
+            createResult
+        };
+    }
+
+    @Post("create_l1Review")
+    public async create_l1Review(@Body() accountExpenditureCreateDto: AccountExpenditureCreateDto, @ReqState() state: IState) {
+        accountExpenditureCreateDto.creater = state.user.username;
+        accountExpenditureCreateDto.createdAt = new Date();
+        const createResult = await this.accountExpenditureService.create_l1Review(accountExpenditureCreateDto);
+        return {
+            code: 200,
+            msg: "保存审核成功",
+            createResult
         };
     }
 

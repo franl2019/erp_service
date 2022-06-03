@@ -39,9 +39,9 @@ export class InboundMxEntity {
                   product.spec,
                   product.packqty,
                   product.unit,
-                  SUM(
-		            inbound_mx.priceqty * inbound_mx.netprice
-	              ) AS amt
+                  round(
+                    SUM(inbound_mx.priceqty * inbound_mx.netprice),2
+                  ) AS amt
                  FROM
                   inbound_mx
                   INNER JOIN client ON inbound_mx.clientid = client.clientid
@@ -49,8 +49,9 @@ export class InboundMxEntity {
                  WHERE 
                   inbound_mx.inboundid = ?
                  GROUP BY
-	              inbound_mx.inboundid,
-	              inbound_mx.printid`;
+	              inbound_mx.inboundid ASC,
+	              inbound_mx.printid ASC
+	              `;
     const [res] = await conn.query(sql, [inboundid]);
     if ((res as IFindInboundMx[]).length > 0) {
       return (res as IFindInboundMx[]);

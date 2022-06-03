@@ -1,6 +1,7 @@
 import { IsInt, IsNotEmpty, IsString } from "class-validator";
+import {IProductArea} from "../productArea";
 
-export class UpdateProductAreaDto {
+export class UpdateProductAreaDto implements IProductArea{
   @IsInt()
   productareaid: number;
 
@@ -16,7 +17,16 @@ export class UpdateProductAreaDto {
 
   @IsInt()
   parentid: number;
+  parentCode: string;
+
+  createdAt: Date;
+  creater: string;
 
   updater: string;
   updatedAt: Date;
+
+  del_uuid: number;
+  deletedAt: Date;
+  deleter: string;
+
 }

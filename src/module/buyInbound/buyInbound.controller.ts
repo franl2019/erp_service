@@ -25,7 +25,7 @@ export class BuyInboundController {
             findInboundDto.operateareaids = state.user.buy_operateareaids;
         }
 
-        findInboundDto.inboundtype = 1;
+        findInboundDto.inboundtype = CodeType.buyInbound;
         const data = await this.buyInboundService.find(findInboundDto);
         return {
             code: 200,
@@ -36,7 +36,7 @@ export class BuyInboundController {
 
     @Post("create")
     public async create(@Body() buyInboundDto: BuyInboundDto, @ReqState() state: State) {
-        buyInboundDto.inboundtype = 1;
+        buyInboundDto.inboundtype = CodeType.buyInbound;
         buyInboundDto.creater = state.user.username;
         buyInboundDto.createdAt = new Date();
 
@@ -64,7 +64,7 @@ export class BuyInboundController {
 
     @Post("update")
     public async update(@Body() buyInboundDto: BuyInboundDto, @ReqState() state: State) {
-        buyInboundDto.inboundtype = 1;
+        buyInboundDto.inboundtype = CodeType.buyInbound;
         buyInboundDto.updater = state.user.username;
         buyInboundDto.updatedAt = new Date();
 

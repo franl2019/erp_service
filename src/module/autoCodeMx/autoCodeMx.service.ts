@@ -13,9 +13,9 @@ export class AutoCodeMxService {
     ) {
     }
 
-    //进仓单获取自动单号
-    private async getInboundAutoNo(codeType: number): Promise<AutoCodeMx> {
-        const autoCodeMxOld = await this.autocodeMxEntity.getInboundAutocodeMx(codeType);
+    //获取自动单号顺序号
+    private async getSheetAutoNo(codeType: number): Promise<AutoCodeMx> {
+        const autoCodeMxOld = await this.autocodeMxEntity.getSheetAutoCodeMxForToday(codeType);
 
         if (autoCodeMxOld) {
             autoCodeMxOld.codeNo = autoCodeMxOld.codeNo + 1;
@@ -24,7 +24,7 @@ export class AutoCodeMxService {
             await this.createAutoCodeMx(codeType);
         }
 
-        return await this.autocodeMxEntity.getInboundAutocodeMx(codeType)
+        return await this.autocodeMxEntity.getSheetAutoCodeMxForToday(codeType)
     }
 
     //创建自动单号明细
@@ -39,11 +39,11 @@ export class AutoCodeMxService {
     }
 
     //获取自动进仓单号
-    public async getAutoCode(codeType: number): Promise<string> {
+    public async getSheetAutoCode(codeType: number): Promise<string> {
         //获取进仓单自动单号代号
         const autoCodeName = await this.autocodeService.getAutoCodeName(codeType);
         //获取进仓单自动单号顺序号
-        const autoCodeMx = await this.getInboundAutoNo(codeType);
+        const autoCodeMx = await this.getSheetAutoNo(codeType);
         const autoCodeToday = moment(autoCodeMx.createdAt).format("YYYYMMDD");
         //A-代号-日期-顺序号
         return `A-${autoCodeName}-${autoCodeToday}-${autoCodeMx.codeNo}`;

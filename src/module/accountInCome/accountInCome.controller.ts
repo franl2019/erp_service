@@ -28,10 +28,24 @@ export class AccountInComeController {
         accountInComeCreateDto.creater = state.user.username;
         accountInComeCreateDto.createdAt = new Date();
 
-        await this.accountInComeService.create(accountInComeCreateDto);
+        const createResult = await this.accountInComeService.create(accountInComeCreateDto);
         return {
             code: 200,
-            msg: "保存成功"
+            msg: "保存成功",
+            createResult
+        }
+    }
+
+    @Post('create_l1Review')
+    public async create_l1Review(@Body() accountInComeCreateDto: AccountInComeCreateDto, @ReqState() state: IState) {
+        accountInComeCreateDto.creater = state.user.username;
+        accountInComeCreateDto.createdAt = new Date();
+
+        const createResult = await this.accountInComeService.create_l1Review(accountInComeCreateDto);
+        return {
+            code: 200,
+            msg: "保存成功",
+            createResult
         }
     }
 
@@ -48,7 +62,7 @@ export class AccountInComeController {
 
     @Post('delete_data')
     public async delete_data(@Body() accountInComeDeleteDto: AccountInComeDeleteDto, @ReqState() state: IState) {
-        await this.accountInComeService.deleteById(accountInComeDeleteDto.accountIncomeId, state.user.username);
+        await this.accountInComeService.deleteById(accountInComeDeleteDto.accountInComeId, state.user.username);
         return {
             code: 200,
             msg: "删除成功"
@@ -57,7 +71,7 @@ export class AccountInComeController {
 
     @Post('level1Review')
     public async level1Review(@Body() accountInCome: AccountInComeLevel1ReviewDto, @ReqState() state: IState) {
-        await this.accountInComeService.level1Review(accountInCome.accountIncomeId, state.user.username);
+        await this.accountInComeService.level1Review(accountInCome.accountInComeId, state.user.username);
         return {
             code: 200,
             msg: "审核成功"
@@ -66,7 +80,7 @@ export class AccountInComeController {
 
     @Post('unLevel1Review')
     public async unLevel1Review(@Body() accountInCome: AccountInComeLevel1ReviewDto) {
-        await this.accountInComeService.unLevel1Review(accountInCome.accountIncomeId);
+        await this.accountInComeService.unLevel1Review(accountInCome.accountInComeId);
         return {
             code: 200,
             msg: "撤审成功"

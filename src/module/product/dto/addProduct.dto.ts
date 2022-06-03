@@ -1,6 +1,9 @@
 import { IsInt, IsNumber, IsString } from "class-validator";
+import {Product} from "../product";
 
-export class AddProductDto {
+export class AddProductDto implements Product{
+  productid: number;
+
   @IsString()
   productcode: string;
 
@@ -76,4 +79,16 @@ export class AddProductDto {
 
   @IsInt()
   warehouseid: number;
+  del_uuid: number;
+  deletedAt: Date;
+  deleter: string;
+  level1date: Date;
+  level1name: string;
+  level1review: number;
+  level2date: Date;
+  level2name: string;
+  level2review: number;
+
+  updatedAt: Date;
+  updater: string;
 }

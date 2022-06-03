@@ -5,6 +5,7 @@ import { AddProductAreaDto } from "./dto/addProductArea.dto";
 import { DeleteProductAreaDto } from "./dto/deleteProductArea.dto";
 import { State } from "../../interface/IState";
 import { MysqldbAls } from "../mysqldb/mysqldbAls";
+import {IProductArea} from "./productArea";
 
 @Injectable()
 export class ProductAreaService {
@@ -14,43 +15,117 @@ export class ProductAreaService {
     private readonly productAreaSql: ProductAreaSql) {
   }
 
-  public async select() {
-    return await this.productAreaSql.getProductAreas();
+  //获取父级地区List
+  public async getParentProductArea(productArea: IProductArea) {
+    const productAreas = await this.find()
+    const parentAreaList: IProductArea[] = []
+
+    getChild(productArea);
+
+    function getChild(productArea: IProductArea) {
+      for (let i = 0; i < productAreas.length; i++) {
+        const productAreaItem = productAreas[i];
+        if (productArea.parentid === productAreaItem.productareaid) {
+          parentAreaList.push(productAreaItem);
+          getChild(productAreaItem);
+        }
+      }
+    }
+
+
+    parentAreaList.reverse();
+
+    return parentAreaList
+  }
+
+  //获取子地区List
+  public async getChildProductArea(productArea: IProductArea) {
+    const productAreas = await this.find()
+    const childAreaList: IProductArea[] = []
+
+    getChild(productArea);
+
+    function getChild(productArea: IProductArea) {
+      for (let i = 0; i < productAreas.length; i++) {
+        const productAreaItem = productAreas[i];
+        if (productArea.productareaid === productAreaItem.parentid) {
+          childAreaList.push(productAreaItem);
+          getChild(productAreaItem);
+        }
+      }
+    }
+
+
+    childAreaList.reverse();
+
+    return childAreaList
+  }
+
+  public async getParenCode(productArea: IProductArea){
+    const parentProductAreaList = await this.getParentProductArea(productArea)
+
+    let parenCode = '';
+    for (let i = 0; i < parentProductAreaList.length; i++) {
+      parenCode = parenCode + parentProductAreaList[i].productareacode
+    }
+
+    return parenCode + productArea.productareacode;
+  }
+
+  public async getChildIdList(productArea: IProductArea){
+    const childIdList:number[] = [];
+    const childList = await this.getChildProductArea(productArea);
+    childList.push(productArea);
+
+    for (let i = 0; i < childList.length; i++) {
+      childIdList.push(childList[i].productareaid);
+    }
+
+    return childIdList
+  }
+
+  public async find() {
+    return await this.productAreaSql.find();
   }
 
   public async findOne(productareaid: number) {
-    return await this.productAreaSql.getProductArea(productareaid);
+    return await this.productAreaSql.findOne(productareaid);
   }
 
   public async unselect() {
     return await this.productAreaSql.getDeleteProductAreas();
   }
 
-  public async add(productArea: AddProductAreaDto) {
+  public async create(productArea: AddProductAreaDto) {
+
+    productArea.parentCode = await this.getParenCode(productArea);
+
     return await this.mysqldbAls.sqlTransaction(async () => {
-      let res;
       // ProductArea.parentid = 0 根类别
       if (productArea.parentid !== 0) {
         //检查所属类别是否存在
-        const parentProductArea = await this.productAreaSql.getProductArea(productArea.parentid);
-        //添加类别
-        res = await this.productAreaSql.add(productArea);
+        const parentProductArea = await this.productAreaSql.findOne(productArea.parentid);
         //更新父级类别sonflag标记
         await this.productAreaSql.updateSonflag(parentProductArea.productareaid);
+        //添加类别
+        return await this.productAreaSql.create(productArea);
       } else {
         //添加类别
-        res = await this.productAreaSql.add(productArea);
+        return await this.productAreaSql.create(productArea);
       }
-      return res;
     });
   }
 
   public async update(productArea: UpdateProductAreaDto) {
+
     if (productArea.productareaid === productArea.parentid) {
       return Promise.reject(new Error("所属类别不能选择类别自身，保存失败"));
     }
+
+    productArea.parentCode = await this.getParenCode(productArea);
+
     return await this.mysqldbAls.sqlTransaction(async () => {
-      const productArea_DB = await this.productAreaSql.getProductArea(productArea.productareaid);
+      const productArea_DB = await this.productAreaSql.findOne(productArea.productareaid);
       //检查是否存在下级区域，有下级区域不能修改parentid
       if (productArea.parentid !== productArea_DB.parentid) {
         const childrenProductAreas = await this.productAreaSql.getChildrenProductArea(productArea.productareaid);
@@ -82,25 +157,12 @@ export class ProductAreaService {
         return Promise.reject(new Error("产品类别下存在产品资料,不能删除"));
       }
 
-      const productArea_DB = await this.productAreaSql.getProductArea(productArea.productareaid);
+      const productArea_DB = await this.productAreaSql.findOne(productArea.productareaid);
       const childrenProductAreas = await this.productAreaSql.getChildrenProductArea(productArea.productareaid);
       if (childrenProductAreas.length !== 0) {
         return Promise.reject(new Error("产品类别下级存在,不能删除"));
       }
-      await this.productAreaSql.delete_data(productArea);
-      if (productArea_DB.parentid !== 0) {
-        await this.productAreaSql.updateSonflag(productArea_DB.parentid);
-      }
-    });
-  }
-
-  public async undelete(productArea: DeleteProductAreaDto) {
-    productArea.del_uuid = 0;
-    productArea.deletedAt = null;
-    productArea.deleter = null;
-    return await this.mysqldbAls.sqlTransaction(async () => {
-      const productArea_DB = await this.productAreaSql.getDeleteProductArea(productArea.productareaid);
-      await this.productAreaSql.undelete(productArea);
+      await this.productAreaSql.delete_data(productArea.productareaid,state.user.username);
       if (productArea_DB.parentid !== 0) {
         await this.productAreaSql.updateSonflag(productArea_DB.parentid);
       }

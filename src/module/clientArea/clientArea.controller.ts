@@ -13,9 +13,9 @@ export class ClientAreaController {
   constructor(private readonly clientAreaService: ClientAreaService) {
   }
 
-  @Post("select")
-  async select() {
-    const data = await this.clientAreaService.select();
+  @Post("find")
+  public async find() {
+    const data = await this.clientAreaService.find();
     return {
       code: 200,
       msg: "查询成功",
@@ -23,21 +23,11 @@ export class ClientAreaController {
     };
   }
 
-  @Post("unselect")
-  async unselect() {
-    const data = await this.clientAreaService.unselect();
-    return {
-      code: 200,
-      msg: "查询成功",
-      data
-    };
-  }
-
-  @Post("add")
-  async add(@Body() addDto: AddClientAreaDto, @ReqState() state:State) {
+  @Post("create")
+  public async add(@Body() addDto: AddClientAreaDto, @ReqState() state:State) {
     addDto.creater = state.user.username;
     addDto.createdAt = new Date();
-    await this.clientAreaService.add(addDto);
+    await this.clientAreaService.create(addDto);
     return {
       code: 200,
       msg: "保存成功"
@@ -45,7 +35,7 @@ export class ClientAreaController {
   }
 
   @Post("update")
-  async update(@Body() updateDto: UpdateClientAreaDto, @ReqState() state:State) {
+  public async update(@Body() updateDto: UpdateClientAreaDto, @ReqState() state:State) {
     updateDto.updater = state.user.username;
     updateDto.updatedAt = new Date();
     await this.clientAreaService.update(updateDto);
@@ -56,20 +46,11 @@ export class ClientAreaController {
   }
 
   @Post("delete")
-  async delete_data(@Body() deleteDto: DeleteClientAreaDto, @ReqState() state:State) {
-    await this.clientAreaService.delete_data(deleteDto,state);
+  public async delete_data(@Body() deleteDto: DeleteClientAreaDto, @ReqState() state:State) {
+    await this.clientAreaService.delete_data(deleteDto.clientareaid,state.user.username);
     return {
       code: 200,
       msg: "删除成功"
-    };
-  }
-
-  @Post("undelete")
-  async undelete(@Body() deleteDto: DeleteClientAreaDto) {
-    await this.clientAreaService.undelete(deleteDto);
-    return {
-      code: 200,
-      msg: "取消删除成功"
     };
   }
 }
