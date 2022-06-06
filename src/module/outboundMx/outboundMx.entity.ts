@@ -30,7 +30,7 @@ export class OutboundMxEntity {
                     outbound_mx.bzprice, 
                     outbound_mx.priceqty, 
                     round(
-                        SUM(outbound_mx.netprice * outbound_mx.priceqty),2
+                       outbound_mx.netprice * outbound_mx.priceqty,2
                     ) AS amt,
                     outbound_mx.netprice, 
                     outbound_mx.floatprice1, 

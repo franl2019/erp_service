@@ -51,7 +51,6 @@ export class SaleOutboundService {
 
     public async find(findDto: FindSaleOutboundDto) {
         findDto.outboundtype = CodeType.XS;
-
         return await this.outboundService.find(findDto);
     }
 

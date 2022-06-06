@@ -103,7 +103,7 @@ export class InventoryEntity {
     if (selectDto.clientid !== 0) {
       sql = sql + ` AND inventory.clientid IN (?) `;
       const gs = await this.clientService.getGsClient();
-      param.push([gs, selectDto.clientid]);//记得加公司
+      param.push([gs.clientid, selectDto.clientid]);//记得加公司
     }
 
     //按操作区域查询
