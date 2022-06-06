@@ -34,6 +34,24 @@ export class BuyInboundController {
         };
     }
 
+    @Post('findSheetCompleteState')
+    public async findSheetCompleteState(@Body() findInboundDto: FindBuyInboundDto, @ReqState() state: State){
+        if (findInboundDto.warehouseids.length === 0) {
+            findInboundDto.warehouseids = state.user.warehouseids;
+        }
+
+        if (findInboundDto.operateareaids.length === 0) {
+            findInboundDto.operateareaids = state.user.buy_operateareaids;
+        }
+        findInboundDto.inboundtype = CodeType.buyInbound;
+        const sheetCompleteState = await this.buyInboundService.findBuyInboundState(findInboundDto);
+        return {
+            code: 200,
+            msg: "查询成功",
+            sheetCompleteState
+        }
+    }
+
     @Post("create")
     public async create(@Body() buyInboundDto: BuyInboundDto, @ReqState() state: State) {
         buyInboundDto.inboundtype = CodeType.buyInbound;

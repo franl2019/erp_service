@@ -31,6 +31,23 @@ export class SaleOutboundController {
         };
     }
 
+    @Post("findSheetState")
+    public async findSheetState(@Body() findOutbound: FindOutboundDto, @ReqState() state: State) {
+        if (findOutbound.warehouseids.length === 0) {
+            findOutbound.warehouseids = state.user.warehouseids;
+        }
+
+        if (findOutbound.operateareaids.length === 0) {
+            findOutbound.operateareaids = state.user.client_operateareaids;
+        }
+        const sheetCompleteState = await this.saleOutboundService.findSheetState(findOutbound);
+        return {
+            code: 200,
+            msg: "查询成功",
+            sheetCompleteState
+        };
+    }
+
     @Post("create")
     public async create(@Body() outboundDto: OutboundDto, @ReqState() state: State) {
         const createResult = await this.saleOutboundService.create(outboundDto, state.user.username);

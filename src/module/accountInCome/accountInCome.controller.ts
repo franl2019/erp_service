@@ -23,6 +23,16 @@ export class AccountInComeController {
         }
     }
 
+    @Post('findSheetState')
+    public async findSheetState(@Body() accountInComeFindDto: AccountInComeFindDto) {
+        const sheetCompleteState = await this.accountInComeService.findSheetState(accountInComeFindDto);
+        return {
+            code: 200,
+            msg: "查询成功",
+            sheetCompleteState
+        }
+    }
+
     @Post('create')
     public async create(@Body() accountInComeCreateDto: AccountInComeCreateDto, @ReqState() state: IState) {
         accountInComeCreateDto.creater = state.user.username;

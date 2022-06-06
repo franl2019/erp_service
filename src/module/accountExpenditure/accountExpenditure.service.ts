@@ -144,6 +144,31 @@ export class AccountExpenditureService {
         return await this.accountExpenditureEntity.find(accountExpenditureFindDto);
     }
 
+    public async findAccountExpenditureState(accountExpenditureFindDto: AccountExpenditureFindDto){
+        const accountExpenditures = await this.accountExpenditureEntity.find(accountExpenditureFindDto);
+        let completeL1Review = 0;
+        let undoneL1Review = 0;
+        let undoneL2Review = 0;
+        for (let i = 0; i < accountExpenditures.length; i++) {
+            const accountExpenditure = accountExpenditures[i];
+            if(accountExpenditure.level1Review === 0){
+                undoneL1Review = undoneL1Review + 1
+            }else if(accountExpenditure.level1Review === 1){
+                completeL1Review = completeL1Review + 1
+            }
+
+            if(accountExpenditure.level1Review === 1 && accountExpenditure.level2Review === 0){
+                undoneL2Review = undoneL2Review + 1
+            }
+        }
+
+        return {
+            completeL1Review,
+            undoneL1Review,
+            undoneL2Review,
+        }
+    }
+
     public async create(accountExpenditureCreateDto: AccountExpenditureCreateDto):Promise<{id:number;code:string}> {
         if (accountExpenditureCreateDto.buyid === 0) {
             return Promise.reject(new Error("请选择供应商"));

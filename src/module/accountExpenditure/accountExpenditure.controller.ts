@@ -26,6 +26,16 @@ export class AccountExpenditureController {
         };
     }
 
+    @Post("findAccountExpenditureState")
+    public async findAccountExpenditureState(@Body() accountExpenditureFindDto: AccountExpenditureFindDto, @ReqState() state: IState) {
+        const sheetCompleteState = await this.accountExpenditureService.findAccountExpenditureState(accountExpenditureFindDto);
+        return {
+            code: 200,
+            msg: "查询成功",
+            sheetCompleteState
+        }
+    }
+
     @Post("create")
     public async create(@Body() accountExpenditureCreateDto: AccountExpenditureCreateDto, @ReqState() state: IState) {
         accountExpenditureCreateDto.creater = state.user.username;

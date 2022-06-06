@@ -154,6 +154,32 @@ export class AccountInComeService {
         return await this.accountInComeEntity.find(accountInComeFindDto);
     }
 
+    public async findSheetState(accountInComeFindDto: AccountInComeFindDto) {
+        const accountInComeList = await this.accountInComeEntity.find(accountInComeFindDto);
+        let completeL1Review = 0;
+        let undoneL1Review = 0;
+        let undoneL2Review = 0;
+
+        for (let i = 0; i < accountInComeList.length; i++) {
+            const accountInCome = accountInComeList[i];
+            if(accountInCome.level1Review === 0){
+                undoneL1Review = undoneL1Review + 1
+            }else if(accountInCome.level1Review === 1){
+                completeL1Review = completeL1Review + 1
+            }
+
+            if(accountInCome.level1Review === 1 && accountInCome.level2Review === 0){
+                undoneL2Review = undoneL2Review + 1
+            }
+        }
+
+        return {
+            completeL1Review,
+            undoneL1Review,
+            undoneL2Review,
+        }
+    }
+
     public async findById(accountInComeId: number) {
         return await this.accountInComeEntity.findById(accountInComeId);
     }

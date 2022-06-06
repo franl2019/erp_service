@@ -49,12 +49,37 @@ export class BuyInboundService {
         return await this.inboundService.find(findDto);
     }
 
+    public async findBuyInboundState(findDto: FindBuyInboundDto){
+        const buyInboundList = await this.inboundService.find(findDto);
+        let completeL1Review = 0;
+        let undoneL1Review = 0;
+        let undoneL2Review = 0;
+        for (let i = 0; i < buyInboundList.length; i++) {
+            const buyInbound = buyInboundList[i];
+            if(buyInbound.level1review === 0){
+                undoneL1Review = undoneL1Review + 1
+            }else if(buyInbound.level1review === 1){
+                completeL1Review = completeL1Review + 1
+            }
+
+            if(buyInbound.level1review === 1 && buyInbound.level2review === 0){
+                undoneL2Review = undoneL2Review + 1
+            }
+        }
+
+        return {
+            completeL1Review,
+            undoneL1Review,
+            undoneL2Review,
+        }
+    }
+
     public async create(buyInboundDto: BuyInboundDto) {
         return await this.inboundService.createInbound(buyInboundDto);
     }
 
-    public async create_l1Review(buyInboundDto: BuyInboundDto){
-        return this.mysqldbAls.sqlTransaction(async ()=>{
+    public async create_l1Review(buyInboundDto: BuyInboundDto) {
+        return this.mysqldbAls.sqlTransaction(async () => {
             const result = await this.inboundService.createInbound(buyInboundDto);
             await this.inboundService.level1Review(result.insertId, buyInboundDto.creater);
             return result
@@ -65,8 +90,8 @@ export class BuyInboundService {
         return await this.inboundService.update(buyInboundDto);
     }
 
-    public async update_l1Review(buyInboundDto: BuyInboundDto){
-        return this.mysqldbAls.sqlTransaction(async ()=>{
+    public async update_l1Review(buyInboundDto: BuyInboundDto) {
+        return this.mysqldbAls.sqlTransaction(async () => {
             await this.inboundService.update(buyInboundDto);
             return await this.inboundService.level1Review(buyInboundDto.inboundid, buyInboundDto.updater);
         })

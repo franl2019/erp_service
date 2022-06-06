@@ -55,6 +55,33 @@ export class SaleOutboundService {
         return await this.outboundService.find(findDto);
     }
 
+    public async findSheetState(findDto: FindSaleOutboundDto) {
+        findDto.outboundtype = CodeType.XS;
+
+        const outboundList = await this.outboundService.find(findDto);
+        let completeL1Review = 0;
+        let undoneL1Review = 0;
+        let undoneL2Review = 0;
+        for (let i = 0; i < outboundList.length; i++) {
+            const outboundHead = outboundList[i];
+            if(outboundHead.level1review === 0){
+                undoneL1Review = undoneL1Review + 1
+            }else if(outboundHead.level1review === 1){
+                completeL1Review = completeL1Review + 1
+            }
+
+            if(outboundHead.level1review === 1 && outboundHead.level2review === 0){
+                undoneL2Review = undoneL2Review + 1
+            }
+        }
+
+        return {
+            completeL1Review,
+            undoneL1Review,
+            undoneL2Review,
+        }
+    }
+
     public async create(saleOutboundDto: SaleOutboundDto, username: string) {
         saleOutboundDto.outboundtype = CodeType.XS;
         const result = await this.outboundService.create(saleOutboundDto, username);
