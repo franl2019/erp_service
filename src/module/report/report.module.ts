@@ -7,10 +7,11 @@ import {AccountPayableMxReport} from "./accountPayableMxReport/accountPayableMx.
 import {SaleOutboundMxReport} from "./saleOutboundReport/saleOutboundMx.report";
 import {SaleOutboundProductSummaryReport} from "./saleOutboundReport/saleOutboundProductSummary.report";
 import {SaleOutboundClientProductSummaryReport} from "./saleOutboundReport/saleOutboundClientProductSummary.report";
+import {SaleOutboundReportController} from "./saleOutboundReport/saleOutboundReport.controller";
 
 @Module({
     imports: [MysqldbModule],
-    controllers: [ReportController],
+    controllers: [ReportController,SaleOutboundReportController],
     providers: [
         CashBankDepositJournalReport,
         AccountReceivableMxReport,
