@@ -11,10 +11,17 @@ import {SaleOutboundReportController} from "./saleOutboundReport/saleOutboundRep
 import {BuyInboundReportController} from "./buyInboundReport/buyInboundReport.controller";
 import {BuyInboundMxReport} from "./buyInboundReport/buyInboundMx.report";
 import {BuyInboundProductSummaryReport} from "./buyInboundReport/buyInboundProductSummary.report";
+import {AccountsReceivableMxReport} from "./accountsReceivableReport/accountsReceivableMx.report";
+import {AccountsReceivableReportController} from "./accountsReceivableReport/accountsReceivableReport.controller";
+import {AccountsReceivableSumReport} from "./accountsReceivableReport/accountsReceivableSum.report";
 
 @Module({
     imports: [MysqldbModule],
-    controllers: [ReportController,SaleOutboundReportController,BuyInboundReportController],
+    controllers: [
+        ReportController,
+        SaleOutboundReportController,
+        BuyInboundReportController,
+        AccountsReceivableReportController,],
     providers: [
         CashBankDepositJournalReport,
         AccountReceivableMxReport,
@@ -25,7 +32,10 @@ import {BuyInboundProductSummaryReport} from "./buyInboundReport/buyInboundProdu
         SaleOutboundClientProductSummaryReport,
         //采购进仓单
         BuyInboundMxReport,
-        BuyInboundProductSummaryReport
+        BuyInboundProductSummaryReport,
+        //应收账款报表
+        AccountsReceivableMxReport,
+        AccountsReceivableSumReport
     ]
 })
 export class ReportModule {}

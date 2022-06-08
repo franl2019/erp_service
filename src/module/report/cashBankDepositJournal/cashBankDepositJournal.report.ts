@@ -14,9 +14,8 @@ export class CashBankDepositJournalReport {
 
     public async find(findDto: cashBankDepositJournalReportFindDto) {
         const conn = this.mysqldbAls.getConnectionInAls();
-        const openDay = moment(findDto.startDate).subtract(1, 'days').format('YYYY-MM-DD')
-
-        let sql = ` SELECT
+        const openDay = moment(findDto.startDate).subtract(1, 'days').format('YYYY-MM-DD');
+        const sql = ` SELECT
                         bankReport.accountRecordId,
                         bankReport.accountId,
                         bankReport.indate,
