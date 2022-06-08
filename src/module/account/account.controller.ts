@@ -36,7 +36,7 @@ export class AccountController {
     public async create(@Body() createDto: CreateAccountDto, @ReqState() state: State) {
         createDto.creater = state.user.username;
         createDto.createdAt = new Date();
-        await this.accountService.create([createDto]);
+        await this.accountService.create(createDto);
         return {
             code: 200,
             msg: '保存成功'

@@ -4,6 +4,7 @@ import {IAccount} from "./account";
 import {MysqldbAls} from "../mysqldb/mysqldbAls";
 import {IState} from "../../interface/IState";
 import {FindAccountDto} from "./dto/findAccount.dto";
+import {AccountRecordService} from "../accountsRecord/accountRecord.service";
 
 @Injectable()
 export class AccountService {
@@ -11,6 +12,7 @@ export class AccountService {
     constructor(
         private readonly mysqldbAls: MysqldbAls,
         private readonly accountEntity: AccountEntity,
+        private readonly accountRecordService: AccountRecordService
     ) {
     }
 
@@ -26,8 +28,27 @@ export class AccountService {
         return await this.accountEntity.find(findAccountDto);
     }
 
-    public async create(accountList: IAccount[]) {
-        return await this.accountEntity.create(accountList);
+    public async create(account: IAccount) {
+        return await this.mysqldbAls.sqlTransaction(async () => {
+
+            const createResult = await this.accountEntity.create(account);
+            await this.accountRecordService.create({
+                accountId: createResult.insertId,
+                accountRecordId: 0,
+                balanceQty: 0,
+                correlationId: 0,
+                correlationType: 0,
+                createdAt: account.createdAt,
+                creater: account.creater,
+                creditQty: 0,
+                debitQty: 0,
+                indate: new Date(null),
+                openQty: 0,
+                reMark: "",
+                relatedNumber: ""
+            })
+            return createResult
+        })
     }
 
     public async update(account: IAccount, state: IState) {
@@ -55,7 +76,8 @@ export class AccountService {
             account.del_uuid = account.accountId;
             account.deleter = state.user.username;
             account.deletedAt = new Date();
-            await this.accountEntity.delete_data(account)
+            await this.accountEntity.delete_data(account);
+            await this.accountRecordService.deleteByAccountId(accountId);
         })
     }
 

@@ -2,13 +2,14 @@ import {Injectable} from "@nestjs/common";
 import {AccountRecordEntity} from "./accountRecord.entity";
 import {IAccountRecordFindDto} from "./dto/accountRecordFind.dto";
 import {IAccountRecord} from "./accountRecord";
-import {CashBankDepositJournalDto} from "./dto/cashBankDepositJournal.dto";
 import {CodeType} from "../autoCode/codeType";
+import {MysqldbAls} from "../mysqldb/mysqldbAls";
 
 @Injectable()
 export class AccountRecordService {
 
     constructor(
+        private readonly mysqldbAls: MysqldbAls,
         private readonly accountRecordEntity: AccountRecordEntity
     ) {
     }
@@ -29,11 +30,11 @@ export class AccountRecordService {
         return await this.accountRecordEntity.countAccountQty(accountId);
     }
 
-    public async cashBankDepositJournal(cashBankDepositJournalDto: CashBankDepositJournalDto) {
-        return await this.accountRecordEntity.cashBankDepositJournal(cashBankDepositJournalDto);
+    public async deleteByAccountId(accountId:number){
+        return await this.accountRecordEntity.deleteByAccountId(accountId);
     }
 
     public async deleteByCorrelation(correlationId: number, type: CodeType.accountInCome | CodeType.accountExpenditure) {
-        return await this.accountRecordEntity.delete_data(correlationId, type);
+        return await this.accountRecordEntity.deleteByCorrelation(correlationId, type);
     }
 }

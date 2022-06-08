@@ -276,6 +276,7 @@ export class AccountExpenditureService {
                 for (let i = 0; i < accountRecords.length; i++) {
                     const accountRecord = accountRecords[i];
                     await this.accountRecordService.create(accountRecord);
+                    await this.accountRecordService.countAccountQty(accountRecord.accountId);
                     await this.accountsPayableService.createAccountPayable({
                         accountsPayableId: 0,
                         accountsPayableType: AccountCategoryType.prepayments5,
@@ -303,6 +304,7 @@ export class AccountExpenditureService {
                 for (let i = 0; i < accountRecords.length; i++) {
                     const accountRecord = accountRecords[i];
                     await this.accountRecordService.create(accountRecord);
+                    await this.accountRecordService.countAccountQty(accountRecord.accountId);
                 }
 
                 //核销明细

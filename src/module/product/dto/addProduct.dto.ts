@@ -1,7 +1,7 @@
 import { IsInt, IsNumber, IsString } from "class-validator";
-import {Product} from "../product";
+import {IProduct} from "../product";
 
-export class AddProductDto implements Product{
+export class AddProductDto implements IProduct{
   productid: number;
 
   @IsString()

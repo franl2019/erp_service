@@ -4,7 +4,7 @@ import { UpdateProductAreaDto } from "./dto/updateProductArea.dto";
 import { Injectable } from "@nestjs/common";
 import {IProductArea} from "./productArea";
 import { MysqldbAls } from "../mysqldb/mysqldbAls";
-import { Product } from "../product/product";
+import {IProduct} from "../product/product";
 
 
 @Injectable()
@@ -74,7 +74,7 @@ export class ProductAreaSql {
     const conn = await this.mysqldbAls.getConnectionInAls();
     const sql: string = `SELECT * FROM product WHERE del_uuid = 0 AND product.productareaid = ? LIMIT 0,1`;
     const [res] = await conn.query(sql, [productareaid]);
-    return (res as Product[]);
+    return (res as IProduct[]);
   }
 
   //查询产品类别

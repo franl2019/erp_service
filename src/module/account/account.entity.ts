@@ -113,7 +113,7 @@ export class AccountEntity {
         return res as IAccount[]
     }
 
-    public async create(accountList: IAccount[]) {
+    public async create(account: IAccount) {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `INSERT INTO account (
                         account.accountId, 
@@ -126,7 +126,7 @@ export class AccountEntity {
                         account.createdAt,
                         account.useFlag
                     ) VALUES ?`;
-        const [res] = await conn.query<ResultSetHeader>(sql, [accountList.map(account => [
+        const [res] = await conn.query<ResultSetHeader>(sql, [[[
             account.accountId,
             account.currencyid,
             account.accountCode,
@@ -136,7 +136,7 @@ export class AccountEntity {
             account.creater,
             account.createdAt,
             account.useFlag
-        ])]);
+        ]]]);
         if (res.affectedRows > 0) {
             return res;
         } else {

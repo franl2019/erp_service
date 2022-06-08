@@ -170,10 +170,6 @@ export class SaleOutboundMxReport {
         }
 
         const [res] = await conn.query(sql, params);
-        if ((res as ISaleOutboundMxReport[]).length > 0) {
-            return (res as ISaleOutboundMxReport[]);
-        } else {
-            return Promise.reject(new Error('查询销售单明细表失败'));
-        }
+        return res as ISaleOutboundMxReport[]
     }
 }

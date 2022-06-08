@@ -1,4 +1,4 @@
-export class Warehouse {
+export interface IWarehouse {
   warehouseid: number;
   warehousename: string;
   warehousecode: string;

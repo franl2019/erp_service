@@ -1,9 +1,5 @@
 import {Injectable} from "@nestjs/common";
 import {MysqldbAls} from "../../mysqldb/mysqldbAls";
-import {IOutbound} from "../../outbound/outbound";
-import {IOutboundMx} from "../../outboundMx/outboundMx";
-import {FindSaleOutboundDto} from "./dto/findSaleOutbound.dto";
-import {CodeType} from "../../autoCode/codeType";
 
 export interface ISaleOutboundReport {
     productid: number;
@@ -103,10 +99,6 @@ export class SaleOutboundProductSummaryReport {
 
 
         const [res] = await conn.query(sql);
-        if ((res as ISaleOutboundReport[]).length > 0) {
-            return (res as ISaleOutboundReport[]);
-        } else {
-            return Promise.reject(new Error('查询销售单汇总表失败'));
-        }
+        return res as ISaleOutboundReport[]
     }
 }

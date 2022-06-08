@@ -1,5 +1,5 @@
 import {ResultSetHeader} from "mysql2/promise";
-import {Product} from "./product";
+import {IProduct} from "./product";
 import {SelectProductDto} from "./dto/selectProduct.dto";
 import {AddProductDto} from "./dto/addProduct.dto";
 import {UpdateProductDto} from "./dto/updateProduct.dto";
@@ -15,7 +15,7 @@ export class ProductEntity {
     ) {
     }
 
-    public async findOne(productId: number): Promise<Product> {
+    public async findOne(productId: number): Promise<IProduct> {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql: string = `SELECT
                                 product.productid,
@@ -62,14 +62,14 @@ export class ProductEntity {
                                 product.del_uuid = 0 
                                 AND product.productid = ?`;
         const [res] = await conn.query(sql, [productId]);
-        if ((res as Product[]).length > 0) {
-            return (res as Product[])[0];
+        if ((res as IProduct[]).length > 0) {
+            return (res as IProduct[])[0];
         } else {
             return Promise.reject(new Error("找不到单个产品资料"));
         }
     }
 
-    public async find(product: SelectProductDto): Promise<Product[]> {
+    public async find(product: SelectProductDto): Promise<IProduct[]> {
         const conn = await this.mysqldbAls.getConnectionInAls();
         let sql: string = `SELECT
                                 product.productid,
@@ -146,7 +146,7 @@ export class ProductEntity {
             param.push(product.page, product.pagesize);
         }
         const [res] = await conn.query(sql, param);
-        return (res as Product[]);
+        return (res as IProduct[]);
     }
 
     public async create(product: AddProductDto): Promise<ResultSetHeader> {

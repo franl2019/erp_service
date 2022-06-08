@@ -299,6 +299,7 @@ export class AccountInComeService {
                 //创建出纳记录
                 for (let i = 0; i < accountRecordList.length; i++) {
                     await this.accountRecordService.create(accountRecordList[i]);
+                    await this.accountRecordService.countAccountQty(accountRecordList[i].accountId);
                 }
                 //创建预收款数组
                 await this.createAccountsReceivable(accountInCome, accountInComeAmountMxList);
@@ -306,6 +307,7 @@ export class AccountInComeService {
                 //创建出纳记录
                 for (let i = 0; i < accountRecordList.length; i++) {
                     await this.accountRecordService.create(accountRecordList[i]);
+                    await this.accountRecordService.countAccountQty(accountRecordList[i].accountId);
                 }
                 for (let i = 0; i < accountInComeSheetMxList.length; i++) {
                     const accountInComeSheetMx = accountInComeSheetMxList[i];

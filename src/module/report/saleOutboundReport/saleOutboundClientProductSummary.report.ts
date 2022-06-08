@@ -109,10 +109,6 @@ export class SaleOutboundClientProductSummaryReport {
                     ORDER BY
                         saleOutboundReport.clientid ASC`;
         const [res] = await conn.query(sql);
-        if ((res as ISaleOutboundClientProductReport[]).length > 0) {
-            return (res as ISaleOutboundClientProductReport[]);
-        } else {
-            return Promise.reject(new Error('查询销售单客户产品汇总表失败'));
-        }
+        return res as ISaleOutboundClientProductReport[]
     }
 }

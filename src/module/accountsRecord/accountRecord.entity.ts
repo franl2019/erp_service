@@ -1,9 +1,8 @@
 import {MysqldbAls} from "../mysqldb/mysqldbAls";
-import {IAccountRecord, ICashBankDepositJournal} from "./accountRecord";
+import {IAccountRecord} from "./accountRecord";
 import {IAccountRecordFindDto} from "./dto/accountRecordFind.dto";
 import {ResultSetHeader} from "mysql2/promise";
 import {Injectable} from "@nestjs/common";
-import {CashBankDepositJournalDto} from "./dto/cashBankDepositJournal.dto";
 import {CodeType} from "../autoCode/codeType";
 
 @Injectable()
@@ -147,7 +146,18 @@ export class AccountRecordEntity {
         }
     }
 
-    public async delete_data(correlationId: number, type: CodeType.accountInCome | CodeType.accountExpenditure) {
+    public async deleteByAccountId(accountId: number) {
+        const conn = await this.mysqldbAls.getConnectionInAls();
+        const sql = `DELETE FROM account_record WHERE account_record.accountId = ?`;
+        const [res] = await conn.query<ResultSetHeader>(sql, [accountId]);
+        if (res.affectedRows > 0) {
+            return res;
+        } else {
+            return Promise.reject(new Error("删除出纳收支单出纳账户记录错误"));
+        }
+    }
+
+    public async deleteByCorrelation(correlationId: number, type: CodeType.accountInCome | CodeType.accountExpenditure) {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `DELETE FROM account_record WHERE account_record.correlationId = ? AND account_record.correlationType = ?`;
         const [res] = await conn.query<ResultSetHeader>(sql, [correlationId, type]);
@@ -164,17 +174,6 @@ export class AccountRecordEntity {
         const [res] = await conn.query(sql, [accountId]);
         if ((res as IAccountRecord []).length > 0) {
             return res as IAccountRecord [];
-        } else {
-            return [];
-        }
-    }
-
-    public async cashBankDepositJournal(cashBankDepositJournalDto: CashBankDepositJournalDto) {
-        const conn = await this.mysqldbAls.getConnectionInAls();
-        const sql = `call cashBankDepositJournal(?,?,?);`;
-        const [res] = await conn.query(sql, [cashBankDepositJournalDto.accountId, cashBankDepositJournalDto.startDate, cashBankDepositJournalDto.endDate]);
-        if ((res[0] as ICashBankDepositJournal []).length > 0) {
-            return res[0] as ICashBankDepositJournal [];
         } else {
             return [];
         }

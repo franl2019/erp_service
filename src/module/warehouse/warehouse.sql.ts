@@ -1,11 +1,11 @@
 import { ResultSetHeader } from "mysql2/promise";
-import { Warehouse } from "./warehouse";
+import { IWarehouse } from "./warehouse";
 import { AddWarehouseDto } from "./dto/addWarehouse.dto";
 import { DeleteWarehouseDto } from "./dto/deleteWarehouse.dto";
 import { UpdateWarehouseDto } from "./dto/updateWarehouse.dto";
 import { Injectable } from "@nestjs/common";
 import { MysqldbAls } from "../mysqldb/mysqldbAls";
-import { Product } from "../product/product";
+import {IProduct} from "../product/product";
 import { SelectWarehouse_authDto } from "./dto/selectWarehouse_auth.dto";
 
 @Injectable()
@@ -14,69 +14,69 @@ export class WarehouseSql {
   constructor(private readonly mysqldbAls: MysqldbAls) {
   }
 
-  public async findOne(warehouseid: number): Promise<Warehouse> {
+  public async findOne(warehouseid: number): Promise<IWarehouse> {
     const conn = await this.mysqldbAls.getConnectionInAls();
     const sql: string = `SELECT * FROM warehouse WHERE warehouse.warehouseid = ? AND warehouse.del_uuid = 0`;
     const [res] = await conn.query(sql, [warehouseid]);
-    if ((res as Warehouse[]).length > 0) {
-      return (res as Warehouse[])[0];
+    if ((res as IWarehouse[]).length > 0) {
+      return (res as IWarehouse[])[0];
     } else {
       return Promise.reject(new Error("找不到这个仓库资料"));
     }
   }
 
-  public async getWarehouses(): Promise<Warehouse[]> {
+  public async getWarehouses(): Promise<IWarehouse[]> {
     const conn = await this.mysqldbAls.getConnectionInAls();
     const sql: string = `SELECT warehouse.warehouseid,warehouse.warehousename,warehouse.warehousecode,warehouse.warehousetype, warehouse.useflag, warehouse.creater, 
                                 warehouse.createdAt, warehouse.updater, warehouse.updatedAt, warehouse.del_uuid, warehouse.deletedAt, warehouse.deleter 
                                 FROM warehouse WHERE warehouse.del_uuid = 0`;
     const [res] = await conn.query(sql);
-    return (res as Warehouse[]);
+    return (res as IWarehouse[]);
   }
 
-  public async getWarehouses_auth(selectAuthDto:SelectWarehouse_authDto): Promise<Warehouse[]> {
+  public async getWarehouses_auth(selectAuthDto:SelectWarehouse_authDto): Promise<IWarehouse[]> {
     const conn = await this.mysqldbAls.getConnectionInAls();
     const sql: string = `SELECT warehouse.warehouseid,warehouse.warehousename,warehouse.warehousecode,warehouse.warehousetype, warehouse.useflag, warehouse.creater, 
                                 warehouse.createdAt, warehouse.updater, warehouse.updatedAt, warehouse.del_uuid, warehouse.deletedAt, warehouse.deleter 
                          FROM warehouse INNER JOIN user_warehousemx ON warehouse.warehouseid = user_warehousemx.warehouseid
                          WHERE warehouse.del_uuid = 0 AND user_warehousemx.userid = ?`;
     const [res] = await conn.query(sql,[selectAuthDto.userid]);
-    return (res as Warehouse[]);
+    return (res as IWarehouse[]);
   }
 
-  public async getWarehouse_auth_default(selectAuthDto:SelectWarehouse_authDto): Promise<Warehouse[]> {
+  public async getWarehouse_auth_default(selectAuthDto:SelectWarehouse_authDto): Promise<IWarehouse[]> {
     const conn = await this.mysqldbAls.getConnectionInAls();
     const sql: string = `SELECT warehouse.warehouseid,warehouse.warehousename,warehouse.warehousecode,warehouse.warehousetype, warehouse.useflag, warehouse.creater, 
                                 warehouse.createdAt, warehouse.updater, warehouse.updatedAt, warehouse.del_uuid, warehouse.deletedAt, warehouse.deleter
                          FROM warehouse INNER JOIN user_warehousemx ON warehouse.warehouseid = user_warehousemx.warehouseid
                          WHERE warehouse.del_uuid = 0 AND user_warehousemx.userid = ? AND user_warehousemx.default = 1`;
     const [res] = await conn.query(sql,[selectAuthDto.userid]);
-    return (res as Warehouse[]);
+    return (res as IWarehouse[]);
   }
 
   public async getProductBelongToWarehouse(warehouseid: number) {
     const conn = await this.mysqldbAls.getConnectionInAls();
     const sql: string = `SELECT * FROM product WHERE product.del_uuid = 0 AND product.warehouseid = ? LIMIT 0,1`;
     const [res] = await conn.query(sql, [warehouseid]);
-    return (res as Product[]);
+    return (res as IProduct[]);
   }
 
-  public async getDeletedWarehouse(warehouseid: number): Promise<Warehouse> {
+  public async getDeletedWarehouse(warehouseid: number): Promise<IWarehouse> {
     const conn = await this.mysqldbAls.getConnectionInAls();
     const sql: string = `SELECT * FROM warehouse WHERE del_uuid <> 0 AND warehouseid = ?`;
     const [res] = await conn.query(sql, [warehouseid]);
-    if ((res as Warehouse[]).length > 0) {
-      return (res as Warehouse[])[0];
+    if ((res as IWarehouse[]).length > 0) {
+      return (res as IWarehouse[])[0];
     } else {
       return Promise.reject(new Error("找不到单个已删除的仓库"));
     }
   }
 
-  public async getDeletedWarehouses(): Promise<Warehouse[]> {
+  public async getDeletedWarehouses(): Promise<IWarehouse[]> {
     const conn = await this.mysqldbAls.getConnectionInAls();
     const sql: string = `SELECT * FROM warehouse WHERE del_uuid <> 0`;
     const [res] = await conn.query(sql);
-    return (res as Warehouse[]);
+    return (res as IWarehouse[]);
   }
 
   public async add(addDto: AddWarehouseDto): Promise<ResultSetHeader> {
