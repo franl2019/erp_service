@@ -24,6 +24,16 @@ export class AccountsVerifySheetController {
         }
     }
 
+    @Post('findAccountsVerifySheetState')
+    public async findAccountsVerifySheetState(@Body() findDto: AccountsVerifySheetFindDto){
+        const sheetCompleteState = await this.accountsVerifySheetService.findAccountsVerifySheetState(findDto);
+        return {
+            code: 200,
+            msg: '查询成功',
+            sheetCompleteState
+        }
+    }
+
     @Post('create')
     public async create(@Body() createDto: AccountsVerifySheetCreateDto, @ReqState() state: IState) {
         createDto.creater = state.user.username;

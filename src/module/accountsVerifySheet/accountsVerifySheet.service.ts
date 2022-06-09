@@ -151,6 +151,32 @@ export class AccountsVerifySheetService {
         return await this.accountsVerifySheetEntity.find(findDto);
     }
 
+    public async findAccountsVerifySheetState(findDto: AccountsVerifySheetFindDto) {
+        const accountsVerifySheets=  await this.accountsVerifySheetEntity.find(findDto);
+
+        let completeL1Review = 0;
+        let undoneL1Review = 0;
+        let undoneL2Review = 0;
+        for (let i = 0; i < accountsVerifySheets.length; i++) {
+            const accountExpenditure = accountsVerifySheets[i];
+            if(accountExpenditure.level1Review === 0){
+                undoneL1Review = undoneL1Review + 1
+            }else if(accountExpenditure.level1Review === 1){
+                completeL1Review = completeL1Review + 1
+            }
+
+            if(accountExpenditure.level1Review === 1 && accountExpenditure.level2Review === 0){
+                undoneL2Review = undoneL2Review + 1
+            }
+        }
+
+        return {
+            completeL1Review,
+            undoneL1Review,
+            undoneL2Review,
+        }
+    }
+
     public async create(createDto: AccountsVerifySheetCreateDto):Promise<{id:number,code:string}> {
 
         return await this.mysqldbAls.sqlTransaction(async () => {

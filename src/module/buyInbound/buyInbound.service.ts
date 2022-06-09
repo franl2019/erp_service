@@ -54,6 +54,7 @@ export class BuyInboundService {
         let completeL1Review = 0;
         let undoneL1Review = 0;
         let undoneL2Review = 0;
+
         for (let i = 0; i < buyInboundList.length; i++) {
             const buyInbound = buyInboundList[i];
             if(buyInbound.level1review === 0){
