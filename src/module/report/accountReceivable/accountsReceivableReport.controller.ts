@@ -1,8 +1,8 @@
 import {Body, Controller, Post} from "@nestjs/common";
-import {AccountsReceivableMxReport} from "./accountsReceivableMx.report";
-import {AccountsReceivableMxReportFindDto} from "./dto/accountsReceivableMxReportFind.dto";
-import {AccountsReceivableSumReport} from "./accountsReceivableSum.report";
-import {AccountsReceivableSumReportFindDto} from "./dto/accountsReceivableSumReportFind.dto";
+import {AccountsReceivableMxReport} from "./accountsReceivableMxReport/accountsReceivableMx.report";
+import {AccountsReceivableMxReportFindDto} from "./accountsReceivableMxReport/dto/accountsReceivableMxReportFind.dto";
+import {AccountsReceivableSumReport} from "./accountsReceivableSumReport/accountsReceivableSum.report";
+import {AccountsReceivableSumReportFindDto} from "./accountsReceivableSumReport/dto/accountsReceivableSumReportFind.dto";
 
 @Controller('erp/report')
 export class AccountsReceivableReportController {

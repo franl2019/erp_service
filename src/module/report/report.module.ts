@@ -2,8 +2,6 @@ import {Module} from "@nestjs/common";
 import {MysqldbModule} from "../mysqldb/mysqldb.module";
 import {CashBankDepositJournalReport} from "./cashBankDepositJournal/cashBankDepositJournal.report";
 import {ReportController} from "./report.controller";
-import {AccountReceivableMxReport} from "./accountReceivableMxReport/accountReceivableMx.report";
-import {AccountPayableMxReport} from "./accountPayableMxReport/accountPayableMx.report";
 import {SaleOutboundMxReport} from "./saleOutboundReport/saleOutboundMx.report";
 import {SaleOutboundProductSummaryReport} from "./saleOutboundReport/saleOutboundProductSummary.report";
 import {SaleOutboundClientProductSummaryReport} from "./saleOutboundReport/saleOutboundClientProductSummary.report";
@@ -11,9 +9,12 @@ import {SaleOutboundReportController} from "./saleOutboundReport/saleOutboundRep
 import {BuyInboundReportController} from "./buyInboundReport/buyInboundReport.controller";
 import {BuyInboundMxReport} from "./buyInboundReport/buyInboundMx.report";
 import {BuyInboundProductSummaryReport} from "./buyInboundReport/buyInboundProductSummary.report";
-import {AccountsReceivableMxReport} from "./accountsReceivableReport/accountsReceivableMx.report";
-import {AccountsReceivableReportController} from "./accountsReceivableReport/accountsReceivableReport.controller";
-import {AccountsReceivableSumReport} from "./accountsReceivableReport/accountsReceivableSum.report";
+import {AccountsReceivableMxReport} from "./accountReceivable/accountsReceivableMxReport/accountsReceivableMx.report";
+import {AccountsReceivableReportController} from "./accountReceivable/accountsReceivableReport.controller";
+import {AccountsReceivableSumReport} from "./accountReceivable/accountsReceivableSumReport/accountsReceivableSum.report";
+import {AccountPayableMxReport} from "./accountPayable/accountPayableMxReport/accountPayableMx.report";
+import {AccountPayableController} from "./accountPayable/accountPayable.controller";
+import {AccountPayableSumReport} from "./accountPayable/accountPayableSumReport/accountPayableSum.report";
 
 @Module({
     imports: [MysqldbModule],
@@ -21,11 +22,11 @@ import {AccountsReceivableSumReport} from "./accountsReceivableReport/accountsRe
         ReportController,
         SaleOutboundReportController,
         BuyInboundReportController,
-        AccountsReceivableReportController,],
+        AccountsReceivableReportController,
+        AccountPayableController,
+    ],
     providers: [
         CashBankDepositJournalReport,
-        AccountReceivableMxReport,
-        AccountPayableMxReport,
         //销售单
         SaleOutboundMxReport,
         SaleOutboundProductSummaryReport,
@@ -35,7 +36,11 @@ import {AccountsReceivableSumReport} from "./accountsReceivableReport/accountsRe
         BuyInboundProductSummaryReport,
         //应收账款报表
         AccountsReceivableMxReport,
-        AccountsReceivableSumReport
+        AccountsReceivableSumReport,
+
+        //应付账款报表
+        AccountPayableMxReport,
+        AccountPayableSumReport,
     ]
 })
 export class ReportModule {}
