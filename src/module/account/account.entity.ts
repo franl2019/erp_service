@@ -108,7 +108,8 @@ export class AccountEntity {
                         account
                         INNER JOIN user_account_mx ON account.accountId = user_account_mx.accountId
                      WHERE
-                        user_account_mx.userid = ?`;
+                     account.del_uuid = 0
+                     AND user_account_mx.userid = ?`;
         const [res] = await conn.query(sql,[userid]);
         return res as IAccount[]
     }
