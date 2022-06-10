@@ -170,6 +170,45 @@ export class InboundEntity {
             params.push(`%${findDto.relatednumber}%`);
         }
 
+        //按出仓单相关号码查询
+        if (findDto.buyname.length > 0) {
+            sql = sql + ` AND buy.buyname LIKE ?`;
+            params.push(`%${findDto.buyname}%`);
+        }
+
+        console.log(findDto.moneytype)
+
+        //按结算方式查询
+        if (findDto.moneytype.length > 0) {
+            sql = sql + ` AND inbound.moneytype LIKE ?`;
+            params.push(`%${findDto.moneytype}%`);
+        }
+
+        if (findDto.remark1.length > 0) {
+            sql = sql + ` AND inbound.remark1 LIKE ?`;
+            params.push(`%${findDto.remark1}%`);
+        }
+
+        if (findDto.remark2.length > 0) {
+            sql = sql + ` AND inbound.remark2 LIKE ?`;
+            params.push(`%${findDto.remark2}%`);
+        }
+
+        if (findDto.remark3.length > 0) {
+            sql = sql + ` AND inbound.remark3 LIKE ?`;
+            params.push(`%${findDto.remark3}%`);
+        }
+
+        if (findDto.remark4.length > 0) {
+            sql = sql + ` AND inbound.remark4 LIKE ?`;
+            params.push(`%${findDto.remark4}%`);
+        }
+
+        if (findDto.remark5.length > 0) {
+            sql = sql + ` AND inbound.remark5 LIKE ?`;
+            params.push(`%${findDto.remark5}%`);
+        }
+
         //分页查询
         if (findDto.page > 0 && findDto.pagesize > 0) {
             sql = sql + ` LIMIT ?,?`;

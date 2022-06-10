@@ -301,7 +301,6 @@ export class AccountExpenditureService {
                         del_uuid: 0,
                         deletedAt: null,
                         deleter: ""
-
                     })
                 }
 

@@ -25,53 +25,64 @@ export class AccountPayableMxReport {
                                    '',
                                    account_income.accountInComeCode,
                                    account_expenditure.accountExpenditureCode,
+                                   accounts_verify_sheet.accountsVerifySheetCode,
                                    outbound.outboundcode,
                                    inbound.inboundcode
                                ) AS correlationCode,
                            accounts_payable_mx_report.advancesPayment,
                            accounts_payable_mx_report.accountPayable,
                            accounts_payable_mx_report.actuallyPayment,
+                           IF(accounts_payable_mx_report.printid = 3,
                            accounts_payable_mx_report.endingBalance,
+                           SUM(
+                              0 - accounts_payable_mx_report.advancesPayment + accounts_payable_mx_report.accountPayable -
+                               accounts_payable_mx_report.actuallyPayment
+                            ) over (
+                                 PARTITION BY accounts_payable_mx_report.buyid
+                                 ORDER BY
+                                     accounts_payable_mx_report.buyid,
+                                     accounts_payable_mx_report.printid,
+                                     accounts_payable_mx_report.inDate,
+                                     accounts_payable_mx_report.accountsPayableMxId
+                            )) as endingBalance,
                            accounts_payable_mx_report.abstract,
                            accounts_payable_mx_report.reMark,
                            accounts_payable_mx_report.inDate,
                            accounts_payable_mx_report.buyid,
                            accounts_payable_mx_report.printid,
+                           accounts_payable_mx_report.accountsPayableMxId,
                            buy.buycode,
                            buy.buyname,
                            buy.ymrep
-                    
+                           
                     FROM (                    
                           SELECT
                                 '' as correlationId,
                                 - 1 as correlationType,
-                                0 AS advancesPayment,
-                                0 AS accountPayable,
-                                0 AS actuallyPayment,
+                                ROUND(IFNULL(uv_beginning_balance.advancesPayment,0),2) as advancesPayment,
+                                ROUND(IFNULL(uv_beginning_balance.accountPayable,0),2) as accountPayable,
+                                ROUND(IFNULL(uv_beginning_balance.actuallyPayment,0),2) as actuallyPayment,
                                 ROUND(IFNULL(uv_beginning_balance.endingBalance,0),2) as endingBalance,
-                                '' AS abstract,
-                                '' AS reMark,
-                                '' AS inDate,
+                                '' as abstract,
+                                '' as reMark,
+                                '' as inDate,
                                 buy.buyid,
-                                1 AS printid
+                                1 as printid,
+                                0 as accountsPayableMxId
                           FROM
                               buy
                               LEFT JOIN
-                              (SELECT ''    AS correlationId,
-                                     - 1   AS correlationType,
-                        
-                                     0     AS advancesPayment,
-                                     0     AS accountPayable,
-                                     0     AS actuallyPayment,
-                                     SUM(
-                                                     - accounts_payable_mx.advancesPayment + accounts_payable_mx.accountPayable -
-                                                     accounts_payable_mx.actuallyPayment
-                                         ) AS endingBalance,
-                                     ''    AS abstract,
-                                     ''    AS reMark,
-                                     ''    AS inDate,
+                              (SELECT ''   as correlationId,
+                                     - 1   as correlationType,
+                                     SUM(accounts_payable_mx.advancesPayment)     as advancesPayment,
+                                     SUM(accounts_payable_mx.accountPayable)      as accountPayable,
+                                     SUM(accounts_payable_mx.actuallyPayment)     as actuallyPayment,
+                                     0 as endingBalance,
+                                     ''    as abstract,
+                                     ''    as reMark,
+                                     ''    as inDate,
                                      accounts_payable.buyid,
-                                     1     AS printid
+                                     1     as printid
                               FROM accounts_payable_mx
                                        INNER JOIN accounts_payable
                                                   ON accounts_payable.accountsPayableId = accounts_payable_mx.accountsPayableId
@@ -91,24 +102,16 @@ export class AccountPayableMxReport {
                           
                           SELECT accounts_payable_mx.correlationId,
                                  accounts_payable_mx.correlationType,
-                    
                                  accounts_payable_mx.advancesPayment,
                                  accounts_payable_mx.accountPayable,
                                  accounts_payable_mx.actuallyPayment,
-                                 SUM(
-                                                 - accounts_payable_mx.advancesPayment + accounts_payable_mx.accountPayable -
-                                                 accounts_payable_mx.actuallyPayment
-                                     ) over (
-                                                     PARTITION BY accounts_payable.buyid
-                                                     ORDER BY
-                                                         accounts_payable.buyid,
-                                                         accounts_payable_mx.inDate
-                                                     ) AS endingBalance,
+                                 0 AS endingBalance,
                                  accounts_payable_mx.abstract,
                                  accounts_payable_mx.reMark,
                                  accounts_payable_mx.inDate,
                                  accounts_payable.buyid,
-                                 2                     AS printid
+                                 2                     AS printid,
+                                 accounts_payable_mx.accountsPayableMxId
                           FROM accounts_payable_mx
                                    INNER JOIN accounts_payable
                                               ON accounts_payable_mx.accountsPayableId = accounts_payable.accountsPayableId
@@ -125,33 +128,34 @@ export class AccountPayableMxReport {
                           SELECT
                                 '' as correlationId,
                                 - 2 as correlationType,
-                                0 AS advancesPayment,
-                                0 AS accountPayable,
-                                0 AS actuallyPayment,
-                                ROUND(IFNULL(uv_beginning_balance.endingBalance,0),2) as endingBalance,
+                                ROUND(IFNULL(uv_beginning_balance.advancesPayment,0),2) as advancesPayment,
+                                ROUND(IFNULL(uv_beginning_balance.accountPayable,0),2)  as accountPayable,
+                                ROUND(IFNULL(uv_beginning_balance.actuallyPayment,0),2) as actuallyPayment,
+                                ROUND(IFNULL(uv_beginning_balance.endingBalance,0),2)   as endingBalance,
                                 '' AS abstract,
                                 '' AS reMark,
                                 '' AS inDate,
                                 buy.buyid,
-                                3 AS printid
+                                3 AS printid,
+                                0 as accountsPayableMxId
                           FROM
                               buy
                               LEFT JOIN
                               (SELECT ''    AS correlationId,
                                      - 2   AS correlationType,
                         
-                                     0     AS advancesPayment,
-                                     0     AS accountPayable,
-                                     0     AS actuallyPayment,
+                                     SUM(accounts_payable_mx.advancesPayment)     as advancesPayment,
+                                     SUM(accounts_payable_mx.accountPayable)      as accountPayable,
+                                     SUM(accounts_payable_mx.actuallyPayment)     as actuallyPayment,
                                      SUM(
-                                                     - accounts_payable_mx.advancesPayment + accounts_payable_mx.accountPayable -
-                                                     accounts_payable_mx.actuallyPayment
-                                         ) AS endingBalance,
-                                     ''    AS abstract,
-                                     ''    AS reMark,
-                                     ''    AS inDate,
+                                          - accounts_payable_mx.advancesPayment + accounts_payable_mx.accountPayable -
+                                          accounts_payable_mx.actuallyPayment
+                                         ) as endingBalance,
+                                     ''    as abstract,
+                                     ''    as reMark,
+                                     ''    as inDate,
                                      accounts_payable.buyid,
-                                     3     AS printid
+                                     3     as printid
                               FROM accounts_payable_mx
                                        INNER JOIN accounts_payable
                                                   ON accounts_payable.accountsPayableId = accounts_payable_mx.accountsPayableId
@@ -177,10 +181,8 @@ export class AccountPayableMxReport {
                         AND accounts_payable_mx_report.correlationType = ${CodeType.XS}
                     LEFT JOIN inbound ON inbound.inboundid = accounts_payable_mx_report.correlationId
                         AND accounts_payable_mx_report.correlationType = ${CodeType.buyInbound}
-                        
-                    ORDER BY accounts_payable_mx_report.buyid ASC,
-                             accounts_payable_mx_report.printid ASC,
-                             accounts_payable_mx_report.inDate ASC
+                    LEFT JOIN accounts_verify_sheet ON accounts_verify_sheet.accountsVerifySheetId = accounts_payable_mx_report.correlationId
+                        AND accounts_payable_mx_report.correlationType =  ${CodeType.HXD}
         `
         console.log(sql)
         const [res] = await conn.query(sql);

@@ -56,11 +56,12 @@ export class OutboundEntity {
                         outbound.outboundid = outbound_mx.outboundid
                 ) AS amt,
                 client.clientname,
+                client.ymrep,
                 warehouse.warehousename
               FROM
                 outbound
-	              INNER JOIN client ON outbound.clientid = client.clientid
-	              INNER JOIN warehouse ON outbound.warehouseid = warehouse.warehouseid
+	              LEFT JOIN client ON outbound.clientid = client.clientid
+	              LEFT JOIN warehouse ON outbound.warehouseid = warehouse.warehouseid
               WHERE 
                 outbound.del_uuid = 0`;
         let params = [];
@@ -111,10 +112,59 @@ export class OutboundEntity {
             params.push(findDto.outboundtype);
         }
 
-        //按出仓单相关号码查询
+        //按相关号码查询
         if (findDto.relatednumber.length > 0) {
             sql = sql + ` AND outbound.relatednumber LIKE ?`;
             params.push(`%${findDto.relatednumber}%`);
+        }
+
+        //按结算方式查询
+        if (findDto.moneytype.length > 0) {
+            sql = sql + ` AND outbound.moneytype LIKE ?`;
+            params.push(`%${findDto.moneytype}%`);
+        }
+
+        //按客户名称查询
+        if (findDto.clientname.length > 0) {
+            sql = sql + ` AND client.clientname LIKE ?`;
+            params.push(`%${findDto.clientname}%`);
+        }
+
+        //按备注1查询
+        if (findDto.remark1.length > 0) {
+            sql = sql + ` AND outbound.remark1 LIKE ?`;
+            params.push(`%${findDto.remark1}%`);
+        }
+
+        //按备注2查询
+        if (findDto.remark1.length > 0) {
+            sql = sql + ` AND outbound.remark2 LIKE ?`;
+            params.push(`%${findDto.remark2}%`);
+        }
+
+        //按备注3查询
+        if (findDto.remark3.length > 0) {
+            sql = sql + ` AND outbound.remark3 LIKE ?`;
+            params.push(`%${findDto.remark3}%`);
+        }
+
+        //按备注4查询
+        if (findDto.remark4.length > 0) {
+            sql = sql + ` AND outbound.remark4 LIKE ?`;
+            params.push(`%${findDto.remark4}%`);
+        }
+
+        //按备注5查询
+        if (findDto.remark5.length > 0) {
+            sql = sql + ` AND outbound.remark5 LIKE ?`;
+            params.push(`%${findDto.remark5}%`);
+        }
+
+
+        //按业务员查询
+        if (findDto.ymrep.length > 0) {
+            sql = sql + ` AND client.ymrep LIKE ?`;
+            params.push(`${findDto.ymrep}%`);
         }
 
         //分页查询

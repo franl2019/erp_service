@@ -24,53 +24,68 @@ export class AccountsReceivableMxReport {
                                    '',
                                    account_income.accountInComeCode,
                                    account_expenditure.accountExpenditureCode,
+                                   accounts_verify_sheet.accountsVerifySheetCode,
                                    outbound.outboundcode,
                                    inbound.inboundcode
                                ) AS correlationCode,
                            accounts_receivable_mx_report.advancesReceived,
                            accounts_receivable_mx_report.receivables,
                            accounts_receivable_mx_report.actuallyReceived,
-                           accounts_receivable_mx_report.endingBalance,
+                           IF( 
+                               accounts_receivable_mx_report.printid = 3,
+                               accounts_receivable_mx_report.endingBalance,
+                               SUM(
+                                  - accounts_receivable_mx_report.advancesReceived 
+                                  + accounts_receivable_mx_report.receivables 
+                                  - accounts_receivable_mx_report.actuallyReceived
+                                 ) over (
+                                 PARTITION BY accounts_receivable_mx_report.clientid
+                                 ORDER BY
+                                     accounts_receivable_mx_report.clientid,
+                                     accounts_receivable_mx_report.printid,
+                                     accounts_receivable_mx_report.inDate,
+                                     accounts_receivable_mx_report.accountReceivableMxId
+                                 )
+                           ) as endingBalance,
                            accounts_receivable_mx_report.abstract,
                            accounts_receivable_mx_report.reMark,
                            accounts_receivable_mx_report.inDate,
                            accounts_receivable_mx_report.clientid,
                            accounts_receivable_mx_report.printid,
+                           accounts_receivable_mx_report.accountReceivableMxId,
                            client.clientcode,
                            client.clientname,
                            client.ymrep
-                    
+                            
                     FROM (                    
                           SELECT
                                 '' as correlationId,
                                 - 1 as correlationType,
-                                0 AS advancesReceived,
-                                0 AS receivables,
-                                0 AS actuallyReceived,
+                                ROUND(IFNULL(uv_beginning_balance.advancesReceived,0),2) AS advancesReceived,
+                                ROUND(IFNULL(uv_beginning_balance.receivables,0),2) AS receivables,
+                                ROUND(IFNULL(uv_beginning_balance.actuallyReceived,0),2) AS actuallyReceived,
                                 ROUND(IFNULL(uv_beginning_balance.endingBalance,0),2) as endingBalance,
                                 '' AS abstract,
                                 '' AS reMark,
                                 '' AS inDate,
                                 client.clientid,
-                                1 AS printid
+                                1 AS printid,
+                                uv_beginning_balance.accountReceivableMxId
                           FROM
                               client
                               LEFT JOIN
-                              (SELECT ''    AS correlationId,
-                                     - 1   AS correlationType,
-                        
-                                     0     AS advancesReceived,
-                                     0     AS receivables,
-                                     0     AS actuallyReceived,
-                                     SUM(
-                                                     - accounts_receivable_mx.advancesReceived + accounts_receivable_mx.receivables -
-                                                     accounts_receivable_mx.actuallyReceived
-                                         ) AS endingBalance,
-                                     ''    AS abstract,
-                                     ''    AS reMark,
-                                     ''    AS inDate,
+                              (SELECT ''   as correlationId,
+                                     - 1   as correlationType,
+                                     SUM(accounts_receivable_mx.advancesReceived) as advancesReceived,
+                                     SUM(accounts_receivable_mx.receivables) as receivables,
+                                     SUM(accounts_receivable_mx.actuallyReceived) as actuallyReceived,
+                                     0     as endingBalance,
+                                     ''    as abstract,
+                                     ''    as reMark,
+                                     ''    as inDate,
                                      accounts_receivable.clientid,
-                                     1     AS printid
+                                     1     as printid,
+                                     accounts_receivable_mx.accountReceivableMxId
                               FROM accounts_receivable_mx
                                        INNER JOIN accounts_receivable
                                                   ON accounts_receivable.accountsReceivableId = accounts_receivable_mx.accountsReceivableId
@@ -94,20 +109,13 @@ export class AccountsReceivableMxReport {
                                  accounts_receivable_mx.advancesReceived,
                                  accounts_receivable_mx.receivables,
                                  accounts_receivable_mx.actuallyReceived,
-                                 SUM(
-                                                 - accounts_receivable_mx.advancesReceived + accounts_receivable_mx.receivables -
-                                                 accounts_receivable_mx.actuallyReceived
-                                     ) over (
-                                                     PARTITION BY accounts_receivable.clientid
-                                                     ORDER BY
-                                                         accounts_receivable.clientid,
-                                                         accounts_receivable_mx.inDate
-                                                     ) AS endingBalance,
+                                 0 AS endingBalance,
                                  accounts_receivable_mx.abstract,
                                  accounts_receivable_mx.reMark,
                                  accounts_receivable_mx.inDate,
                                  accounts_receivable.clientid,
-                                 2                     AS printid
+                                 2                     AS printid,
+                                 accounts_receivable_mx.accountReceivableMxId
                           FROM accounts_receivable_mx
                                    INNER JOIN accounts_receivable
                                               ON accounts_receivable_mx.accountsReceivableId = accounts_receivable.accountsReceivableId
@@ -132,25 +140,27 @@ export class AccountsReceivableMxReport {
                                 '' AS reMark,
                                 '' AS inDate,
                                 client.clientid,
-                                3 AS printid
+                                3 AS printid,
+                                uv_beginning_balance.accountReceivableMxId
                           FROM
                               client
                               LEFT JOIN
                               (SELECT ''    AS correlationId,
                                      - 2   AS correlationType,
                         
-                                     0     AS advancesReceived,
-                                     0     AS receivables,
-                                     0     AS actuallyReceived,
+                                     SUM(accounts_receivable_mx.advancesReceived)     as advancesReceived,
+                                     SUM(accounts_receivable_mx.receivables)          as receivables,
+                                     SUM(accounts_receivable_mx.actuallyReceived)     as actuallyReceived,
                                      SUM(
                                                      - accounts_receivable_mx.advancesReceived + accounts_receivable_mx.receivables -
                                                      accounts_receivable_mx.actuallyReceived
-                                         ) AS endingBalance,
-                                     ''    AS abstract,
-                                     ''    AS reMark,
-                                     ''    AS inDate,
+                                         ) as endingBalance,
+                                     ''    as abstract,
+                                     ''    as reMark,
+                                     ''    as inDate,
                                      accounts_receivable.clientid,
-                                     3     AS printid
+                                     3     as printid,
+                                     accounts_receivable_mx.accountReceivableMxId
                               FROM accounts_receivable_mx
                                        INNER JOIN accounts_receivable
                                                   ON accounts_receivable.accountsReceivableId = accounts_receivable_mx.accountsReceivableId
@@ -176,10 +186,9 @@ export class AccountsReceivableMxReport {
                         AND accounts_receivable_mx_report.correlationType = ${CodeType.XS}
                     LEFT JOIN inbound ON inbound.inboundid = accounts_receivable_mx_report.correlationId
                         AND accounts_receivable_mx_report.correlationType = ${CodeType.buyInbound}
-                        
-                    ORDER BY accounts_receivable_mx_report.clientid ASC,
-                             accounts_receivable_mx_report.printid ASC,
-                             accounts_receivable_mx_report.inDate ASC`;
+                    LEFT JOIN accounts_verify_sheet ON accounts_verify_sheet.accountsVerifySheetId = accounts_receivable_mx_report.correlationId
+                        AND accounts_receivable_mx_report.correlationType =  ${CodeType.HXD}
+                    `;
 
         console.log(sql)
         const [res] = await conn.query(sql);

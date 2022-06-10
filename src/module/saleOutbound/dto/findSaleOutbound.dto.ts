@@ -6,8 +6,10 @@ export class FindSaleOutboundDto implements IFindOutboundDto{
     warehouseids: number[];
     @IsArray()
     operateareaids: number[];
+
     @IsInt()
     clientid: number;
+
     @IsString()
     startDate: string;
     @IsString()
@@ -24,4 +26,21 @@ export class FindSaleOutboundDto implements IFindOutboundDto{
     page: number;
     @IsInt()
     pagesize: number;
+    @IsString()
+    ymrep: string;
+
+    @IsString()
+    clientname: string;
+    @IsString()
+    moneytype: string;
+    @IsString()
+    remark1: string;
+    @IsString()
+    remark2: string
+    @IsString()
+    remark3: string;
+    @IsString()
+    remark4: string;
+    @IsString()
+    remark5: string;
 }

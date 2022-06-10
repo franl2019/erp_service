@@ -24,4 +24,19 @@ export class FindProductionInboundDto implements IFindInboundDto{
     page: number;
     @IsInt()
     pagesize: number;
+
+    @IsString()
+    buyname: string;
+    @IsString()
+    moneytype: string;
+    @IsString()
+    remark1: string;
+    @IsString()
+    remark2: string;
+    @IsString()
+    remark3: string;
+    @IsString()
+    remark4: string;
+    @IsString()
+    remark5: string;
 }
