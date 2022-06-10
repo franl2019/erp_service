@@ -77,6 +77,15 @@ export class SaleOutboundController {
         };
     }
 
+    @Post("updateAndL1Review")
+    public async updateAndL1Review(@Body() outboundDto: OutboundDto, @ReqState() state: State) {
+        await this.saleOutboundService.updateAndL1Review(outboundDto, state);
+        return {
+            code: 200,
+            msg: "更新加审核成功"
+        };
+    }
+
     @Post("delete_data")
     public async delete_data(@Body() deleteDto: DeleteOutboundDto, @ReqState() state: State) {
         await this.saleOutboundService.delete_data(deleteDto.outboundid, state);

@@ -70,6 +70,17 @@ export class AccountInComeController {
         }
     }
 
+    @Post('update_l1Review')
+    public async update_l1Review(@Body() accountInComeUpdateDto: AccountInComeUpdateDto, @ReqState() state: IState) {
+        accountInComeUpdateDto.updater = state.user.username;
+        accountInComeUpdateDto.updatedAt = new Date();
+        await this.accountInComeService.update_l1Review(accountInComeUpdateDto);
+        return {
+            code: 200,
+            msg: "保存加审核成功"
+        }
+    }
+
     @Post('delete_data')
     public async delete_data(@Body() accountInComeDeleteDto: AccountInComeDeleteDto, @ReqState() state: IState) {
         await this.accountInComeService.deleteById(accountInComeDeleteDto.accountInComeId, state.user.username);

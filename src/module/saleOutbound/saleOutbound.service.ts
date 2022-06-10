@@ -104,7 +104,12 @@ export class SaleOutboundService {
 
     public async update(saleOutboundDto: SaleOutboundDto, state: IState) {
         saleOutboundDto.outboundtype = CodeType.XS;
-        return await this.outboundService.editOutbound(saleOutboundDto, state);
+        return await this.outboundService.update(saleOutboundDto, state);
+    }
+
+    public async updateAndL1Review(saleOutboundDto: SaleOutboundDto, state: IState){
+        saleOutboundDto.outboundtype = CodeType.XS;
+        return await this.outboundService.updateAndL1Review(saleOutboundDto, state);
     }
 
     public async delete_data(outboundId: number, state: IState) {

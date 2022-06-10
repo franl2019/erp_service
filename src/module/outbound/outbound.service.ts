@@ -57,7 +57,7 @@ export class OutboundService {
     }
 
     //修改出仓单
-    public async editOutbound(updateOutboundDto: IOutboundDto, state: State) {
+    public async update(updateOutboundDto: IOutboundDto, state: State) {
         return this.mysqlAls.sqlTransaction(async () => {
             const outbound_db = await this.outboundEntity.findById(updateOutboundDto.outboundid);
 
@@ -84,6 +84,14 @@ export class OutboundService {
 
             await this.outboundMxService.create(outboundMx);
         });
+    }
+
+    //修改加审核
+    public async updateAndL1Review(updateOutboundDto: IOutboundDto, state: State){
+        return await this.mysqlAls.sqlTransaction(async ()=>{
+           await this.update(updateOutboundDto,state);
+           return await this.l1Review(updateOutboundDto.outboundid,state.user.username);
+        })
     }
 
     //删除出仓单

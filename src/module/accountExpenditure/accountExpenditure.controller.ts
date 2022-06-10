@@ -71,6 +71,17 @@ export class AccountExpenditureController {
         };
     }
 
+    @Post("update_l1Review")
+    public async update_l1Review(@Body() accountExpenditureUpdateDto: AccountExpenditureUpdateDto, @ReqState() state: IState) {
+        accountExpenditureUpdateDto.updater = state.user.username;
+        accountExpenditureUpdateDto.updatedAt = new Date();
+        await this.accountExpenditureService.update_l1Review(accountExpenditureUpdateDto);
+        return {
+            code: 200,
+            msg: "保存加审核成功"
+        };
+    }
+
     @Post("level1Review")
     public async level1Review(@Body() accountExpenditureL1ReviewDto: AccountExpenditureL1ReviewDto, @ReqState() state: IState) {
         await this.accountExpenditureService.level1Review(accountExpenditureL1ReviewDto.accountExpenditureId, state.user.username);

@@ -264,6 +264,13 @@ export class AccountInComeService {
         })
     }
 
+    public async update_l1Review(accountInComeUpdateDto: AccountInComeUpdateDto){
+        return await this.mysqldbAls.sqlTransaction(async ()=>{
+            await this.update(accountInComeUpdateDto);
+            return await this.level1Review(accountInComeUpdateDto.accountInComeId,accountInComeUpdateDto.updater);
+        })
+    }
+
     public async deleteById(accountInComeId: number, userName: string) {
         const accountInCome = await this.findById(accountInComeId);
 

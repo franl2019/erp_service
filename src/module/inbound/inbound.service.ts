@@ -99,7 +99,7 @@ export class InboundService {
         });
     }
 
-    //修改进仓单的单头
+    //修改进仓单
     public async update(inboundDto: IInboundDto) {
         return this.mysqldbAls.sqlTransaction(async () => {
             //检查是否已经审核
@@ -130,6 +130,15 @@ export class InboundService {
             await this.inboundMxService.create(inboundDto.inboundmx);
         });
     }
+
+    //修改加审核进仓单
+    public async update_l1Review(inboundDto: IInboundDto,userName:string){
+        return await this.mysqldbAls.sqlTransaction(async ()=>{
+            await this.update(inboundDto);
+            return await this.level1Review(inboundDto.inboundid,userName)
+        })
+    }
+
 
     public async delete_data(inboundid: number, userName: string) {
         return this.mysqldbAls.sqlTransaction(async () => {

@@ -258,6 +258,13 @@ export class AccountExpenditureService {
         })
     }
 
+    public async update_l1Review(accountExpenditureUpdateDto: AccountExpenditureUpdateDto){
+        return await this.mysqldbAls.sqlTransaction(async ()=>{
+            await this.update(accountExpenditureUpdateDto);
+            return await this.level1Review(accountExpenditureUpdateDto.accountExpenditureId,accountExpenditureUpdateDto.updater);
+        })
+    }
+
     public async level1Review(accountExpenditureId: number, userName: string) {
         return this.mysqldbAls.sqlTransaction(async () => {
             const accountExpenditure = await this.findById(accountExpenditureId);

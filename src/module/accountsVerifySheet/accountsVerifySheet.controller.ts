@@ -69,6 +69,17 @@ export class AccountsVerifySheetController {
         }
     }
 
+    @Post('update_l1Review')
+    public async update_l1Review(@Body() updateDto: AccountsVerifySheetUpdateDto, @ReqState() state: IState) {
+        updateDto.updater = state.user.username;
+        updateDto.updatedAt = new Date();
+        await this.accountsVerifySheetService.update_l1Review(updateDto);
+        return {
+            code: 200,
+            msg: '更新加保存成功'
+        }
+    }
+
     @Post('delete_data')
     public async delete_data(@Body() deleteDto: AccountsVerifySheetDeleteDto, @ReqState() state: IState) {
         await this.accountsVerifySheetService.delete_data(deleteDto.accountsVerifySheetId, state.user.username);

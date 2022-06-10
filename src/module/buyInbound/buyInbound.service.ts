@@ -33,6 +33,7 @@ export class BuyInboundService {
                         mathjs.bignumber(inboundMxList[i].netprice)
                     ).done(), 2)
             );
+
             amounts = Number(
                 mathjs.round(
                     mathjs.chain(bignumber(amounts))
@@ -93,8 +94,7 @@ export class BuyInboundService {
 
     public async update_l1Review(buyInboundDto: BuyInboundDto) {
         return this.mysqldbAls.sqlTransaction(async () => {
-            await this.inboundService.update(buyInboundDto);
-            return await this.inboundService.level1Review(buyInboundDto.inboundid, buyInboundDto.updater);
+            return await this.inboundService.update_l1Review(buyInboundDto, buyInboundDto.updater);
         })
     }
 

@@ -245,6 +245,13 @@ export class AccountsVerifySheetService {
         })
     }
 
+    public async update_l1Review(updateDto: AccountsVerifySheetUpdateDto){
+        return await this.mysqldbAls.sqlTransaction(async ()=>{
+            await this.update(updateDto);
+            return this.level1Review(updateDto.accountsVerifySheetId,updateDto.updater);
+        })
+    }
+
     public async delete_data(accountsVerifySheetId: number, userName: string) {
 
         return this.mysqldbAls.sqlTransaction(async () => {
