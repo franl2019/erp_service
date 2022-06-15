@@ -93,6 +93,7 @@ export class ClientAreaService {
     public async create(clientArea: AddClientAreaDto) {
 
         clientArea.parentCode = await this.getParenCode(clientArea);
+        clientArea.sonflag = 0;
 
         return await this.mysqldbAls.sqlTransaction(async () => {
 
@@ -116,7 +117,7 @@ export class ClientAreaService {
     }
 
     public async update(clientArea: UpdateClientAreaDto) {
-
+        clientArea.sonflag = 0;
         clientArea.parentCode = await this.getParenCode(clientArea);
 
         return await this.mysqldbAls.sqlTransaction(async () => {

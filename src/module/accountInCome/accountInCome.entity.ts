@@ -238,7 +238,7 @@ export class AccountInComeEntity {
                      SET
                         account_income.level1Review = 0,
                         account_income.level1Name = '',
-                        account_income.level1Date = ''
+                        account_income.level1date = null
                      WHERE
                         account_income.level1Review = 1
                         AND account_income.accountInComeId = ?`;

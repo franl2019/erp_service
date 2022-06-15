@@ -119,12 +119,7 @@ export class ClientAreaEntity {
                     clientarea.parentid,
                     clientarea.parentCode,
                     clientarea.creater,
-                    clientarea.createdAt,
-                    clientarea.updater,
-                    clientarea.updatedAt,
-                    clientarea.del_uuid,
-                    clientarea.deletedAt,
-                    clientarea.deleter
+                    clientarea.createdAt
                 ) VALUES ?`;
         const [res] = await conn.query<ResultSetHeader>(sql, [[[
             clientArea.clientareaid,
@@ -134,12 +129,7 @@ export class ClientAreaEntity {
             clientArea.parentid,
             clientArea.parentCode,
             clientArea.creater,
-            clientArea.createdAt,
-            clientArea.updater,
-            clientArea.updatedAt,
-            clientArea.del_uuid,
-            clientArea.deletedAt,
-            clientArea.deleter
+            clientArea.createdAt
         ]]]);
         if (res.affectedRows > 0) {
             return res;

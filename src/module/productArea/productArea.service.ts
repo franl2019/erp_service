@@ -97,7 +97,7 @@ export class ProductAreaService {
   }
 
   public async create(productArea: AddProductAreaDto) {
-
+    productArea.sonflag = 0;
     productArea.parentCode = await this.getParenCode(productArea);
 
     return await this.mysqldbAls.sqlTransaction(async () => {
@@ -117,7 +117,7 @@ export class ProductAreaService {
   }
 
   public async update(productArea: UpdateProductAreaDto) {
-
+    if(productArea.sonflag == null) productArea.sonflag = 0;
     if (productArea.productareaid === productArea.parentid) {
       return Promise.reject(new Error("所属类别不能选择类别自身，保存失败"));
     }

@@ -364,7 +364,7 @@ export class BuyEntity {
                              SET 
                                 buy.level1review = 0,
                                 buy.level1name = '',
-                                buy.level1date = ''
+                                buy.level1date = null
                              WHERE 
                                 buy.level1review = 1
                                 AND buy.level2review = 0
@@ -386,7 +386,7 @@ export class BuyEntity {
                              SET 
                                 buy.level2review = 0,
                                 buy.level2name = '',
-                                buy.level2date = ''
+                                buy.level2date = null
                              WHERE 
                                 buy.level1review = 1
                                 AND buy.level2review = 1

@@ -343,7 +343,7 @@ export class ProductEntity {
                      SET
                         product.level1review = 0,
                         product.level1name = '',
-                        product.level1date = ''
+                        product.level1date = null
                      WHERE
                         product.productid = ?`;
         const [res] = await conn.query<ResultSetHeader>(sql,[
@@ -385,7 +385,7 @@ export class ProductEntity {
                      SET
                         product.level2review = 0,
                         product.level2name = '',
-                        product.level2date = ''
+                        product.level2date = null
                      WHERE
                         product.productid = ?`;
         const [res] = await conn.query<ResultSetHeader>(sql,[

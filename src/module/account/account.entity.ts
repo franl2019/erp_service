@@ -124,8 +124,7 @@ export class AccountEntity {
                         account.accountType, 
                         account.companyFlag, 
                         account.creater, 
-                        account.createdAt,
-                        account.useFlag
+                        account.createdAt
                     ) VALUES ?`;
         const [res] = await conn.query<ResultSetHeader>(sql, [[[
             account.accountId,
@@ -135,8 +134,7 @@ export class AccountEntity {
             account.accountType,
             account.companyFlag,
             account.creater,
-            account.createdAt,
-            account.useFlag
+            account.createdAt
         ]]]);
         if (res.affectedRows > 0) {
             return res;

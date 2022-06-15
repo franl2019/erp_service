@@ -431,7 +431,7 @@ export class InboundEntity {
                              SET
                                    inbound.level1review = 0,
                                    inbound.level1name = '',
-                                   inbound.level1date = ''
+                                   inbound.level1date = null
                              WHERE 
                                 inbound.level1review = 1
                                 AND inbound.level2review = 0
@@ -454,7 +454,7 @@ export class InboundEntity {
                              SET
                                    inbound.level2review = 0,
                                    inbound.level2name = '',
-                                   inbound.level2date = ''
+                                   inbound.level2date = null
                              WHERE 
                                 inbound.level1review = 1
                                 AND inbound.level2review = 1

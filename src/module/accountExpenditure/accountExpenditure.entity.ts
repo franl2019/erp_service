@@ -208,7 +208,7 @@ export class AccountExpenditureEntity {
                      SET
                         account_expenditure.level1Review = 0,
                         account_expenditure.level1Name = '',
-                        account_expenditure.level1Date = ''
+                        account_expenditure.level1date = null
                      WHERE 
                         account_expenditure.accountExpenditureId = ?
                         AND account_expenditure.level1Review = 1`;

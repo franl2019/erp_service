@@ -405,7 +405,7 @@ export class OutboundEntity {
                      SET
                         outbound.level1review = 0, 
                         outbound.level1name = '', 
-                        outbound.level1date = ''
+                        outbound.level1date = null
                      WHERE 
                         outbound.del_uuid = 0
                         AND outbound.outboundid = ?`;
@@ -451,7 +451,7 @@ export class OutboundEntity {
                      SET
                         outbound.level2review = 0, 
                         outbound.level2name = '', 
-                        outbound.level2date = ''
+                        outbound.level2date = null
                      WHERE 
                         outbound.level1review = 1
                         AND outbound.level2review = 1

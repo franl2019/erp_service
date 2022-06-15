@@ -27,8 +27,6 @@ export class CreateAccountDto implements IAccount{
     updater: string;
     //更新时间
     updatedAt: Date;
-    //使用标记
-    @IsInt()
     useFlag: number;
     del_uuid: number;
     deletedAt: Date;

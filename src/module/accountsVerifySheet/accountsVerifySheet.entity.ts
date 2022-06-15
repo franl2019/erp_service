@@ -283,7 +283,7 @@ export class AccountsVerifySheetEntity {
                      SET
                         accounts_verify_sheet.level1Review = 0,
                         accounts_verify_sheet.level1Name = '',
-                        accounts_verify_sheet.level1Date = ''
+                        accounts_verify_sheet.level1date = null
                      WHERE
                         accounts_verify_sheet.del_uuid = 0
                         AND accounts_verify_sheet.accountsVerifySheetId = ?`;

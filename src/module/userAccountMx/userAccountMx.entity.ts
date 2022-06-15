@@ -25,11 +25,7 @@ export class UserAccountMxEntity {
                         user_account_mx.userid = ?
                         AND user_account_mx.accountId = ?`;
         const [res] = await conn.query(sql, [userid, accountId])
-        if ((res as IUserAccountMx[]).length > 0) {
-            return (res as IUserAccountMx[])[0]
-        } else {
-            return Promise.reject(new Error("查询用户单个出纳账户权限失败"));
-        }
+        return (res as IUserAccountMx[])[0]
     }
 
     public async find(findDto: UserAccountAuthFindDto) {

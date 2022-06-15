@@ -118,6 +118,8 @@ export class BuyAreaService {
 
     public async update(buyArea: UpdateBuyAreaDto) {
 
+        if (buyArea.sonflag == null) buyArea.sonflag = 0;
+
         if (buyArea.buyareaid === buyArea.parentid) {
             return Promise.reject(new Error("错误,所属地区和地区自身相同"));
         }

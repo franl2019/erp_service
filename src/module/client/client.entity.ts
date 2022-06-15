@@ -397,7 +397,7 @@ export class ClientEntity {
                          SET 
                             client.level1review = 0,
                             client.level1name = '',
-                            client.level1date = ''
+                            client.level1date = null
                          WHERE
                             client.del_uuid = 0 
                             AND client.clientid = ?
@@ -445,7 +445,7 @@ export class ClientEntity {
                          SET 
                             client.level2review = 0,
                             client.level2name = '',
-                            client.level2date = ''
+                            client.level2date = null
                          WHERE
                             client.del_uuid = 0 
                             AND client.clientid = ?
