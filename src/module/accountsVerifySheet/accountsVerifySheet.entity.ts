@@ -139,6 +139,8 @@ export class AccountsVerifySheetEntity {
             params.push(findDto.page, findDto.pagesize);
         }
 
+        sql = sql + ` ORDER BY substring(accounts_verify_sheet.accountsVerifySheetCode,16) + 0 DESC`;
+
         const [res] = await conn.query(sql, params);
         if ((res as IAccountsVerifySheetFind[]).length > 0) {
             return (res as IAccountsVerifySheetFind[])

@@ -81,9 +81,9 @@ export class BuyInboundService {
     }
 
     public async create_l1Review(buyInboundDto: BuyInboundDto) {
-        return this.mysqldbAls.sqlTransaction(async () => {
+        return await this.mysqldbAls.sqlTransaction(async () => {
             const result = await this.inboundService.createInbound(buyInboundDto);
-            await this.inboundService.level1Review(result.insertId, buyInboundDto.creater);
+            await this.inboundService.level1Review(result.id, buyInboundDto.creater);
             return result
         })
     }

@@ -215,7 +215,7 @@ export class InboundEntity {
             params.push(findDto.page, findDto.pagesize);
         }
 
-        sql = sql + ` ORDER BY inbound.inboundcode DESC`
+        sql = sql + ` ORDER BY substring(inbound.inboundcode,15) + 0 DESC`
 
         const [res] = await conn.query(sql, params);
         return (res as FindInboundList[]);

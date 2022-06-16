@@ -173,7 +173,7 @@ export class OutboundEntity {
             params.push(findDto.page, findDto.pagesize);
         }
 
-        sql = sql + ` ORDER BY outbound.outboundcode DESC`
+        sql = sql + ` ORDER BY substring(outbound.outboundcode,15) + 0 DESC`
 
         const [res] = await conn.query(sql, params);
         return res as IOutboundHead[];

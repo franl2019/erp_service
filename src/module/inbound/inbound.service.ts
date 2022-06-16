@@ -8,7 +8,6 @@ import {AddInventoryDto} from "../inventory/dto/addInventory.dto";
 import {InboundMxService} from "../inboundMx/inboundMx.service";
 import {Inbound} from "./inbound";
 import {AutoCodeMxService} from "../autoCodeMx/autoCodeMx.service";
-import {ResultSetHeader} from "mysql2/promise";
 import {InboundMxDto} from "../inboundMx/dto/inboundMx.dto";
 import {ClientService} from "../client/client.service";
 
@@ -71,8 +70,8 @@ export class InboundService {
     }
 
     //新增进仓单
-    public async createInbound(inboundDto: IInboundDto): Promise<ResultSetHeader> {
-        return this.mysqldbAls.sqlTransaction(async () => {
+    public async createInbound(inboundDto: IInboundDto): Promise<{id:number,code:string}> {
+        return await this.mysqldbAls.sqlTransaction(async () => {
             //生成自动单号
             inboundDto.inboundcode = await this.autoCodeMxService.getSheetAutoCode(inboundDto.inboundtype);
             //创建进仓单的单头
