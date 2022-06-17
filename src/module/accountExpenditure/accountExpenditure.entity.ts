@@ -110,7 +110,7 @@ export class AccountExpenditureEntity {
             params.push(findDto.page, findDto.pagesize);
         }
 
-        sql = sql + ` ORDER BY substring(account_expenditure.accountExpenditureCode,15) + 0 DESC`;
+        sql = sql + ` ORDER BY account_expenditure.accountExpenditureId DESC`;
 
 
         const [res] = await conn.query(sql, params);

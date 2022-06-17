@@ -110,7 +110,8 @@ export class SaleOutboundMxReport {
                         LEFT JOIN product ON outbound_mx.productid = product.productid
                    WHERE
                         outbound.del_uuid = 0
-                        AND outbound.outboundtype = ${CodeType.XS}`;
+                        AND outbound.outboundtype = ${CodeType.XS}
+                   `;
         const params = [];
 
         //按仓库查询
@@ -160,14 +161,8 @@ export class SaleOutboundMxReport {
         }
 
         sql = sql + ` ORDER BY
-                        outbound.outboundcode DESC,
+                        outbound.outboundid DESC,
                         outbound_mx.printid ASC`;
-
-        //分页查询
-        if (findDto.page > 0 && findDto.pagesize > 0) {
-            sql = sql + ` LIMIT ?,?`;
-            params.push(findDto.page, findDto.pagesize);
-        }
 
         const [res] = await conn.query(sql, params);
         return res as ISaleOutboundMxReport[]

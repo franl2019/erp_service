@@ -115,7 +115,10 @@ export class BuyInboundMxReport {
                     LEFT JOIN warehouse ON warehouse.warehouseid = inbound.warehouseid
                     WHERE	
                         inbound.del_uuid = 0
-                        AND inbound.inboundtype = ${CodeType.buyInbound}`;
+                        AND inbound.inboundtype = ${CodeType.buyInbound}
+                    ORDER BY 
+                        inbound.inboundid DESC,
+                        inbound_mx.printid`;
         const [res] = await conn.query(sql);
         return res as IBuyInboundMxReport[]
     }

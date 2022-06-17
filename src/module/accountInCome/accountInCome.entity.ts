@@ -121,7 +121,7 @@ export class AccountInComeEntity {
             params.push(findDto.page, findDto.pagesize);
         }
 
-        sql = sql + ` ORDER BY substring(account_income.accountInComeCode,15) + 0 DESC`;
+        sql = sql + ` ORDER BY account_income.accountInComeId DESC`;
 
         const [res] = await conn.query(sql, params);
         return (res as IAccountInComeFind[])
