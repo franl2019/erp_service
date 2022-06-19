@@ -109,9 +109,11 @@ export class ProductEntity {
                                 product.warehouseid,
                                 product.del_uuid,
                                 product.deletedAt,
-                                product.deleter
+                                product.deleter,
+                                warehouse.warehousename
                             FROM
                                 product 
+                                LEFT JOIN warehouse ON warehouse.warehouseid = product.warehouseid
                             WHERE 
                                 product.del_uuid = 0`;
         let param = [];

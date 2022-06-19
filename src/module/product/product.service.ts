@@ -25,7 +25,7 @@ export class ProductService {
     }
 
     public async find(product: SelectProductDto, state: State) {
-        product.warehouseids = state.user.warehouseids;
+        if(product.warehouseids.length === 0)product.warehouseids = state.user.warehouseids;
         return await this.productEntity.find(product);
     }
 

@@ -152,20 +152,20 @@ export class AccountsVerifySheetService {
     }
 
     public async findAccountsVerifySheetState(findDto: AccountsVerifySheetFindDto) {
-        const accountsVerifySheets=  await this.accountsVerifySheetEntity.find(findDto);
+        const accountsVerifySheets = await this.accountsVerifySheetEntity.find(findDto);
 
         let completeL1Review = 0;
         let undoneL1Review = 0;
         let undoneL2Review = 0;
         for (let i = 0; i < accountsVerifySheets.length; i++) {
             const accountExpenditure = accountsVerifySheets[i];
-            if(accountExpenditure.level1Review === 0){
+            if (accountExpenditure.level1Review === 0) {
                 undoneL1Review = undoneL1Review + 1
-            }else if(accountExpenditure.level1Review === 1){
+            } else if (accountExpenditure.level1Review === 1) {
                 completeL1Review = completeL1Review + 1
             }
 
-            if(accountExpenditure.level1Review === 1 && accountExpenditure.level2Review === 0){
+            if (accountExpenditure.level1Review === 1 && accountExpenditure.level2Review === 0) {
                 undoneL2Review = undoneL2Review + 1
             }
         }
@@ -177,7 +177,7 @@ export class AccountsVerifySheetService {
         }
     }
 
-    public async create(createDto: AccountsVerifySheetCreateDto):Promise<{id:number,code:string}> {
+    public async create(createDto: AccountsVerifySheetCreateDto): Promise<{ id: number, code: string }> {
 
         return await this.mysqldbAls.sqlTransaction(async () => {
             createDto.accountsVerifySheetCode = await this.autoCodeMxService.getSheetAutoCode(CodeType.HXD);
@@ -201,17 +201,17 @@ export class AccountsVerifySheetService {
             }
             await this.accountsVerifySheetMxService.create(accountsVerifySheetMxList);
             return {
-                id:result.insertId,
-                code:createDto.accountsVerifySheetCode
+                id: result.insertId,
+                code: createDto.accountsVerifySheetCode
             };
         })
     }
 
     public async create_l1Review(createDto: AccountsVerifySheetCreateDto) {
         return await this.mysqldbAls.sqlTransaction(async () => {
-          const createResult = await this.create(createDto);
-          await this.level1Review(createResult.id,createDto.creater);
-          return createResult
+            const createResult = await this.create(createDto);
+            await this.level1Review(createResult.id, createDto.creater);
+            return createResult
         })
     }
 
@@ -245,10 +245,10 @@ export class AccountsVerifySheetService {
         })
     }
 
-    public async update_l1Review(updateDto: AccountsVerifySheetUpdateDto){
-        return await this.mysqldbAls.sqlTransaction(async ()=>{
+    public async update_l1Review(updateDto: AccountsVerifySheetUpdateDto) {
+        return await this.mysqldbAls.sqlTransaction(async () => {
             await this.update(updateDto);
-            return this.level1Review(updateDto.accountsVerifySheetId,updateDto.updater);
+            return this.level1Review(updateDto.accountsVerifySheetId, updateDto.updater);
         })
     }
 
@@ -418,29 +418,45 @@ export class AccountsVerifySheetService {
                 accountsVerifySheetId: accountsVerifySheetId
             })
 
-            //是否有核销应付账款
-            let haveAccountsPayable: boolean = false;
             //是否有核销应收账款
             let haveAccountReceivable: boolean = false;
+            //是否有核销应付账款
+            let haveAccountsPayable: boolean = false;
 
-            //循环处理核销单明细
-            for (let i = 0; i < accountsVerifySheetMxList.length; i++) {
-                const accountsVerifySheetMx = accountsVerifySheetMxList[i];
-                //账款类型
-                switch (accountsVerifySheetMx.correlationType) {
-                    //[1]应收账款 | [2]预收账款 |  [3]其他应收
-                    case AccountCategoryType.accountsReceivable1 || AccountCategoryType.advancePayment2 || AccountCategoryType.otherReceivables3:
-                        haveAccountReceivable = true;
-                        break
-                    case AccountCategoryType.accountsPayable4 ||  AccountCategoryType.prepayments5 ||  AccountCategoryType.otherPayable6:
-                        haveAccountsPayable = true;
-                        break
-                    default:
-                        break;
-                }
+            switch (accountsVerifySheet.sheetType) {
+                case AccountsVerifySheetType.advancePayment_accountsReceivable_1 |
+                AccountsVerifySheetType.prepayments_accountsPayable_2 |
+                AccountsVerifySheetType.accountsReceivable_accountsPayable_3:
+                    //循环处理核销单明细
+                    for (let i = 0; i < accountsVerifySheetMxList.length; i++) {
+                        const accountsVerifySheetMx = accountsVerifySheetMxList[i];
+                        //账款类型
+                        switch (accountsVerifySheetMx.correlationType) {
+                            //[1]应收账款 | [2]预收账款 |  [3]其他应收
+                            case AccountCategoryType.accountsReceivable1 || AccountCategoryType.advancePayment2 || AccountCategoryType.otherReceivables3:
+                                haveAccountReceivable = true;
+                                break
+                            case AccountCategoryType.accountsPayable4 || AccountCategoryType.prepayments5 || AccountCategoryType.otherPayable6:
+                                haveAccountsPayable = true;
+                                break
+                            default:
+                                break;
+                        }
+                    }
+                    break
+                //[4]应收转应收 冲客户A 生成客户B
+                case AccountsVerifySheetType.accountsReceivable_accountsReceivable_4:
+                    // await this.accountsReceivableService.deleteByCorrelation(accountsVerifySheet.accountsVerifySheetId, CodeType.HXD);
+                    haveAccountReceivable = true;
+                    break
+                //[5]应付转应付 冲供应商A 供应商B生成
+                case AccountsVerifySheetType.accountsPayable_accountsPayable_5:
+                    // await this.accountsPayableService.deleteByCorrelation(accountsVerifySheet.accountsVerifySheetId, CodeType.HXD);
+                    haveAccountsPayable = true;
+                    break
+                default:
+                    break
             }
-
-            console.log(haveAccountsPayable,haveAccountReceivable)
 
             if (haveAccountReceivable) {
                 //删除应收账款明细，自动重新计算应收账款
@@ -450,20 +466,6 @@ export class AccountsVerifySheetService {
             if (haveAccountsPayable) {
                 //删除应付账款明细，自动重新计算应付账款
                 await this.accountsPayableService.deleteMxByCorrelation(accountsVerifySheetId, CodeType.HXD);
-            }
-
-            //处理 [4]应收转应收 [5]应付转应付
-            switch (accountsVerifySheet.sheetType) {
-                //[4]应收转应收 冲客户A 生成客户B
-                case 4:
-                    await this.accountsReceivableService.deleteByCorrelation(accountsVerifySheet.accountsVerifySheetId, CodeType.HXD);
-                    break;
-                //[5]应付转应付 冲供应商A 供应商B生成
-                case 5:
-                    await this.accountsPayableService.deleteByCorrelation(accountsVerifySheet.accountsVerifySheetId, CodeType.HXD);
-                    break;
-                default:
-                    break;
             }
 
             //更新单据审核状态

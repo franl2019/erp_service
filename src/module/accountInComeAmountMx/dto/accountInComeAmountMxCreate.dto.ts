@@ -1,5 +1,5 @@
 import {IAccountInComeAmountMx} from "../accountInComeAmountMx";
-import {IsInt, IsNumber, IsString} from "class-validator";
+import {IsInt, IsNumber, IsString, NotEquals} from "class-validator";
 
 export class AccountInComeAmountMxCreateDto implements IAccountInComeAmountMx {
     //收款单明细Id
@@ -22,6 +22,7 @@ export class AccountInComeAmountMxCreateDto implements IAccountInComeAmountMx {
     amount: number;
     //币种Id
     @IsInt()
+    @NotEquals(0)
     currencyid: number;
     //汇率
     @IsNumber()

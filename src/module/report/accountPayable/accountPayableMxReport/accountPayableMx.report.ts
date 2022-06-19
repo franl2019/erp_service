@@ -183,6 +183,8 @@ export class AccountPayableMxReport {
                         AND accounts_payable_mx_report.correlationType = ${CodeType.buyInbound}
                     LEFT JOIN accounts_verify_sheet ON accounts_verify_sheet.accountsVerifySheetId = accounts_payable_mx_report.correlationId
                         AND accounts_payable_mx_report.correlationType =  ${CodeType.HXD}
+                    WHERE
+                        buy.del_uuid = 0
         `
         console.log(sql)
         const [res] = await conn.query(sql);

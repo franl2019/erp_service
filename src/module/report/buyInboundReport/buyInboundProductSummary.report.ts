@@ -66,6 +66,8 @@ export class BuyInboundProductSummaryReport {
                             AND inbound.inboundtype = ${CodeType.buyInbound}
                         ) AS buyInboundSummaryReport
                     INNER JOIN product ON product.productid = buyInboundSummaryReport.productid
+                    WHERE
+                        product.del_uuid = 0
                     GROUP BY
                         product.productcode,
                         product.productname,

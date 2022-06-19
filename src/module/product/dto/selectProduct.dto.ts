@@ -1,6 +1,7 @@
-import { IsInt, IsString } from "class-validator";
+import {IsArray, IsInt, IsString} from "class-validator";
 
 export class SelectProductDto {
+  @IsArray()
   warehouseids: number[];
 
   @IsInt()

@@ -188,6 +188,8 @@ export class AccountsReceivableMxReport {
                         AND accounts_receivable_mx_report.correlationType = ${CodeType.buyInbound}
                     LEFT JOIN accounts_verify_sheet ON accounts_verify_sheet.accountsVerifySheetId = accounts_receivable_mx_report.correlationId
                         AND accounts_receivable_mx_report.correlationType =  ${CodeType.HXD}
+                    WHERE
+                        client.del_uuid = 0
                     `;
 
         console.log(sql)
