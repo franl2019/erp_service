@@ -15,6 +15,8 @@ import {AccountsReceivableSumReport} from "./accountReceivable/accountsReceivabl
 import {AccountPayableMxReport} from "./accountPayable/accountPayableMxReport/accountPayableMx.report";
 import {AccountPayableController} from "./accountPayable/accountPayable.controller";
 import {AccountPayableSumReport} from "./accountPayable/accountPayableSumReport/accountPayableSum.report";
+import {PsiMonthReportController} from "./psiMonthReport/psiMonthReport.controller";
+import {PsiMonthReport} from "./psiMonthReport/psiMonth.report.";
 
 @Module({
     imports: [MysqldbModule],
@@ -24,6 +26,7 @@ import {AccountPayableSumReport} from "./accountPayable/accountPayableSumReport/
         BuyInboundReportController,
         AccountsReceivableReportController,
         AccountPayableController,
+        PsiMonthReportController
     ],
     providers: [
         CashBankDepositJournalReport,
@@ -41,6 +44,9 @@ import {AccountPayableSumReport} from "./accountPayable/accountPayableSumReport/
         //应付账款报表
         AccountPayableMxReport,
         AccountPayableSumReport,
+
+        //进销存月报表
+        PsiMonthReport
     ]
 })
 export class ReportModule {}
