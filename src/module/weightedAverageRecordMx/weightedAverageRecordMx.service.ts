@@ -3,18 +3,15 @@ import {IWeightedAverageRecordMx} from "./weightedAverageRecordMx";
 import {Injectable} from "@nestjs/common";
 import {WeightedAverageRecordService} from "../weightedAverageRecord/weightedAverageRecord.service";
 import * as moment from "moment";
-import {PsiMonthReport} from "../report/psiMonthReport/psiMonth.report.";
-import {IPsiMonthReport} from "../report/psiMonthReport/psiMonthReport";
 import {MysqldbAls} from "../mysqldb/mysqldbAls";
 
 @Injectable()
 export class WeightedAverageRecordMxService {
 
     constructor(
-        private readonly mysqldbAls:MysqldbAls,
+        private readonly mysqldbAls: MysqldbAls,
         private readonly weightedAverageRecordMxEntity: WeightedAverageRecordMxEntity,
         private readonly weightedAverageRecordService: WeightedAverageRecordService,
-        private readonly psiMonthReport: PsiMonthReport
     ) {
     }
 
@@ -26,48 +23,48 @@ export class WeightedAverageRecordMxService {
         return await this.weightedAverageRecordMxEntity.delete_data(weightedAverageRecordId);
     }
 
-    //为 进销存月报表 创建加权平均记录
-    private async createWeightedAverageRecordMxForPsi(psiMonthReportList: IPsiMonthReport[], option: { weightedAverageRecordId: number }) {
-        const weightedAverageRecordMxList: IWeightedAverageRecordMx[] = [];
-        for (let i = 0; i < psiMonthReportList.length; i++) {
-            const psiMonthReport = psiMonthReportList[i];
-            const weightedAverageRecordMx: IWeightedAverageRecordMx = {
-                weightedAverageRecordId: option.weightedAverageRecordId,
-                productid: psiMonthReport.productid,
-                spec_d: psiMonthReport.spec_d,
-                materials_d: psiMonthReport.materials_d,
-                remark: psiMonthReport.remark,
-                remarkmx: psiMonthReport.remarkmx,
-                qty: psiMonthReport.balanceQty_thisMonth,
-                price: psiMonthReport.weightedAveragePrice_thisMonth,
-                amount: psiMonthReport.balanceAmount_thisMonth,
-            }
-            weightedAverageRecordMxList.push(weightedAverageRecordMx)
-        }
-        return await this.create(weightedAverageRecordMxList);
+    //计算 本月加权平均记录 Mx
+    private async getWeightedAverageRecordMxThisMonth(date: Date) {
+
+        const startDate = moment(date).startOf('month').format('YYYY-MM-DD');
+        const endDate = moment(date).endOf('month').format('YYYY-MM-DD');
+        const lastMonth = moment(date).subtract(1, 'months').format('YYYY-MM')
+
+        //检查是否已经初始化
+        await this.weightedAverageRecordService.isAfterInitDate(startDate);
+        return await this.weightedAverageRecordMxEntity.getWeightedAverageRecordMxThisMonth(lastMonth, startDate, endDate)
     }
 
-    public async countWeightedAverageRecordMx(inDate: string, username: string, isCountBalance: boolean) {
-        return await this.mysqldbAls.sqlTransaction(async ()=>{
-            const weightedAverageRecord = await this.weightedAverageRecordService.findByInDate(inDate, username);
-            if (weightedAverageRecord.level1Review === 0) {
-                //版本一致,计算上期记录,因为上期加权变了,本期就算没有变也要重新计算
+    public async countWeightedAverageRecordMx(inDate: string, username: string) {
+        return await this.mysqldbAls.sqlTransaction(async () => {
+            //查询本期
+            const weightedAverageRecord = await this.weightedAverageRecordService.findByInDate(inDate);
+            console.log(weightedAverageRecord)
+            //已结转核算成本
+            if (weightedAverageRecord.level1Review === 1) {
+                return true
+            }
+            //未结转
+            else if (weightedAverageRecord.level1Review === 0) {
+                //查询上期月份
                 const lastMonth = moment(inDate).subtract(1, 'month').format('YYYY-MM');
-                await this.countWeightedAverageRecordMx(lastMonth, username, true);
-
-                if (isCountBalance) {
+                //查询上期是否结算
+                const countSuccess = await this.countWeightedAverageRecordMx(lastMonth, username);
+                //上期结算完毕结算本期
+                if (countSuccess) {
                     //计算本期
-                    const startDate: string = moment(weightedAverageRecord.inDate).startOf('month').format('YYYY-MM-DD');
-                    const endDate: string = moment(weightedAverageRecord.inDate).endOf('month').format('YYYY-MM-DD');
-                    const psiMonthReportList = await this.psiMonthReport.find({startDate, endDate});
+                    const weightedAverageRecordMxList = await this.getWeightedAverageRecordMxThisMonth(new Date(inDate));
+                    //清空本期
                     await this.delete_data(weightedAverageRecord.weightedAverageRecordId);
-                    return await this.createWeightedAverageRecordMxForPsi(psiMonthReportList, {
-                        weightedAverageRecordId: weightedAverageRecord.weightedAverageRecordId
-                    });
+                    //写入本期
+                    await this.create(weightedAverageRecordMxList);
+
+                    //更新版本号
+                    await this.weightedAverageRecordService.updateVersionFinish(inDate, weightedAverageRecord.version_latest);
+
+                    return true
                 }
             }
         })
     }
-
-
 }

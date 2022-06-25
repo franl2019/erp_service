@@ -10,6 +10,8 @@ import {Inbound} from "./inbound";
 import {AutoCodeMxService} from "../autoCodeMx/autoCodeMx.service";
 import {InboundMxDto} from "../inboundMx/dto/inboundMx.dto";
 import {ClientService} from "../client/client.service";
+import * as moment from "moment";
+import { WeightedAverageRecordService } from "../weightedAverageRecord/weightedAverageRecord.service";
 
 @Injectable()
 export class InboundService {
@@ -19,7 +21,8 @@ export class InboundService {
         private readonly inboundMxService: InboundMxService,
         private readonly autoCodeMxService: AutoCodeMxService,
         private readonly inventoryService: InventoryService,
-        private readonly clientService: ClientService
+        private readonly clientService: ClientService,
+        private readonly weightedAverageRecordService:WeightedAverageRecordService
     ) {
     }
 
@@ -252,6 +255,7 @@ export class InboundService {
 
 
             await this.inboundEntity.l2Review(inbound.inboundid, userName);
+            await this.weightedAverageRecordService.addVersionLatest(moment(inbound.indate).format('YYYY-MM'));
         })
     }
 

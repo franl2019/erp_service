@@ -10,6 +10,8 @@ import {AddInventoryDto} from "../inventory/dto/addInventory.dto";
 import {InventoryService} from "../inventory/inventory.service";
 import {AutoCodeMxService} from "../autoCodeMx/autoCodeMx.service";
 import {ResultSetHeader} from "mysql2/promise";
+import {WeightedAverageRecordService} from "../weightedAverageRecord/weightedAverageRecord.service";
+import * as moment from "moment";
 
 @Injectable()
 export class OutboundService {
@@ -20,6 +22,7 @@ export class OutboundService {
         private readonly outboundMxService: OutboundMxService,
         private readonly autoCodeMxService: AutoCodeMxService,
         private readonly inventoryService: InventoryService,
+        private readonly weightedAverageRecordService:WeightedAverageRecordService
     ) {
     }
 
@@ -240,6 +243,7 @@ export class OutboundService {
 
             //更新出仓单审核状态
             await this.outboundEntity.l2Review(outbound.outboundid,userName);
+            await this.weightedAverageRecordService.addVersionLatest(moment(outbound.outdate).format('YYYY-MM'));
         })
     }
 

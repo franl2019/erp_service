@@ -12,27 +12,28 @@ export class WeightedAverageRecordService {
     }
 
     //查询初始化记录
-    public async findByInit(){
+    public async findByInit() {
         return await this.weightedAverageRecordEntity.findByInit();
+    }
+
+    public async isAfterInitDate(date:string){
+        const initWeightedAverageRecord = await this.findByInit();
+        //不能查询超过初始化日期
+        if (moment(initWeightedAverageRecord.inDate).isAfter(date)) {
+            return Promise.reject(new Error('查询日期不能超过初始化日期'));
+        }
     }
 
     public async findByInDate(inDate: string): Promise<IWeightedAverageRecord> {
         inDate = moment(inDate).format('YYYY-MM');
-
-        const initWeightedAverageRecord = await this.findByInit();
-        //不能查询超过初始化日期
-        if (moment(initWeightedAverageRecord.initDate).isAfter(inDate)) {
-            return Promise.reject(new Error('查询日期不能超过初始化日期'));
-        }
-
         const weightedAverageRecord = await this.weightedAverageRecordEntity.findByInDate(inDate);
-
         if (weightedAverageRecord) {
             return weightedAverageRecord
-        } else {
+        }else {
+            await this.isAfterInitDate(inDate);
             const weightedAverageRecord: IWeightedAverageRecord = {
                 weightedAverageRecordId: 0,
-                inDate: moment(inDate).toDate(),
+                inDate: new Date(inDate),
                 level1Date: null,
                 level1Name: "",
                 level1Review: 0,
@@ -51,17 +52,28 @@ export class WeightedAverageRecordService {
         }
     }
 
+    public async checkIfCountIsRequired() {
+        //检查是否已经初始化
+        await this.findByInit();
+        return await this.weightedAverageRecordEntity.findByVersionLatest();
+    }
+
+    public async checkIsL1Review(inDate:string) {
+       const weightedAverageRecord = await this.findByInDate(inDate);
+       return weightedAverageRecord.level1Review === 1;
+    }
+
     private async create(weightedAverageRecord: IWeightedAverageRecord) {
         return await this.weightedAverageRecordEntity.create(weightedAverageRecord);
     }
 
-    public async createForInit(inDate: string, username: string){
+    public async createForInit(inDate: string, username: string) {
         const weightedAverageRecord: IWeightedAverageRecord = {
             weightedAverageRecordId: 0,
             inDate: moment(inDate).toDate(),
-            level1Date: null,
-            level1Name: "",
-            level1Review: 0,
+            level1Date: new Date(),
+            level1Name: username,
+            level1Review: 1,
             level2Date: null,
             level2Name: "",
             level2Review: 0,
@@ -76,31 +88,41 @@ export class WeightedAverageRecordService {
         return weightedAverageRecord;
     }
 
-    public async addVersionLatest(inDate: string){
+    public async addVersionLatest(inDate: string) {
         const weightedAverageRecord = await this.findByInDate(inDate);
-        await this.weightedAverageRecordEntity.addVersionLatest(inDate,weightedAverageRecord.version_latest + 1);
+        await this.weightedAverageRecordEntity.addVersionLatest(inDate, weightedAverageRecord.version_latest + 1);
+    }
+
+    public async updateVersionFinish(inDate: string, version: number){
+        inDate = moment(inDate).format('YYYY-MM');
+        return await this.weightedAverageRecordEntity.updateVersionFinish(inDate,version);
     }
 
     public async l1Review(inDate: string, username: string) {
         const weightedAverageRecord = await this.findByInDate(inDate);
+        if(weightedAverageRecord.level1Review === 1){
+            return Promise.reject(new Error('成本已结转请勿重复'));
+        }
+
         const lastMonth = moment(inDate).subtract(1, 'month').format('YYYY-MM');
         const weightedAverageRecordLastMonth = await this.findByInDate(lastMonth);
         if (weightedAverageRecordLastMonth.level1Review !== 1) {
-            return Promise.reject(new Error('结转成本审核失败,请先结转上期成本'));
+            return Promise.reject(new Error('结转成本失败,请先结转上期成本'));
         }
+
         return await this.weightedAverageRecordEntity.l1Review(weightedAverageRecord.weightedAverageRecordId, username);
     }
 
     public async unl1Review(inDate: string) {
         const weightedAverageRecord = await this.findByInDate(inDate);
-        if(weightedAverageRecord.level1Review === 1){
-            return Promise.reject(new Error('本月成本已结转审核,请勿重复'))
+        if (weightedAverageRecord.level1Review !== 1) {
+            return Promise.reject(new Error('本月未结转'))
         }
 
         const nextMonth = moment(inDate).add(1, 'month').format('YYYY-MM');
         const weightedAverageRecordNextMonth = await this.findByInDate(nextMonth);
         if (weightedAverageRecordNextMonth.level1Review === 1) {
-            return Promise.reject(new Error('撤审结转失败,请先撤审下一期'));
+            return Promise.reject(new Error('撤销结转成本失败,请先撤销下一期'));
         }
         return await this.weightedAverageRecordEntity.unl1Review(weightedAverageRecord.weightedAverageRecordId);
     }
@@ -112,4 +134,5 @@ export class WeightedAverageRecordService {
     public async unl2Review(weightedAverageRecordId: number) {
         return await this.weightedAverageRecordEntity.unl2Review(weightedAverageRecordId);
     }
+
 }

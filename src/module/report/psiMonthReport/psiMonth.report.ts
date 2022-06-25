@@ -3,15 +3,21 @@ import {MysqldbAls} from "../../mysqldb/mysqldbAls";
 import {PsiMonthReportFindDto} from "./dto/psiMonthReportFind.dto";
 import {IPsiMonthReport} from "./psiMonthReport";
 import * as moment from "moment";
+import {WeightedAverageRecordService} from "../../weightedAverageRecord/weightedAverageRecord.service";
+
 @Injectable()
 export class PsiMonthReport {
 
     constructor(
-        private readonly mysqldbAls:MysqldbAls
+        private readonly mysqldbAls: MysqldbAls,
+        private readonly weightedAverageRecordService: WeightedAverageRecordService
     ) {
     }
 
-    public async find(findDto:PsiMonthReportFindDto){
+    public async find(findDto: PsiMonthReportFindDto) {
+
+        await this.weightedAverageRecordService.isAfterInitDate(findDto.startDate);
+        const thisMonth = moment(findDto.startDate).format('YYYY-MM')
         const lastMonth = moment(findDto.startDate).subtract(1, 'months').format('YYYY-MM')
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `SELECT
@@ -29,39 +35,25 @@ export class PsiMonthReport {
                         PsiMonthReport.qty_lastMonth,
                         PsiMonthReport.amount_lastMonth,
                         PsiMonthReport.qty_buy_thisMonth,
-                        IFNULL(
-                          ROUND(
-                            (
-                                PsiMonthReport.amount_buy_thisMonth / PsiMonthReport.qty_buy_thisMonth
-                            ),
-                            2
+                        IFNULL((
+                            PsiMonthReport.amount_buy_thisMonth / PsiMonthReport.qty_buy_thisMonth
                         ),0) as price_buy_thisMonth,
                         PsiMonthReport.amount_buy_thisMonth,
                         PsiMonthReport.qty_sale_thisMonth as qty_saleCost_thisMonth,
-                        ROUND(
-                            (
-                                PsiMonthReport.qty_sale_thisMonth * PsiMonthReport.weightedAveragePrice_thisMonth
-                            ),
-                            2
+                        PsiMonthReport.weightedAveragePrice_thisMonth as price_saleCost_thisMonth,
+                        (
+                          PsiMonthReport.qty_sale_thisMonth * PsiMonthReport.weightedAveragePrice_thisMonth
                         ) as amount_saleCost_thisMonth,
                         PsiMonthReport.qty_sale_thisMonth,
                         PsiMonthReport.amount_sale_thisMonth,
-                        ROUND(
-                            (
-                                PsiMonthReport.qty_lastMonth + PsiMonthReport.qty_buy_thisMonth - PsiMonthReport.qty_sale_thisMonth
-                            ),
-                            4
+                        (
+                          PsiMonthReport.qty_lastMonth + PsiMonthReport.qty_buy_thisMonth - PsiMonthReport.qty_sale_thisMonth
                         ) as balanceQty_thisMonth,
                         PsiMonthReport.weightedAveragePrice_thisMonth,
-                        ROUND(
-                            ROUND(
-                                (
-                                    PsiMonthReport.qty_lastMonth + PsiMonthReport.qty_buy_thisMonth - PsiMonthReport.qty_sale_thisMonth
-                                ),
-                                4
-                            ) * PsiMonthReport.weightedAveragePrice_thisMonth,
-                            2
-                        ) as balanceAmount_thisMonth
+                        ((
+                          PsiMonthReport.qty_lastMonth + PsiMonthReport.qty_buy_thisMonth - PsiMonthReport.qty_sale_thisMonth
+                        ) * PsiMonthReport.weightedAveragePrice_thisMonth)
+                       as balanceAmount_thisMonth
                     FROM
                         (
                             SELECT
@@ -95,22 +87,7 @@ export class PsiMonthReport {
                                     0
                                 ) as amount_sale_thisMonth,
                                 IFNULL(
-                                    ROUND(
-                                        (
-                                            (
-                                                IFNULL(lastMonth.amount, 0) + IFNULL(
-                                                    buyThisMonth.amount_buy_thisMonth,
-                                                    0
-                                                ) / (
-                                                    IFNULL(lastMonth.qty, 0) + IFNULL(
-                                                        buyThisMonth.qty_buy_thisMonth,
-                                                        0
-                                                    )
-                                                )
-                                            )
-                                        ),
-                                        2
-                                    ),
+                                    thisMonth.price,
                                     0
                                 ) as weightedAveragePrice_thisMonth
                             FROM
@@ -207,10 +184,35 @@ export class PsiMonthReport {
                             AND lastMonth.materials_d = inventory.materials_d
                             AND lastMonth.remark = inventory.remark
                             AND lastMonth.remarkmx = inventory.remarkmx
+                            
+                            LEFT JOIN (
+                                SELECT
+                                    weighted_average_record_mx.productid,
+                                    weighted_average_record_mx.spec_d,
+                                    weighted_average_record_mx.materials_d,
+                                    weighted_average_record_mx.remark,
+                                    weighted_average_record_mx.remarkmx,
+                                    weighted_average_record_mx.qty,
+                                    weighted_average_record_mx.price,
+                                    weighted_average_record_mx.amount
+                                FROM
+                                    weighted_average_record_mx
+                                    INNER JOIN weighted_average_record on weighted_average_record_mx.weightedAverageRecordId = weighted_average_record.weightedAverageRecordId
+                                WHERE
+                                    weighted_average_record.inDate LIKE ${conn.escape(thisMonth + '%')}
+                                    
+                            ) as thisMonth ON thisMonth.productid = inventory.productid
+                            AND thisMonth.spec_d = inventory.spec_d
+                            AND thisMonth.materials_d = inventory.materials_d
+                            AND thisMonth.remark = inventory.remark
+                            AND thisMonth.remarkmx = inventory.remarkmx
                         ) as PsiMonthReport
+                    ORDER BY
+                        PsiMonthReport.productid ASC
+                        
         `;
         console.log(sql)
-        const [res]= await conn.query(sql);
+        const [res] = await conn.query(sql);
         return res as IPsiMonthReport[]
     }
 }

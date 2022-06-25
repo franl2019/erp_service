@@ -50,6 +50,8 @@ import {ReportModule} from "./module/report/report.module";
 import {BuyAutoCodeModule} from "./module/buyAutoCode/buyAutoCode.module";
 import {ProductAutoCodeModule} from "./module/productAutoCode/productAutoCode.module";
 import {ClientAutoCodeModule} from "./module/clientAutoCode/clientAutoCode.module";
+import {WeightedAverageRecordModule} from "./module/weightedAverageRecord/weightedAverageRecord.module";
+import {WeightedAverageRecordMxModule} from "./module/weightedAverageRecordMx/weightedAverageRecordMx.module";
 
 @Module({
     imports: [
@@ -125,7 +127,11 @@ import {ClientAutoCodeModule} from "./module/clientAutoCode/clientAutoCode.modul
         ClientAutoCodeModule,
 
         //报表
-        ReportModule
+        ReportModule,
+
+        //月加权成本记录表
+        WeightedAverageRecordModule,
+        WeightedAverageRecordMxModule
     ],
     providers: [
         {

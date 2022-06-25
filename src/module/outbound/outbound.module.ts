@@ -7,9 +7,18 @@ import {InventoryModule} from "../inventory/inventory.module";
 import {AutoCodeMxModule} from "../autoCodeMx/autoCodeMx.module";
 import {AccountsReceivableMxModule} from "../accountsReceivableMx/accountsReceivableMx.module";
 import {AccountsReceivableModule} from "../accountsReceivable/accountsReceivable.module";
+import {WeightedAverageRecordModule} from "../weightedAverageRecord/weightedAverageRecord.module";
 
 @Module({
-    imports: [MysqldbModule, OutboundMxModule, AutoCodeMxModule, InventoryModule, AccountsReceivableMxModule, AccountsReceivableModule],
+    imports: [
+        MysqldbModule,
+        OutboundMxModule,
+        AutoCodeMxModule,
+        InventoryModule,
+        AccountsReceivableMxModule,
+        AccountsReceivableModule,
+        WeightedAverageRecordModule
+    ],
     providers: [OutboundService, OutboundEntity],
     exports: [OutboundService]
 })

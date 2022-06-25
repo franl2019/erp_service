@@ -33,6 +33,8 @@ export interface IPsiMonthReport {
 
     //本月成本数量
     qty_saleCost_thisMonth:number;
+    //本月成本单价
+    price_saleCost_thisMonth:number;
     //本月成本金额
     amount_saleCost_thisMonth:number;
 

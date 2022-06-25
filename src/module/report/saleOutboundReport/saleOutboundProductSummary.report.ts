@@ -61,7 +61,7 @@ export class SaleOutboundProductSummaryReport {
                         outbound_mx.remarkmx,
                         outbound_mx.remark`;
 
-        console.log(sql)
+
         const [res] = await conn.query(sql);
         return res as ISaleOutboundReport[]
     }

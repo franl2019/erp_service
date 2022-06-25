@@ -1,8 +1,8 @@
 import {Body, Controller, Post} from "@nestjs/common";
-import {PsiMonthReport} from "./psiMonth.report.";
+import {PsiMonthReport} from "./psiMonth.report";
 import {PsiMonthReportFindDto} from "./dto/psiMonthReportFind.dto";
 
-@Controller('erp/psiMonthReport')
+@Controller('erp/report')
 export class PsiMonthReportController {
 
     constructor(
@@ -10,7 +10,7 @@ export class PsiMonthReportController {
     ) {
     }
 
-    @Post('find')
+    @Post('psiMonthReport')
     public async find(@Body() findDto:PsiMonthReportFindDto){
         const data = await this.psiMonthReportService.find(findDto);
         return {

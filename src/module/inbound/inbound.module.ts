@@ -8,9 +8,10 @@ import {AutoCodeMxModule} from "../autoCodeMx/autoCodeMx.module";
 import {AccountsPayableModule} from "../accountsPayable/accountsPayable.module";
 import {AccountsPayableMxModule} from "../accountsPayableMx/accountsPayableMx.module";
 import {ClientModule} from "../client/client.module";
+import {WeightedAverageRecordModule} from "../weightedAverageRecord/weightedAverageRecord.module";
 
 @Module({
-    imports: [MysqldbModule, InboundMxModule, InventoryModule, AutoCodeMxModule, AccountsPayableModule, AccountsPayableMxModule,ClientModule],
+    imports: [MysqldbModule, InboundMxModule, InventoryModule, AutoCodeMxModule, AccountsPayableModule, AccountsPayableMxModule,ClientModule,WeightedAverageRecordModule],
     providers: [InboundService, InboundEntity],
     exports: [InboundService]
 })

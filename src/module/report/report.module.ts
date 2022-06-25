@@ -16,10 +16,11 @@ import {AccountPayableMxReport} from "./accountPayable/accountPayableMxReport/ac
 import {AccountPayableController} from "./accountPayable/accountPayable.controller";
 import {AccountPayableSumReport} from "./accountPayable/accountPayableSumReport/accountPayableSum.report";
 import {PsiMonthReportController} from "./psiMonthReport/psiMonthReport.controller";
-import {PsiMonthReport} from "./psiMonthReport/psiMonth.report.";
+import {PsiMonthReport} from "./psiMonthReport/psiMonth.report";
+import {WeightedAverageRecordModule} from "../weightedAverageRecord/weightedAverageRecord.module";
 
 @Module({
-    imports: [MysqldbModule],
+    imports: [MysqldbModule,WeightedAverageRecordModule],
     controllers: [
         ReportController,
         SaleOutboundReportController,

@@ -7,11 +7,11 @@ import {Injectable} from "@nestjs/common";
 export class WeightedAverageRecordEntity {
 
     constructor(
-        private readonly mysqldbAls:MysqldbAls
+        private readonly mysqldbAls: MysqldbAls
     ) {
     }
 
-    public async findByInit(){
+    public async findByInit() {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `SELECT
                         weighted_average_record.weightedAverageRecordId,
@@ -33,14 +33,14 @@ export class WeightedAverageRecordEntity {
                         weighted_average_record.initReview = 1`;
 
         const [res] = await conn.query(sql);
-        if((res as IWeightedAverageRecord[]).length > 0){
+        if ((res as IWeightedAverageRecord[]).length > 0) {
             return res[0] as IWeightedAverageRecord
-        }else{
+        } else {
             return Promise.reject(new Error('查询月加权平均初始化记录失败'))
         }
     }
 
-    public async findByVersionLatest(){
+    public async findByVersionLatest() {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `SELECT
                         weighted_average_record.weightedAverageRecordId,
@@ -59,28 +59,30 @@ export class WeightedAverageRecordEntity {
                      FROM
                         weighted_average_record
                      WHERE
-                        weighted_average_record.version <> weighted_average_record.version_latest`;
+                        weighted_average_record.level1Review = 0
+                        AND weighted_average_record.version <> weighted_average_record.version_latest`;
         const [res] = await conn.query(sql);
         return (res as IWeightedAverageRecord[]).length > 0;
     }
 
-    public async addVersionLatest(inDate:string,version_latest:number){
+    public async addVersionLatest(inDate: string, version_latest: number) {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `UPDATE
                         weighted_average_record
                      SET
                         weighted_average_record.version_latest = ${conn.escape(version_latest)}
                      WHERE
-                        weighted_average_record.inDate = ${conn.escape(inDate)}`;
+                        weighted_average_record.inDate LIKE ${conn.escape(inDate+'%')}`;
+        console.log(sql)
         const [res] = await conn.query<ResultSetHeader>(sql);
-        if(res.affectedRows > 0){
+        if (res.affectedRows > 0) {
             return res;
-        }else{
+        } else {
             return Promise.reject(new Error('更新月加权平均记录版本失败'))
         }
     }
 
-    public async findByInDate(inDate:string):Promise<IWeightedAverageRecord>{
+    public async findByInDate(inDate: string): Promise<IWeightedAverageRecord> {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `SELECT
                         weighted_average_record.weightedAverageRecordId,
@@ -99,17 +101,16 @@ export class WeightedAverageRecordEntity {
                      FROM
                         weighted_average_record
                      WHERE
-                        weighted_average_record.inDate LIKE ${conn.escape(inDate)}%`;
-
+                        weighted_average_record.inDate LIKE ${conn.escape(inDate+'%')}`;
         const [res] = await conn.query(sql);
-        if((res as IWeightedAverageRecord[]).length > 0){
+        if ((res as IWeightedAverageRecord[]).length > 0) {
             return res[0] as IWeightedAverageRecord
-        }else{
+        } else {
             return null
         }
     }
 
-    public async create(weightedAverageRecord:IWeightedAverageRecord){
+    public async create(weightedAverageRecord: IWeightedAverageRecord) {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `INSERT INTO weighted_average_record (
                          weighted_average_record.inDate,
@@ -125,7 +126,7 @@ export class WeightedAverageRecordEntity {
                          weighted_average_record.version,
                          weighted_average_record.version_latest
                      ) VALUE ?`;
-        const [res] = await conn.query<ResultSetHeader>(sql,[[[
+        const [res] = await conn.query<ResultSetHeader>(sql, [[[
             weightedAverageRecord.inDate,
             weightedAverageRecord.level1Review,
             weightedAverageRecord.level1Name,
@@ -139,15 +140,32 @@ export class WeightedAverageRecordEntity {
             weightedAverageRecord.version,
             weightedAverageRecord.version_latest
         ]]])
-        if(res.affectedRows > 0){
+        if (res.affectedRows > 0) {
             return res;
-        }else{
+        } else {
             return Promise.reject(new Error('创建月加权平均记录失败'))
         }
     }
 
+    public async updateVersionFinish(inDate: string, version: number) {
+        const conn = await this.mysqldbAls.getConnectionInAls();
+        const sql = `UPDATE
+                        weighted_average_record
+                     SET
+                        weighted_average_record.version = ${conn.escape(version)}
+                     WHERE
+                        weighted_average_record.inDate LIKE ${conn.escape(inDate+'%')}`;
+        console.log(sql)
+        const [res] = await conn.query<ResultSetHeader>(sql);
+        if(res.affectedRows>0){
+            return res;
+        }else{
+            return Promise.reject(new Error('更新版本号失败'))
+        }
+    }
+
     //锁定成本
-    public async l1Review(weightedAverageRecordId:number,username:string){
+    public async l1Review(weightedAverageRecordId: number, username: string) {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `UPDATE 
                         weighted_average_record
@@ -157,19 +175,19 @@ export class WeightedAverageRecordEntity {
                         weighted_average_record.level1Date = ?
                      WHERE
                         weighted_average_record.weightedAverageRecordId = ?`;
-        const [res] = await conn.query<ResultSetHeader>(sql,[
+        const [res] = await conn.query<ResultSetHeader>(sql, [
             username,
             new Date(),
             weightedAverageRecordId
         ]);
-        if(res.affectedRows>0){
+        if (res.affectedRows > 0) {
             return res
-        }else{
+        } else {
             return Promise.reject(new Error('锁定成本审核失败'));
         }
     }
 
-    public async unl1Review(weightedAverageRecordId:number){
+    public async unl1Review(weightedAverageRecordId: number) {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `UPDATE 
                         weighted_average_record
@@ -179,18 +197,18 @@ export class WeightedAverageRecordEntity {
                         weighted_average_record.level1Date = ''
                      WHERE
                         weighted_average_record.weightedAverageRecordId = ?`;
-        const [res] = await conn.query<ResultSetHeader>(sql,[
+        const [res] = await conn.query<ResultSetHeader>(sql, [
             weightedAverageRecordId
         ]);
-        if(res.affectedRows>0){
+        if (res.affectedRows > 0) {
             return res
-        }else{
+        } else {
             return Promise.reject(new Error('撤销锁定成本审核失败'));
         }
     }
 
     //月结审核
-    public async l2Review(weightedAverageRecordId:number,username:string){
+    public async l2Review(weightedAverageRecordId: number, username: string) {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `UPDATE 
                         weighted_average_record
@@ -200,19 +218,19 @@ export class WeightedAverageRecordEntity {
                         weighted_average_record.level2Date = ?
                      WHERE
                         weighted_average_record.weightedAverageRecordId = ?`;
-        const [res] = await conn.query<ResultSetHeader>(sql,[
+        const [res] = await conn.query<ResultSetHeader>(sql, [
             username,
             new Date(),
             weightedAverageRecordId
         ]);
-        if(res.affectedRows>0){
+        if (res.affectedRows > 0) {
             return res
-        }else{
+        } else {
             return Promise.reject(new Error('月结审核失败'));
         }
     }
 
-    public async unl2Review(weightedAverageRecordId:number){
+    public async unl2Review(weightedAverageRecordId: number) {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `UPDATE 
                         weighted_average_record
@@ -222,12 +240,12 @@ export class WeightedAverageRecordEntity {
                         weighted_average_record.level2Date = ''
                      WHERE
                         weighted_average_record.weightedAverageRecordId = ?`;
-        const [res] = await conn.query<ResultSetHeader>(sql,[
+        const [res] = await conn.query<ResultSetHeader>(sql, [
             weightedAverageRecordId
         ]);
-        if(res.affectedRows>0){
+        if (res.affectedRows > 0) {
             return res
-        }else{
+        } else {
             return Promise.reject(new Error('撤销月结审核失败'));
         }
     }
