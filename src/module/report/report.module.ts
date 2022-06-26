@@ -18,6 +18,10 @@ import {AccountPayableSumReport} from "./accountPayable/accountPayableSumReport/
 import {PsiMonthReportController} from "./psiMonthReport/psiMonthReport.controller";
 import {PsiMonthReport} from "./psiMonthReport/psiMonth.report";
 import {WeightedAverageRecordModule} from "../weightedAverageRecord/weightedAverageRecord.module";
+import {SaleGrossMarginMxReportController} from "./saleGrossMarginMx/saleGrossMarginMxReport.controller";
+import {SaleGrossMarginMxReportService} from "./saleGrossMarginMx/saleGrossMarginMxReport.service";
+import {SaleGrossMarginSumReportController} from "./saleGrossMarginSum/saleGrossMarginSumReport.controller";
+import {SaleGrossMarginSumReportService} from "./saleGrossMarginSum/saleGrossMarginSumReport.service";
 
 @Module({
     imports: [MysqldbModule,WeightedAverageRecordModule],
@@ -27,7 +31,9 @@ import {WeightedAverageRecordModule} from "../weightedAverageRecord/weightedAver
         BuyInboundReportController,
         AccountsReceivableReportController,
         AccountPayableController,
-        PsiMonthReportController
+        PsiMonthReportController,
+        SaleGrossMarginMxReportController,
+        SaleGrossMarginSumReportController
     ],
     providers: [
         CashBankDepositJournalReport,
@@ -47,7 +53,12 @@ import {WeightedAverageRecordModule} from "../weightedAverageRecord/weightedAver
         AccountPayableSumReport,
 
         //进销存月报表
-        PsiMonthReport
+        PsiMonthReport,
+
+        //销售毛利明细表
+        SaleGrossMarginMxReportService,
+        //销售毛利汇总表
+        SaleGrossMarginSumReportService
     ]
 })
 export class ReportModule {}
