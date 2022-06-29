@@ -52,6 +52,7 @@ import {ProductAutoCodeModule} from "./module/productAutoCode/productAutoCode.mo
 import {ClientAutoCodeModule} from "./module/clientAutoCode/clientAutoCode.module";
 import {WeightedAverageRecordModule} from "./module/weightedAverageRecord/weightedAverageRecord.module";
 import {WeightedAverageRecordMxModule} from "./module/weightedAverageRecordMx/weightedAverageRecordMx.module";
+import {SaleOrderModule} from "./module/saleOrder/saleOrder.module";
 
 @Module({
     imports: [
@@ -131,7 +132,10 @@ import {WeightedAverageRecordMxModule} from "./module/weightedAverageRecordMx/we
 
         //月加权成本记录表
         WeightedAverageRecordModule,
-        WeightedAverageRecordMxModule
+        WeightedAverageRecordMxModule,
+
+        //销售订单
+        SaleOrderModule
     ],
     providers: [
         {
