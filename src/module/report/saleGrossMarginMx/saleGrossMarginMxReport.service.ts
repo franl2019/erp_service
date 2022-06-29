@@ -15,6 +15,7 @@ export class SaleGrossMarginMxReportService {
     public async find(findDto:SaleGrossMarginMxReportFindDto){
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `SELECT
+                         outbound.outboundid,
                          outbound.outboundcode,
                          client.clientcode,
                          client.clientname,
