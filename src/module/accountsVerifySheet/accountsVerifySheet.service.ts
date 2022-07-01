@@ -2,7 +2,7 @@ import {bignumber, chain, equal, round} from "mathjs";
 import {CodeType} from "../autoCode/codeType";
 import {Injectable} from "@nestjs/common";
 import {MysqldbAls} from "../mysqldb/mysqldbAls";
-import {verifyParam} from "../../utils/verifyParam";
+import {useVerifyParam} from "../../utils/useVerifyParam";
 import {IAccountsPayable} from "../accountsPayable/accountsPayable";
 import {AutoCodeMxService} from "../autoCodeMx/autoCodeMx.service";
 import {AccountCategoryType} from "../accountsVerifySheetMx/accountCategoryType";
@@ -193,7 +193,7 @@ export class AccountsVerifySheetService {
                     accountsVerifySheetMx.accountsVerifySheetId = result.insertId;
                     accountsVerifySheetMx.printId = i;
                     //验证明细参数
-                    await verifyParam(accountsVerifySheetMx);
+                    await useVerifyParam(accountsVerifySheetMx);
                     accountsVerifySheetMxList.push(accountsVerifySheetMx);
                 }
             } else {
@@ -230,7 +230,7 @@ export class AccountsVerifySheetService {
                     const accountsVerifySheetMx = updateDto.accountsVerifySheetMx[i];
                     accountsVerifySheetMx.accountsVerifySheetId = accountsVerifySheet.accountsVerifySheetId;
                     accountsVerifySheetMx.printId = i;
-                    await verifyParam(accountsVerifySheetMx);
+                    await useVerifyParam(accountsVerifySheetMx);
                     accountsVerifySheetMxList.push(accountsVerifySheetMx);
                 }
             } else {

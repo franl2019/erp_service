@@ -14,7 +14,7 @@ export class OutboundMxEntity {
 
   //查询出仓单明细,带关联信息
   public async find(outboundid: number): Promise<IFindOutboundMx[]> {
-    const conn = this.mysqldbAls.getConnectionInAls();
+    const conn = await this.mysqldbAls.getConnectionInAls();
     const sql = `SELECT
                     outbound_mx.outboundid, 
                     outbound_mx.printid, 
@@ -70,7 +70,7 @@ export class OutboundMxEntity {
 
   //查找出仓单明细(实例)
   public async find_entity(outboundid: number): Promise<IOutboundMx[]> {
-    const conn = this.mysqldbAls.getConnectionInAls();
+    const conn = await this.mysqldbAls.getConnectionInAls();
     const sql = `SELECT
                 outbound_mx.outboundid, 
                 outbound_mx.printid, 

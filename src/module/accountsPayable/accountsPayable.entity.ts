@@ -13,7 +13,7 @@ export class AccountsPayableEntity {
     }
 
     public async findById(accountsPayableId: number): Promise<IAccountsPayable> {
-        const conn = this.mysqldbAls.getConnectionInAls();
+        const conn = await this.mysqldbAls.getConnectionInAls();
         const sql: string = `SELECT
                                 accounts_payable.accountsPayableType,
                                 accounts_payable.accountsPayableId,
@@ -45,7 +45,7 @@ export class AccountsPayableEntity {
     }
 
     public async find(findDto: AccountsPayableFindDto): Promise<IAccountsPayableFind[]> {
-        const conn = this.mysqldbAls.getConnectionInAls();
+        const conn = await this.mysqldbAls.getConnectionInAls();
         let sql: string = `SELECT
                                 accounts_payable.accountsPayableType,
                                 accounts_payable.accountsPayableId,

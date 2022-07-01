@@ -5,7 +5,7 @@ import {AutoCodeMxService} from "../autoCodeMx/autoCodeMx.service";
 import {MysqldbAls} from "../mysqldb/mysqldbAls";
 import {AccountInComeAmountMxService} from "../accountInComeAmountMx/accountInComeAmountMx.service";
 import {AccountRecordService} from "../accountsRecord/accountRecord.service";
-import {verifyParam} from "../../utils/verifyParam";
+import {useVerifyParam} from "../../utils/useVerifyParam";
 import {AccountInComeAmountMxCreateDto} from "../accountInComeAmountMx/dto/accountInComeAmountMxCreate.dto";
 import {AccountInComeSheetMxCreateDto} from "../accountInComeSheetMx/dto/accountInComeSheetMxCreate.dto";
 import {AccountInComeCreateDto} from "./dto/accountInComeCreate.dto";
@@ -98,7 +98,7 @@ export class AccountInComeService {
 
         //验证出纳账户收款明细
         for (let i = 0; i < accountInComeAmountMxList.length; i++) {
-            await verifyParam(new AccountInComeAmountMxCreateDto(accountInComeAmountMxList[i]));
+            await useVerifyParam(new AccountInComeAmountMxCreateDto(accountInComeAmountMxList[i]));
         }
 
         //出纳收入单 核销的明细
@@ -107,7 +107,7 @@ export class AccountInComeService {
         if (accountInComeSheetMx.length > 0) {
             //验证核销明细
             for (let i = 0; i < accountInComeSheetMx.length; i++) {
-                await verifyParam(new AccountInComeSheetMxCreateDto(accountInComeSheetMx[i]));
+                await useVerifyParam(new AccountInComeSheetMxCreateDto(accountInComeSheetMx[i]));
             }
         }
     }

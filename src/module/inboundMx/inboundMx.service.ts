@@ -1,7 +1,7 @@
 import {Injectable} from "@nestjs/common";
 import {InboundMxEntity} from "./inboundMx.entity";
 import {InboundMxDto} from "./dto/inboundMx.dto";
-import {verifyParam} from "../../utils/verifyParam";
+import {useVerifyParam} from "../../utils/useVerifyParam";
 import {IInboundMx} from "./inboundMx";
 import {chain, bignumber, round} from "mathjs"
 import {ProductService} from "../product/product.service";
@@ -68,7 +68,7 @@ export class InboundMxService {
         for (let i = 0; i < inboundMxList.length; i++) {
             const inboundMx = new InboundMxDto(inboundMxList[i]);
             //验证进仓单明细参数类型
-            await verifyParam(inboundMx);
+            await useVerifyParam(inboundMx);
             await this.checkClient(inboundMx.clientid);
             //计算属性
             await this.calculate(inboundMx);

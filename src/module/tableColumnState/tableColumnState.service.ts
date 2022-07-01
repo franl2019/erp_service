@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { MysqldbAls } from "../mysqldb/mysqldbAls";
 import { IColumnState, TableColumnStateEntity } from "./tableColumnState.entity";
 import { CreateTableColumnStateMxDto } from "./dto/createTableColumnState.dto";
-import { verifyParam } from "../../utils/verifyParam";
+import { useVerifyParam } from "../../utils/useVerifyParam";
 
 @Injectable()
 export class TableColumnStateService {
@@ -46,7 +46,7 @@ export class TableColumnStateService {
       createDto.sort = addDto[i].sort ? addDto[i].sort : "";
       createDto.sortIndex = addDto[i].sortIndex ? addDto[i].sortIndex : 0;
       createDto.width = addDto[i].width;
-      await verifyParam(createDto);
+      await useVerifyParam(createDto);
       await this.tableColumnStateEntity.create(createDto);
     }
   }

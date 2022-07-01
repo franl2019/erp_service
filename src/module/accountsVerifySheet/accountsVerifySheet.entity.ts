@@ -13,7 +13,7 @@ export class AccountsVerifySheetEntity {
     }
 
     public async findById(accountsVerifySheetId: number) {
-        const conn = this.mysqldbAls.getConnectionInAls();
+        const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `SELECT
                         accounts_verify_sheet.accountsVerifySheetId,
                         accounts_verify_sheet.accountsVerifySheetCode,
@@ -53,7 +53,7 @@ export class AccountsVerifySheetEntity {
     }
 
     public async find(findDto: AccountsVerifySheetFindDto) {
-        const conn = this.mysqldbAls.getConnectionInAls();
+        const conn = await this.mysqldbAls.getConnectionInAls();
         let sql = ` SELECT
                         accounts_verify_sheet.accountsVerifySheetId,
                         accounts_verify_sheet.accountsVerifySheetCode,
@@ -151,7 +151,7 @@ export class AccountsVerifySheetEntity {
 
     public async create(accountsVerifySheet: IAccountsVerifySheet) {
         console.log(accountsVerifySheet)
-        const conn = this.mysqldbAls.getConnectionInAls();
+        const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `INSERT INTO accounts_verify_sheet (
                         accounts_verify_sheet.accountsVerifySheetCode,
                         accounts_verify_sheet.sheetType,
@@ -189,7 +189,7 @@ export class AccountsVerifySheetEntity {
     }
 
     public async update(accountsVerifySheet: IAccountsVerifySheet) {
-        const conn = this.mysqldbAls.getConnectionInAls();
+        const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `UPDATE 
                         accounts_verify_sheet 
                      SET
@@ -230,7 +230,7 @@ export class AccountsVerifySheetEntity {
     }
 
     public async delete_data(accountsVerifySheetId: number, userName: string) {
-        const conn = this.mysqldbAls.getConnectionInAls();
+        const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `UPDATE 
                         accounts_verify_sheet 
                      SET
@@ -255,7 +255,7 @@ export class AccountsVerifySheetEntity {
     }
 
     public async level1Review(accountsVerifySheetId: number, userName: string) {
-        const conn = this.mysqldbAls.getConnectionInAls();
+        const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `UPDATE 
                         accounts_verify_sheet 
                      SET
@@ -279,7 +279,7 @@ export class AccountsVerifySheetEntity {
     }
 
     public async unLevel1Review(accountsVerifySheetId: number) {
-        const conn = this.mysqldbAls.getConnectionInAls();
+        const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `UPDATE 
                         accounts_verify_sheet 
                      SET

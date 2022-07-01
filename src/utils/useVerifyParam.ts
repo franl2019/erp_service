@@ -13,7 +13,7 @@ export class verifyParamError extends Error{
   }
 }
 
-export async function verifyParam(obj: any) {
+export async function useVerifyParam(obj: any) {
   const errors = await validate(obj,{ validationError: { target: false } });
   if (errors.length > 0) {
     return Promise.reject(new verifyParamError("请求参数有误",errors))

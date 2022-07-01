@@ -10,7 +10,7 @@ import {AccountExpenditureSheetMxService} from "../accountExpenditureSheetMx/acc
 import {AccountExpenditureCreateDto} from "./dto/accountExpenditureCreate.dto";
 import {IAccountExpenditureAmountMx} from "../accountExpenditureAmountMx/accountExpenditureAmountMx";
 import {IAccountExpenditureSheetMx} from "../accountExpenditureSheetMx/accountExpenditureSheetMx";
-import {verifyParam} from "../../utils/verifyParam";
+import {useVerifyParam} from "../../utils/useVerifyParam";
 import {
     AccountExpenditureAmountMxCreateDto
 } from "../accountExpenditureAmountMx/dto/accountExpenditureAmountMxCreate.dto";
@@ -61,12 +61,12 @@ export class AccountExpenditureService {
 
         for (let i = 0; i < accountExpenditureAmountMxList.length; i++) {
             const createDto = new AccountExpenditureAmountMxCreateDto(accountExpenditureAmountMxList[i]);
-            await verifyParam(createDto);
+            await useVerifyParam(createDto);
         }
 
         for (let i = 0; i < accountExpenditureSheetMxList.length; i++) {
             const createDto = new AccountExpenditureSheetMxCreateDto(accountExpenditureSheetMxList[i]);
-            await verifyParam(createDto);
+            await useVerifyParam(createDto);
         }
 
     }

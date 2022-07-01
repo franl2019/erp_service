@@ -2,7 +2,7 @@ import {Injectable} from "@nestjs/common";
 import {OutboundMxEntity} from "./outboundMx.entity";
 import {IOutboundMx} from "./outboundMx";
 import {CreateOutboundDto} from "./dto/createOutbound.dto";
-import {verifyParam} from "../../utils/verifyParam";
+import {useVerifyParam} from "../../utils/useVerifyParam";
 import {ProductService} from "../product/product.service";
 import {bignumber, chain, round} from "mathjs";
 import {WarehouseService} from "../warehouse/warehouse.service";
@@ -78,7 +78,7 @@ export class OutboundMxService {
         const verifiedOutboundMxList: IOutboundMx[] = []
         for (let i = 0; i < outboundMxList.length; i++) {
             const outboundMx = new CreateOutboundDto(outboundMxList[i]);
-            await verifyParam(outboundMx);
+            await useVerifyParam(outboundMx);
             await this.checkWarehouse(outboundMx.warehouseid);
             await this.checkClient(outboundMx.clientid);
             await this.calculate(outboundMx);

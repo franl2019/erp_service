@@ -53,6 +53,7 @@ import {ClientAutoCodeModule} from "./module/clientAutoCode/clientAutoCode.modul
 import {WeightedAverageRecordModule} from "./module/weightedAverageRecord/weightedAverageRecord.module";
 import {WeightedAverageRecordMxModule} from "./module/weightedAverageRecordMx/weightedAverageRecordMx.module";
 import {SaleOrderModule} from "./module/saleOrder/saleOrder.module";
+import {SaleOrderMxModule} from "./module/saleOrderMx/saleOrderMx.module";
 
 @Module({
     imports: [
@@ -135,7 +136,8 @@ import {SaleOrderModule} from "./module/saleOrder/saleOrder.module";
         WeightedAverageRecordMxModule,
 
         //销售订单
-        SaleOrderModule
+        SaleOrderModule,
+        SaleOrderMxModule
     ],
     providers: [
         {

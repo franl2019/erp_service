@@ -43,7 +43,7 @@ export class ClientAreaEntity {
 
     //查询客户地区
     public async find(): Promise<IClientArea[]> {
-        const conn = this.mysqldbAls.getConnectionInAls();
+        const conn = await this.mysqldbAls.getConnectionInAls();
         const sql: string = `SELECT 
                             clientarea.clientareaid,
                             clientarea.clientareacode,
