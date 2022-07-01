@@ -13,6 +13,15 @@ export class SaleGrossMarginMxReportService {
     }
 
     public async find(findDto:SaleGrossMarginMxReportFindDto){
+
+        if (findDto.warehouseids.length === 0) {
+            return Promise.reject(new Error("查询失败，缺少仓库权限"));
+        }
+
+        if (findDto.operateareaids.length === 0) {
+            return Promise.reject(new Error("查询失败，缺少操作区域权限"));
+        }
+
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `SELECT
                          outbound.outboundid,
@@ -41,7 +50,7 @@ export class SaleGrossMarginMxReportService {
                          (((outbound_mx.priceqty * outbound_mx.netprice) 
                            - IFNULL(outbound_mx.priceqty * IFNULL(weightedAverageRecordMx.price,0),0)) 
                            / (outbound_mx.priceqty * outbound_mx.netprice)) as saleGrossMarginRate
-                         FROM
+                     FROM
                          outbound
                          INNER JOIN outbound_mx ON outbound.outboundid = outbound_mx.outboundid
                          LEFT JOIN client ON outbound.clientid = client.clientid
@@ -69,8 +78,23 @@ export class SaleGrossMarginMxReportService {
                          AND outbound.outboundtype = ${CodeType.XS}
                          AND outbound.level1review = 1
                          AND outbound.level2review = 1
-                         AND DATE(outbound.outdate) BETWEEN ${conn.escape(findDto.startDate)} AND ${conn.escape(findDto.endDate)}
-                         ${findDto.clientid?'AND outbound.clientid = '+conn.escape(findDto.clientid):''}`;
+                         AND outbound.warehouseid IN (${conn.escape(findDto.warehouseids)})
+                         AND client.operateareaid IN (${conn.escape(findDto.operateareaids)})
+                         ${findDto.startDate.length>0&&findDto.endDate.length>0?` AND DATE(outbound.outdate) BETWEEN ${conn.escape(findDto.startDate)} AND ${conn.escape(findDto.endDate)}`:``}
+                         ${findDto.outboundcode.length>0?` AND outbound.outboundcode LIKE ${conn.escape(findDto.outboundcode + '%')}`:``}
+                         ${findDto.clientid?' AND outbound.clientid = '+conn.escape(findDto.clientid):''}
+                         ${findDto.productid ? ` AND product.productid LIKE ${conn.escape(findDto.productid + '%' )}`:``}
+                         ${findDto.productcode ? ` AND product.productcode LIKE ${conn.escape(findDto.productcode + '%' )}`:``}
+                         ${findDto.productname ? ` AND product.productname LIKE ${conn.escape(findDto.productname + '%' )}`:``}
+                         ${findDto.unit ? ` AND product.unit LIKE ${conn.escape(findDto.unit + '%' )}`:``}
+                         ${findDto.spec ? ` AND product.spec LIKE ${conn.escape(findDto.spec + '%' )}`:``}
+                         ${findDto.materials ? ` AND product.materials LIKE ${conn.escape(findDto.materials + '%' )}`:``}
+                         ${findDto.spec_d ? ` AND outbound_mx.spec_d LIKE ${conn.escape(findDto.spec_d + '%' )}`:``}
+                         ${findDto.materials_d ? ` AND outbound_mx.materials_d LIKE ${conn.escape(findDto.materials_d + '%' )}`:``}
+                         ${findDto.remark ? ` AND outbound_mx.remark LIKE ${conn.escape(findDto.remark + '%' )}`:``}
+                         ${findDto.remarkmx ? ` AND outbound_mx.remarkmx LIKE ${conn.escape(findDto.remarkmx + '%' )}`:``}
+                         `;
+
         console.log(sql)
         const [res] = await conn.query(sql);
         return res as ISaleGrossMarginMx[]

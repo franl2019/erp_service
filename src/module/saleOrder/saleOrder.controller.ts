@@ -32,10 +32,23 @@ export class SaleOrderController {
     public async create(@Body() createDto:SaleOrderCreateDto,@ReqState() state:IState){
         createDto.creater = state.user.username;
         createDto.createdAt = new Date();
-        await this.saleOrderService.create(createDto);
+        const createResult = await this.saleOrderService.createSheet(createDto);
         return {
             code:200,
-            msg:'新增成功'
+            msg:'新增成功',
+            createResult
+        }
+    }
+
+    @Post('createAndL1Review')
+    public async createAndL1Review(@Body() createDto:SaleOrderCreateDto,@ReqState() state:IState){
+        createDto.creater = state.user.username;
+        createDto.createdAt = new Date();
+        const createResult = await this.saleOrderService.createSheet(createDto);
+        return {
+            code:200,
+            msg:'新增成功',
+            createResult
         }
     }
 
@@ -43,7 +56,7 @@ export class SaleOrderController {
     public async update(@Body() updateDto:SaleOrderUpdateDto,@ReqState() state:IState){
         updateDto.updater = state.user.username;
         updateDto.updatedAt = new Date();
-        await this.saleOrderService.update(updateDto);
+        await this.saleOrderService.updateSheet(updateDto);
         return{
             code:200,
             msg:'更新成功'

@@ -1,17 +1,20 @@
 import {IsArray, IsDateString, IsInt, IsString} from "class-validator";
 
-export class SaleGrossMarginMxReportFindDto {
+export class BuyInboundMxReportFindDto {
     @IsDateString()
     startDate:string;
 
     @IsDateString()
     endDate:string
 
-    @IsString()
-    outboundcode:string
-
     @IsInt()
-    clientid:number
+    buyid:number;
+
+    @IsString()
+    buycode:string;
+
+    @IsString()
+    inboundcode:string
 
     @IsInt()
     productid:number;

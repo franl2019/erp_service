@@ -146,7 +146,6 @@ export class SaleOrderEntity {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `INSERT INTO sale_order (
                         sale_order.saleOrderCode,
-                        sale_order.saleOrderState,
                         sale_order.orderDate,
                         sale_order.deliveryDate,
                         sale_order.clientid,
@@ -156,13 +155,11 @@ export class SaleOrderEntity {
                         sale_order.address,
                         sale_order.contact,
                         sale_order.deposit,
-                        sale_order.printCount,
                         sale_order.creater,
                         sale_order.createdAt
                       ) VALUES ?`;
         const [res] = await conn.query<ResultSetHeader>(sql, [[[
             saleOrder.saleOrderCode,
-            saleOrder.saleOrderState,
             saleOrder.orderDate,
             saleOrder.deliveryDate,
             saleOrder.clientid,
@@ -172,7 +169,6 @@ export class SaleOrderEntity {
             saleOrder.address,
             saleOrder.contact,
             saleOrder.deposit,
-            saleOrder.printCount,
             saleOrder.creater,
             saleOrder.createdAt
         ]]]);
@@ -189,7 +185,6 @@ export class SaleOrderEntity {
         const sql = `UPDATE 
                         sale_order
                      SET
-                        sale_order.saleOrderState = ?,
                         sale_order.orderDate = ?,
                         sale_order.deliveryDate = ?,
                         sale_order.clientid = ?,
@@ -204,7 +199,6 @@ export class SaleOrderEntity {
                      WHERE
                         sale_order.saleOrder = ?`;
         const [res] = await conn.query<ResultSetHeader>(sql, [
-            saleOrder.saleOrderState,
             saleOrder.orderDate,
             saleOrder.deliveryDate,
             saleOrder.clientid,

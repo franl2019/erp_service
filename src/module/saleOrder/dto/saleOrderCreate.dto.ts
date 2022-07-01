@@ -1,7 +1,12 @@
 import {ISaleOrder} from "../saleOrder";
-import {IsDateString, IsInt, IsNumber, IsString, NotEquals} from "class-validator";
+import {IsArray, IsDateString, IsInt, IsNumber, IsString, NotEquals} from "class-validator";
+import {ISaleOrderMx} from "../../saleOrderMx/saleOrderMx";
 
-export class SaleOrderCreateDto implements ISaleOrder{
+export interface ISaleOrderCreateSheetDto extends ISaleOrder{
+    saleOrderMx:ISaleOrderMx[]
+}
+
+export class SaleOrderCreateDto implements ISaleOrderCreateSheetDto{
     //单据id
     saleOrderId: number;
     //单据编号
@@ -37,10 +42,7 @@ export class SaleOrderCreateDto implements ISaleOrder{
     @IsNumber()
     deposit: number;
     //打印次数
-    @IsInt()
     printCount: number;
-
-
 
     //终止审核
     stopReview: number;
@@ -72,4 +74,7 @@ export class SaleOrderCreateDto implements ISaleOrder{
 
     updater:string
     updatedAt:Date | null
+
+    @IsArray()
+    saleOrderMx: ISaleOrderMx[];
 }

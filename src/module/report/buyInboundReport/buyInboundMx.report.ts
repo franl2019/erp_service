@@ -7,8 +7,9 @@ import {IProduct} from "../../product/product";
 import {IBuy} from "../../buy/buy";
 import {IClient} from "../../client/client";
 import {IWarehouse} from "../../warehouse/warehouse";
+import {BuyInboundMxReportFindDto} from "./dto/buyInboundMxReportFind.dto";
 
-export interface IBuyInboundMxReport extends IInbound,IInboundMx,IProduct,IBuy,IClient,IWarehouse{
+export interface IBuyInboundMxReport extends IInbound, IInboundMx, IProduct, IBuy, IClient, IWarehouse {
 
 }
 
@@ -16,11 +17,20 @@ export interface IBuyInboundMxReport extends IInbound,IInboundMx,IProduct,IBuy,I
 export class BuyInboundMxReport {
 
     constructor(
-        private readonly mysqldbAls:MysqldbAls
+        private readonly mysqldbAls: MysqldbAls
     ) {
     }
 
-    public async find(){
+    public async find(findDto: BuyInboundMxReportFindDto) {
+
+        if (findDto.warehouseids.length === 0) {
+            return Promise.reject(new Error("查询失败，缺少仓库权限"));
+        }
+
+        if (findDto.operateareaids.length === 0) {
+            return Promise.reject(new Error("查询失败，缺少操作区域权限"));
+        }
+
         const conn = await this.mysqldbAls.getConnectionInAls();
         let sql = `SELECT
                         inbound.inboundid,
@@ -116,6 +126,23 @@ export class BuyInboundMxReport {
                     WHERE	
                         inbound.del_uuid = 0
                         AND inbound.inboundtype = ${CodeType.buyInbound}
+                        AND inbound.level1review = 1
+                        AND inbound.level2review = 1
+                        AND inbound.warehouseid IN (${conn.escape(findDto.warehouseids)})
+                        AND buy.operateareaid IN (${conn.escape(findDto.operateareaids)})
+                        ${findDto.startDate.length>0&&findDto.endDate.length>0?` AND DATE(inbound.indate) BETWEEN ${conn.escape(findDto.startDate)} AND ${conn.escape(findDto.endDate)}`:``}
+                        ${findDto.inboundcode.length>0?` AND inbound.inboundcode LIKE ${conn.escape(findDto.inboundcode + '%')}`:``}
+                        ${findDto.buyid?' AND inbound.buyid = '+conn.escape(findDto.buyid):''}
+                        ${findDto.productid ? ` AND product.productid LIKE ${conn.escape(findDto.productid + '%' )}`:``}
+                        ${findDto.productcode ? ` AND product.productcode LIKE ${conn.escape(findDto.productcode + '%' )}`:``}
+                        ${findDto.productname ? ` AND product.productname LIKE ${conn.escape(findDto.productname + '%' )}`:``}
+                        ${findDto.unit ? ` AND product.unit LIKE ${conn.escape(findDto.unit + '%' )}`:``}
+                        ${findDto.spec ? ` AND product.spec LIKE ${conn.escape(findDto.spec + '%' )}`:``}
+                        ${findDto.materials ? ` AND product.materials LIKE ${conn.escape(findDto.materials + '%' )}`:``}
+                        ${findDto.spec_d ? ` AND inbound_mx.spec_d LIKE ${conn.escape(findDto.spec_d + '%' )}`:``}
+                        ${findDto.materials_d ? ` AND inbound_mx.materials_d LIKE ${conn.escape(findDto.materials_d + '%' )}`:``}
+                        ${findDto.remark ? ` AND inbound_mx.remark LIKE ${conn.escape(findDto.remark + '%' )}`:``}
+                        ${findDto.remarkmx ? ` AND inbound_mx.remarkmx LIKE ${conn.escape(findDto.remarkmx + '%' )}`:``}
                     ORDER BY 
                         inbound.inboundid DESC,
                         inbound_mx.printid`;
