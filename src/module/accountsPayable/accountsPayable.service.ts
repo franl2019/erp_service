@@ -55,7 +55,15 @@ export class AccountsPayableService {
                     }
                     break;
                 //应付账款4 || 其他应付5 负债类 贷增 借减
-                case AccountCategoryType.accountsPayable4 || AccountCategoryType.otherPayable6:
+                case AccountCategoryType.accountsPayable4:
+                    if (accountsPayable.amounts > 0) {
+                        //正数贷方 负债类 贷方增加
+                        accountsPayableSubjectMx.credit = accountsPayable.amounts;
+                    } else if (accountsPayable.amounts < 0) {
+                        accountsPayableSubjectMx.debit = Math.abs(accountsPayable.amounts);
+                    }
+                    break;
+                case AccountCategoryType.otherPayable6:
                     if (accountsPayable.amounts > 0) {
                         //正数贷方 负债类 贷方增加
                         accountsPayableSubjectMx.credit = accountsPayable.amounts;
@@ -121,14 +129,14 @@ export class AccountsPayableService {
             const accountsPayableSubjectMxList = await this.accountsPayableSubjectMxService.findByCorrelation(correlationId, correlationType);
 
             //如果有凭证
-            if(accountsPayableSubjectMxList&&accountsPayableSubjectMxList.length>0){
+            if (accountsPayableSubjectMxList && accountsPayableSubjectMxList.length > 0) {
                 //删除相关凭证
                 await this.accountsPayableSubjectMxService.deleteByCorrelation(correlationId, correlationType);
 
                 //需要重新计算应付账款ID列表
-                let needsToBeRecalculatedAccountsPayableIdList:number[] = [];
+                let needsToBeRecalculatedAccountsPayableIdList: number[] = [];
                 for (let i = 0; i < accountsPayableSubjectMxList.length; i++) {
-                    if(accountsPayableSubjectMxList[i].accountsPayableId!==0){
+                    if (accountsPayableSubjectMxList[i].accountsPayableId !== 0) {
                         needsToBeRecalculatedAccountsPayableIdList.push(accountsPayableSubjectMxList[i].accountsPayableId);
                     }
                 }
@@ -166,8 +174,28 @@ export class AccountsPayableService {
         const accountsPayable = await this.findById(accountsPayableSubjectMx.accountsPayableId);
         switch (accountsPayable.accountsPayableType) {
             //应付账款
-            case AccountCategoryType.accountsPayable4 || AccountCategoryType.otherPayable6:
+            case AccountCategoryType.accountsPayable4:
                 console.log("应付账款")
+                //负债类 贷方增加
+                if (accountsPayableSubjectMx.credit > 0) {
+                    //贷方正数 应付款 增加
+                    accountsPayableMx.accountPayable = accountsPayableSubjectMx.credit;
+                } else if (accountsPayableSubjectMx.credit < 0) {
+                    //贷方负数 应付款 减少
+                    accountsPayableMx.accountPayable = accountsPayableSubjectMx.credit;
+                }
+
+                //负债类 借方减少
+                if (accountsPayableSubjectMx.debit > 0) {
+                    //借方正数 应付款 减少
+                    accountsPayableMx.actuallyPayment = accountsPayableSubjectMx.debit;
+                } else if (accountsPayableSubjectMx.debit < 0) {
+                    //借方负数 应付款 增加
+                    accountsPayableMx.accountPayable = Math.abs(accountsPayableSubjectMx.debit)
+                }
+                break;
+            case AccountCategoryType.otherPayable6:
+                console.log("其他应付")
                 //负债类 贷方增加
                 if (accountsPayableSubjectMx.credit > 0) {
                     //贷方正数 应付款 增加
@@ -228,8 +256,7 @@ export class AccountsPayableService {
             const accountsPayableSubjectMx = accountsPayableSubjectMxList[i];
 
             switch (accountsPayable.accountsPayableType) {
-                //应付账款 其他应付 负债类 贷增借减
-                case AccountCategoryType.accountsPayable4 || AccountCategoryType.otherPayable6:
+                case AccountCategoryType.otherPayable6:
                     notCheckAmounts = Number(
                         round(
                             chain(bignumber(notCheckAmounts))
@@ -238,7 +265,17 @@ export class AccountsPayableService {
                                 .done(), 4)
                     );
                     break;
-                    //预付账款 资产类 借增 贷减
+                //应付账款 其他应付 负债类 贷增借减
+                case AccountCategoryType.accountsPayable4:
+                    notCheckAmounts = Number(
+                        round(
+                            chain(bignumber(notCheckAmounts))
+                                .add(bignumber(accountsPayableSubjectMx.credit))
+                                .subtract(bignumber(accountsPayableSubjectMx.debit))
+                                .done(), 4)
+                    );
+                    break;
+                //预付账款 资产类 借增 贷减
                 case AccountCategoryType.prepayments5:
                     notCheckAmounts = Number(
                         round(
@@ -269,13 +306,13 @@ export class AccountsPayableService {
     }
 
     //不能是负数
-     private static notCheckAmountsCannotBeNegative(notCheckAmounts:number){
+    private static notCheckAmountsCannotBeNegative(notCheckAmounts: number) {
 
         //账套,是否能负数
         // if(false){
         //     return true
         // }
-        if(notCheckAmounts<0){
+        if (notCheckAmounts < 0) {
             return Promise.reject(new Error('未核销数不能为负数'));
         }
     }

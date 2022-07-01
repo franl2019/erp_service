@@ -73,7 +73,8 @@ export class AccountsReceivableService {
                         accountsReceivableSubjectMx.debit = Math.abs(accountsReceivable.amounts);
                     }
                     break;
-                case AccountCategoryType.accountsReceivable1 || AccountCategoryType.otherReceivables3:
+                case AccountCategoryType.otherReceivables3:
+                case AccountCategoryType.accountsReceivable1 :
                     //应收账款 资产类 借方增加 贷方减少
                     if (accountsReceivable.amounts > 0) {
                         accountsReceivableSubjectMx.debit = accountsReceivable.amounts;
@@ -143,14 +144,14 @@ export class AccountsReceivableService {
 
             const accountsReceivableSubjectMxList = await this.accountsReceivableSubjectMxService.findByCorrelation(correlationId, correlationType);
 
-            if(accountsReceivableSubjectMxList&&accountsReceivableSubjectMxList.length>0){
+            if (accountsReceivableSubjectMxList && accountsReceivableSubjectMxList.length > 0) {
                 await this.accountsReceivableSubjectMxService.deleteByCorrelation(correlationId, correlationType);
             }
 
             //需要重新计算应收账款ID列表
-            let needsToBeRecalculatedAccountsReceivableIdList:number[] = [];
+            let needsToBeRecalculatedAccountsReceivableIdList: number[] = [];
             for (let i = 0; i < accountsReceivableSubjectMxList.length; i++) {
-                if(accountsReceivableSubjectMxList[i].accountsReceivableId!==0){
+                if (accountsReceivableSubjectMxList[i].accountsReceivableId !== 0) {
                     needsToBeRecalculatedAccountsReceivableIdList.push(accountsReceivableSubjectMxList[i].accountsReceivableId);
                 }
             }
@@ -188,7 +189,8 @@ export class AccountsReceivableService {
         const accountsReceivable = await this.findById(accountsReceivableSubjectMx.accountsReceivableId)
         switch (accountsReceivable.accountsReceivableType) {
             //应收账款
-            case AccountCategoryType.accountsReceivable1 || AccountCategoryType.otherReceivables3:
+            case AccountCategoryType.accountsReceivable1:
+            case AccountCategoryType.otherReceivables3:
                 //应收账款 资产类 借方增加 贷方减少
                 if (accountsReceivableSubjectMx.debit > 0) {
                     accountsReceivableMx.receivables = accountsReceivableSubjectMx.debit;
@@ -245,7 +247,8 @@ export class AccountsReceivableService {
             const accountsReceivableSubjectMx = accountsReceivableSubjectMxList[i];
 
             switch (accountsReceivable.accountsReceivableType) {
-                case AccountCategoryType.accountsReceivable1 || AccountCategoryType.otherReceivables3:
+                case AccountCategoryType.otherReceivables3:
+                case AccountCategoryType.accountsReceivable1 :
                     //应收账款 借方-贷方=余额
                     notCheckAmounts = Number(
                         round(

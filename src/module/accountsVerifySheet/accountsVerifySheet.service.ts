@@ -422,43 +422,48 @@ export class AccountsVerifySheetService {
             let haveAccountReceivable: boolean = false;
             //是否有核销应付账款
             let haveAccountsPayable: boolean = false;
-
-            switch (accountsVerifySheet.sheetType) {
-                case AccountsVerifySheetType.advancePayment_accountsReceivable_1 |
-                AccountsVerifySheetType.prepayments_accountsPayable_2 |
-                AccountsVerifySheetType.accountsReceivable_accountsPayable_3:
-                    //循环处理核销单明细
-                    for (let i = 0; i < accountsVerifySheetMxList.length; i++) {
-                        const accountsVerifySheetMx = accountsVerifySheetMxList[i];
-                        //账款类型
-                        switch (accountsVerifySheetMx.correlationType) {
-                            //[1]应收账款 | [2]预收账款 |  [3]其他应收
-                            case AccountCategoryType.accountsReceivable1 || AccountCategoryType.advancePayment2 || AccountCategoryType.otherReceivables3:
-                                haveAccountReceivable = true;
-                                break
-                            case AccountCategoryType.accountsPayable4 || AccountCategoryType.prepayments5 || AccountCategoryType.otherPayable6:
-                                haveAccountsPayable = true;
-                                break
-                            default:
-                                break;
-                        }
+            if (accountsVerifySheet.sheetType === AccountsVerifySheetType.advancePayment_accountsReceivable_1 ||
+                accountsVerifySheet.sheetType === AccountsVerifySheetType.prepayments_accountsPayable_2 ||
+                accountsVerifySheet.sheetType === AccountsVerifySheetType.accountsReceivable_accountsPayable_3
+            ) {
+                //循环处理核销单明细
+                for (let i = 0; i < accountsVerifySheetMxList.length; i++) {
+                    const accountsVerifySheetMx = accountsVerifySheetMxList[i];
+                    //账款类型
+                    console.log(accountsVerifySheetMx.correlationType)
+                    switch (accountsVerifySheetMx.correlationType) {
+                        //[1]应收账款 | [2]预收账款 |  [3]其他应收
+                        case AccountCategoryType.accountsReceivable1:
+                        case AccountCategoryType.advancePayment2:
+                        case AccountCategoryType.otherReceivables3:
+                            console.log('haveAccountReceivable')
+                            haveAccountReceivable = true;
+                            break
+                        case AccountCategoryType.accountsPayable4:
+                        case AccountCategoryType.prepayments5:
+                        case AccountCategoryType.otherPayable6:
+                            console.log('accountsPayable')
+                            haveAccountsPayable = true;
+                            break
+                        default:
+                            break;
                     }
-                    break
+                }
                 //[4]应收转应收 冲客户A 生成客户B
-                case AccountsVerifySheetType.accountsReceivable_accountsReceivable_4:
-                    // await this.accountsReceivableService.deleteByCorrelation(accountsVerifySheet.accountsVerifySheetId, CodeType.HXD);
-                    haveAccountReceivable = true;
-                    break
+            } else if (accountsVerifySheet.sheetType === AccountsVerifySheetType.accountsReceivable_accountsReceivable_4) {
+                // await this.accountsReceivableService.deleteByCorrelation(accountsVerifySheet.accountsVerifySheetId, CodeType.HXD);
+                haveAccountReceivable = true;
                 //[5]应付转应付 冲供应商A 供应商B生成
-                case AccountsVerifySheetType.accountsPayable_accountsPayable_5:
-                    // await this.accountsPayableService.deleteByCorrelation(accountsVerifySheet.accountsVerifySheetId, CodeType.HXD);
-                    haveAccountsPayable = true;
-                    break
-                default:
-                    break
+            } else if (accountsVerifySheet.sheetType === AccountsVerifySheetType.accountsPayable_accountsPayable_5) {
+                // await this.accountsPayableService.deleteByCorrelation(accountsVerifySheet.accountsVerifySheetId, CodeType.HXD);
+                haveAccountsPayable = true;
+            } else {
+                console.log(123)
             }
 
+
             if (haveAccountReceivable) {
+                console.log('haveAccountReceivable')
                 //删除应收账款明细，自动重新计算应收账款
                 await this.accountsReceivableService.deleteMxByCorrelation(accountsVerifySheetId, CodeType.HXD);
             }
