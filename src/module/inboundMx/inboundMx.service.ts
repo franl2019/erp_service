@@ -3,7 +3,7 @@ import {InboundMxEntity} from "./inboundMx.entity";
 import {InboundMxDto} from "./dto/inboundMx.dto";
 import {useVerifyParam} from "../../utils/useVerifyParam";
 import {IInboundMx} from "./inboundMx";
-import {chain, bignumber, round} from "mathjs"
+import {bignumber, chain, round} from "mathjs"
 import {ProductService} from "../product/product.service";
 import {ClientService} from "../client/client.service";
 
@@ -12,12 +12,31 @@ export class InboundMxService {
 
     constructor(
         private readonly productService: ProductService,
-        private readonly clientService:ClientService,
+        private readonly clientService: ClientService,
         private readonly inboundMxEntity: InboundMxEntity
     ) {
     }
 
-    private async checkClient(clientId:number){
+    public async find(inboundid: number) {
+        return await this.inboundMxEntity.find(inboundid);
+    }
+
+    public async findById(inboundid: number) {
+        return await this.inboundMxEntity.findById(inboundid);
+    }
+
+    //新增进仓单的明细
+    public async create(inboundMxList: IInboundMx[]) {
+        const createInboundMxList = await this.getVerifyInboundMxList(inboundMxList)
+        return await this.inboundMxEntity.create(createInboundMxList);
+    }
+
+    //删除进仓单的明细
+    public async delete_date(inboundid: number) {
+        return await this.inboundMxEntity.delete_data(inboundid);
+    }
+
+    private async checkClient(clientId: number) {
         return await this.clientService.findOne(clientId);
     }
 
@@ -25,35 +44,39 @@ export class InboundMxService {
     private async calculate(inboundMx: IInboundMx) {
         const product = await this.productService.findOne(inboundMx.productid);
         //数量 = 件数 * 包装数量
-        inboundMx.inqty = Number(
-            round(chain(bignumber(inboundMx.bzqty))
-                .multiply(bignumber(product.packqty))
-                .done(), 4)
-        );
+        inboundMx.inqty =
+            round(
+                Number(
+                    chain(bignumber(inboundMx.bzqty))
+                        .multiply(bignumber(product.packqty))
+                        .done()
+                ), 4)
 
         switch (inboundMx.pricetype) {
             case 0:
                 inboundMx.priceqty = inboundMx.inqty;
                 //浮动价？
-                inboundMx.netprice =
+                inboundMx.netprice = round(
                     Number(
-                        round(chain(bignumber(inboundMx.price))
+                        chain(bignumber(inboundMx.price))
                             .multiply(bignumber(inboundMx.agio))
                             .multiply(bignumber(inboundMx.agio1))
                             .multiply(bignumber(inboundMx.agio2))
-                            .done(), 4)
-                    );
+                            .done()
+                    ), 4)
+
                 break;
             case 1:
                 inboundMx.priceqty = inboundMx.bzqty;
-                inboundMx.netprice =
+                inboundMx.netprice = round(
                     Number(
-                        round(chain(bignumber(inboundMx.bzprice))
+                        chain(bignumber(inboundMx.bzprice))
                             .multiply(bignumber(inboundMx.agio))
                             .multiply(bignumber(inboundMx.agio1))
                             .multiply(bignumber(inboundMx.agio2))
-                            .done(), 4)
-                    );
+                            .done()
+                    ), 4)
+
                 break;
             default:
                 break;
@@ -75,24 +98,5 @@ export class InboundMxService {
             createInboundMxList.push(inboundMx);
         }
         return createInboundMxList
-    }
-
-    public async find(inboundid: number) {
-        return await this.inboundMxEntity.find(inboundid);
-    }
-
-    public async findById(inboundid: number) {
-        return await this.inboundMxEntity.findById(inboundid);
-    }
-
-    //新增进仓单的明细
-    public async create(inboundMxList: IInboundMx[]) {
-        const createInboundMxList = await this.getVerifyInboundMxList(inboundMxList)
-        return await this.inboundMxEntity.create(createInboundMxList);
-    }
-
-    //删除进仓单的明细
-    public async delete_date(inboundid: number) {
-        return await this.inboundMxEntity.delete_data(inboundid);
     }
 }

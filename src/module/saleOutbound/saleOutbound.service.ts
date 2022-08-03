@@ -29,13 +29,13 @@ export class SaleOutboundService {
         for (let i = 0; i < outboundMxList.length; i++) {
             const outboundMx = outboundMxList[i];
 
-            const amount: number = Number(
-                round(
+            const amount: number = round(
+                Number(
                     chain(bignumber(outboundMx.priceqty))
                         .multiply(bignumber(outboundMx.netprice))
                         .done()
-                    , 2)
-            );
+                ), 2);
+
 
             amounts = Number(
                 round(
@@ -63,13 +63,13 @@ export class SaleOutboundService {
         let undoneL2Review = 0;
         for (let i = 0; i < outboundList.length; i++) {
             const outboundHead = outboundList[i];
-            if(outboundHead.level1review === 0){
+            if (outboundHead.level1review === 0) {
                 undoneL1Review = undoneL1Review + 1
-            }else if(outboundHead.level1review === 1){
+            } else if (outboundHead.level1review === 1) {
                 completeL1Review = completeL1Review + 1
             }
 
-            if(outboundHead.level1review === 1 && outboundHead.level2review === 0){
+            if (outboundHead.level1review === 1 && outboundHead.level2review === 0) {
                 undoneL2Review = undoneL2Review + 1
             }
         }
@@ -85,8 +85,8 @@ export class SaleOutboundService {
         saleOutboundDto.outboundtype = CodeType.XS;
         const result = await this.outboundService.create(saleOutboundDto, username);
         return {
-            id:result.insertId,
-            code:saleOutboundDto.outboundcode
+            id: result.insertId,
+            code: saleOutboundDto.outboundcode
         }
     }
 
@@ -96,8 +96,8 @@ export class SaleOutboundService {
             const result = await this.outboundService.create(saleOutboundDto, username);
             await this.outboundService.l1Review(result.insertId, username);
             return {
-                id:result.insertId,
-                code:saleOutboundDto.outboundcode
+                id: result.insertId,
+                code: saleOutboundDto.outboundcode
             }
         })
     }
@@ -107,7 +107,7 @@ export class SaleOutboundService {
         return await this.outboundService.update(saleOutboundDto, state);
     }
 
-    public async updateAndL1Review(saleOutboundDto: SaleOutboundDto, state: IState){
+    public async updateAndL1Review(saleOutboundDto: SaleOutboundDto, state: IState) {
         saleOutboundDto.outboundtype = CodeType.XS;
         return await this.outboundService.updateAndL1Review(saleOutboundDto, state);
     }

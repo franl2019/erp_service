@@ -25,14 +25,16 @@ export class BuyInboundService {
     private static calculateAccountsPayable(inboundMxList: IInboundMx[]) {
         let amounts: number = 0;
         for (let i = 0; i < inboundMxList.length; i++) {
-            const inboundMxAmount = Number(
+            const inboundMxAmount =
                 mathjs.round(
-                    mathjs.chain(
-                        mathjs.bignumber(inboundMxList[i].priceqty)
-                    ).multiply(
-                        mathjs.bignumber(inboundMxList[i].netprice)
-                    ).done(), 2)
-            );
+                    Number(
+                        mathjs.chain(
+                            mathjs.bignumber(inboundMxList[i].priceqty)
+                        ).multiply(
+                            mathjs.bignumber(inboundMxList[i].netprice)
+                        ).done()
+                    ), 2)
+
 
             amounts = Number(
                 mathjs.round(
