@@ -4,8 +4,7 @@ import {AccountsVerifySheetService} from "./accountsVerifySheet.service";
 import {AccountsVerifySheetCreateDto} from "./dto/accountsVerifySheetCreate.dto";
 import {AccountsVerifySheetUpdateDto} from "./dto/accountsVerifySheetUpdate.dto";
 import {AccountsVerifySheetDeleteDto} from "./dto/accountsVerifySheetDelete.dto";
-import {ReqState} from "../../decorator/user.decorator";
-import {IState} from "../../interface/IState";
+import {IState, ReqState} from "../../decorator/user.decorator";
 import {AccountsVerifySheetL1ReviewDto} from "./dto/accountsVerifySheetL1Review.dto";
 
 @Controller('erp/accountsVerifySheet')

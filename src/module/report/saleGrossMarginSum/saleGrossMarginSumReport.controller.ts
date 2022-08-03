@@ -1,8 +1,7 @@
 import {Body, Controller, Post} from "@nestjs/common";
 import {SaleGrossMarginSumReportService} from "./saleGrossMarginSumReport.service";
 import {SaleGrossMarginSumFindDto} from "./dto/saleGrossMarginSumFind.dto";
-import {ReqState} from "../../../decorator/user.decorator";
-import {IState} from "../../../interface/IState";
+import {IState, ReqState} from "../../../decorator/user.decorator";
 
 @Controller('erp/report')
 export class SaleGrossMarginSumReportController {

@@ -3,10 +3,10 @@ import {BuyEntity} from "./buy.entity";
 import {SelectBuyDto} from "./dto/selectBuy.dto";
 import {AddBuyDto} from "./dto/addBuy.dto";
 import {UpdateBuyDto} from "./dto/updateBuy.dto";
-import {State} from "../../interface/IState";
 import {MysqldbAls} from "../mysqldb/mysqldbAls";
 import {BuyAreaService} from "../buyArea/buyArea.service";
 import {BuyAutoCodeService} from "../buyAutoCode/buyAutoCode.service";
+import {IState} from "../../decorator/user.decorator";
 
 
 @Injectable()
@@ -21,13 +21,13 @@ export class BuyService {
     }
 
 
-    public async find(buy: SelectBuyDto, state: State) {
+    public async find(buy: SelectBuyDto, state: IState) {
         buy.operateareaids = state.user.buy_operateareaids;
         return await this.buyEntity.find(buy);
 
     }
 
-    public async findDeleted(buy: SelectBuyDto, state: State) {
+    public async findDeleted(buy: SelectBuyDto, state: IState) {
         buy.operateareaids = state.user.buy_operateareaids;
         return await this.buyEntity.getDeletedBuys(buy);
     }

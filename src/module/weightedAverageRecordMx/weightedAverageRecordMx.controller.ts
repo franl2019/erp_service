@@ -1,7 +1,6 @@
 import {Body, Controller, Post} from "@nestjs/common";
 import {WeightedAverageRecordMxService} from "./weightedAverageRecordMx.service";
-import {ReqState} from "../../decorator/user.decorator";
-import {IState} from "../../interface/IState";
+import {IState, ReqState} from "../../decorator/user.decorator";
 import {CountWeightedAverageRecordMxDto} from "./dto/countWeightedAverageRecordMx.dto";
 import * as moment from "moment";
 

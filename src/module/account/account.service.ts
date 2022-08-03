@@ -2,9 +2,9 @@ import {Injectable} from "@nestjs/common";
 import {AccountEntity} from "./account.entity";
 import {IAccount} from "./account";
 import {MysqldbAls} from "../mysqldb/mysqldbAls";
-import {IState} from "../../interface/IState";
 import {FindAccountDto} from "./dto/findAccount.dto";
 import {AccountRecordService} from "../accountsRecord/accountRecord.service";
+import {IState} from "../../decorator/user.decorator";
 
 @Injectable()
 export class AccountService {

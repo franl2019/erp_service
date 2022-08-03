@@ -1,8 +1,7 @@
 import {Body, Controller, Post} from "@nestjs/common";
 import {AccountService} from "./account.service";
 import {CreateAccountDto} from "./dto/createAccount.dto";
-import {ReqState} from "../../decorator/user.decorator";
-import {State} from "../../interface/IState";
+import {ReqState, IState} from "../../decorator/user.decorator";
 import {DeleteAccountDto} from "./dto/deleteAccount.dto";
 import {FindAccountDto} from "./dto/findAccount.dto";
 
@@ -23,7 +22,7 @@ export class AccountController {
     }
 
     @Post('findAccountAuth')
-    public async findAuthByUserId(@ReqState() state: State){
+    public async findAuthByUserId(@ReqState() state: IState){
         const data = await this.accountService.findAuthByUserId(state.user.userid);
         return {
             code: 200,
@@ -33,7 +32,7 @@ export class AccountController {
     }
 
     @Post('create')
-    public async create(@Body() createDto: CreateAccountDto, @ReqState() state: State) {
+    public async create(@Body() createDto: CreateAccountDto, @ReqState() state: IState) {
         createDto.creater = state.user.username;
         createDto.createdAt = new Date();
         await this.accountService.create(createDto);
@@ -44,7 +43,7 @@ export class AccountController {
     }
 
     @Post('update')
-    public async update(@Body() createDto: CreateAccountDto, @ReqState() state: State) {
+    public async update(@Body() createDto: CreateAccountDto, @ReqState() state: IState) {
         await this.accountService.update(createDto, state);
         return {
             code: 200,
@@ -53,7 +52,7 @@ export class AccountController {
     }
 
     @Post('delete_data')
-    public async delete_data(@Body() deleteAccountDto: DeleteAccountDto, @ReqState() state: State) {
+    public async delete_data(@Body() deleteAccountDto: DeleteAccountDto, @ReqState() state: IState) {
         await this.accountService.delete_data(deleteAccountDto.accountId, state);
         return {
             code: 200,

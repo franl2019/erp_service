@@ -4,7 +4,6 @@ import {Outbound} from "./outbound";
 import {MysqldbAls} from "../mysqldb/mysqldbAls";
 import {IOutboundDto} from "./dto/outbound.dto";
 import {OutboundMxService} from "../outboundMx/outboundMx.service";
-import {State} from "../../interface/IState";
 import {IFindOutboundDto} from "./dto/find.dto";
 import {AddInventoryDto} from "../inventory/dto/addInventory.dto";
 import {InventoryService} from "../inventory/inventory.service";
@@ -12,6 +11,7 @@ import {AutoCodeMxService} from "../autoCodeMx/autoCodeMx.service";
 import {ResultSetHeader} from "mysql2/promise";
 import {WeightedAverageRecordService} from "../weightedAverageRecord/weightedAverageRecord.service";
 import * as moment from "moment";
+import {IState} from "../../decorator/user.decorator";
 
 @Injectable()
 export class OutboundService {
@@ -60,7 +60,7 @@ export class OutboundService {
     }
 
     //修改出仓单
-    public async update(updateOutboundDto: IOutboundDto, state: State) {
+    public async update(updateOutboundDto: IOutboundDto, state: IState) {
         return this.mysqlAls.sqlTransaction(async () => {
             const outbound_db = await this.outboundEntity.findById(updateOutboundDto.outboundid);
 
@@ -90,7 +90,7 @@ export class OutboundService {
     }
 
     //修改加审核
-    public async updateAndL1Review(updateOutboundDto: IOutboundDto, state: State){
+    public async updateAndL1Review(updateOutboundDto: IOutboundDto, state: IState){
         return await this.mysqlAls.sqlTransaction(async ()=>{
            await this.update(updateOutboundDto,state);
            return await this.l1Review(updateOutboundDto.outboundid,state.user.username);
@@ -98,7 +98,7 @@ export class OutboundService {
     }
 
     //删除出仓单
-    public async delete_data(outboundId: number, state: State) {
+    public async delete_data(outboundId: number, state: IState) {
         return this.mysqlAls.sqlTransaction(async () => {
             const outbound = await this.outboundEntity.findById(outboundId);
             //检查是否已经审核
@@ -184,7 +184,7 @@ export class OutboundService {
     }
 
     //撤审出仓单
-    public async unL1Review(outboundId: number, state: State) {
+    public async unL1Review(outboundId: number, state: IState) {
         return this.mysqlAls.sqlTransaction(async () => {
             const outbound = await this.outboundEntity.findById(outboundId);
             //检查是否未审核

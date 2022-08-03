@@ -4,7 +4,7 @@ import { UserOperateAreaMxSql } from "./userOperateAreaMx.sql";
 import { AddUserOperateAreaMxDto } from "./dto/addUserOperateAreaMx.dto";
 import { DeleteUserOperateAreaMxDto } from "./dto/deleteUserOperateAreaMx.dto";
 import { MysqldbAls } from "../mysqldb/mysqldbAls";
-import { State } from "../../interface/IState";
+import {IState} from "../../decorator/user.decorator";
 
 
 @Injectable()
@@ -26,7 +26,7 @@ export class UserOperateAreaMxService {
   }
 
   //查询用户默认操作区域
-  public async findUserDefaultOperateArea(state:State){
+  public async findUserDefaultOperateArea(state:IState){
     return await this.userOperateAreaMxSql.getUserDefaultOperateArea(state);
   }
 

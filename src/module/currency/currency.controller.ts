@@ -1,6 +1,5 @@
 import { Body, Controller, Post } from "@nestjs/common";
-import { ReqState } from "../../decorator/user.decorator";
-import { State } from "../../interface/IState";
+import {ReqState, IState} from "../../decorator/user.decorator";
 import { CurrencyService } from "./currency.service";
 import { AddCurrencyDto } from "./dto/addCurrency.dto";
 import { UpdateCurrencyDto } from "./dto/updateCurrency.dto";
@@ -34,7 +33,7 @@ export class CurrencyController {
   }
 
   @Post("add")
-  async add(@Body() addDto: AddCurrencyDto, @ReqState() state: State) {
+  async add(@Body() addDto: AddCurrencyDto, @ReqState() state: IState) {
     addDto.creater = state.user.username;
     addDto.createdAt = new Date();
     await this.currencyService.add(addDto);
@@ -45,7 +44,7 @@ export class CurrencyController {
   }
 
   @Post("update")
-  async update(@Body() updateDto: UpdateCurrencyDto, @ReqState() state: State) {
+  async update(@Body() updateDto: UpdateCurrencyDto, @ReqState() state: IState) {
     updateDto.updater = state.user.username;
     updateDto.updatedAt = new Date();
     await this.currencyService.update(updateDto);
@@ -56,7 +55,7 @@ export class CurrencyController {
   }
 
   @Post("delete_data")
-  async delete_data(@Body() deleteDto: DeleteCurrencyDto, @ReqState() state: State) {
+  async delete_data(@Body() deleteDto: DeleteCurrencyDto, @ReqState() state: IState) {
     await this.currencyService.delete_data(deleteDto,state.user.username);
     return {
       code: 200,

@@ -1,7 +1,6 @@
 import {Body, Controller, Post} from "@nestjs/common";
 import {SaleOutboundService} from "./saleOutbound.service";
-import {ReqState} from "../../decorator/user.decorator";
-import {State} from "../../interface/IState";
+import {ReqState, IState} from "../../decorator/user.decorator";
 import {FindOutboundDto} from "../outbound/dto/find.dto";
 import {OutboundDto} from "../outbound/dto/outbound.dto";
 import {DeleteOutboundDto} from "../outbound/dto/deleteOutbound.dto";
@@ -15,7 +14,7 @@ export class SaleOutboundController {
     }
 
     @Post("find")
-    public async select(@Body() findOutbound: FindOutboundDto, @ReqState() state: State) {
+    public async select(@Body() findOutbound: FindOutboundDto, @ReqState() state: IState) {
         if (findOutbound.warehouseids.length === 0) {
             findOutbound.warehouseids = state.user.warehouseids;
         }
@@ -32,7 +31,7 @@ export class SaleOutboundController {
     }
 
     @Post("findSheetState")
-    public async findSheetState(@Body() findOutbound: FindOutboundDto, @ReqState() state: State) {
+    public async findSheetState(@Body() findOutbound: FindOutboundDto, @ReqState() state: IState) {
         if (findOutbound.warehouseids.length === 0) {
             findOutbound.warehouseids = state.user.warehouseids;
         }
@@ -49,7 +48,7 @@ export class SaleOutboundController {
     }
 
     @Post("create")
-    public async create(@Body() outboundDto: OutboundDto, @ReqState() state: State) {
+    public async create(@Body() outboundDto: OutboundDto, @ReqState() state: IState) {
         const createResult = await this.saleOutboundService.create(outboundDto, state.user.username);
         return {
             code: 200,
@@ -59,7 +58,7 @@ export class SaleOutboundController {
     }
 
     @Post("create_l1Review")
-    public async create_l1Review(@Body() outboundDto: OutboundDto, @ReqState() state: State) {
+    public async create_l1Review(@Body() outboundDto: OutboundDto, @ReqState() state: IState) {
         const createResult = await this.saleOutboundService.create_l1Review(outboundDto, state.user.username);
         return {
             code: 200,
@@ -69,7 +68,7 @@ export class SaleOutboundController {
     }
 
     @Post("update")
-    public async update(@Body() outboundDto: OutboundDto, @ReqState() state: State) {
+    public async update(@Body() outboundDto: OutboundDto, @ReqState() state: IState) {
         await this.saleOutboundService.update(outboundDto, state);
         return {
             code: 200,
@@ -78,7 +77,7 @@ export class SaleOutboundController {
     }
 
     @Post("updateAndL1Review")
-    public async updateAndL1Review(@Body() outboundDto: OutboundDto, @ReqState() state: State) {
+    public async updateAndL1Review(@Body() outboundDto: OutboundDto, @ReqState() state: IState) {
         await this.saleOutboundService.updateAndL1Review(outboundDto, state);
         return {
             code: 200,
@@ -87,7 +86,7 @@ export class SaleOutboundController {
     }
 
     @Post("delete_data")
-    public async delete_data(@Body() deleteDto: DeleteOutboundDto, @ReqState() state: State) {
+    public async delete_data(@Body() deleteDto: DeleteOutboundDto, @ReqState() state: IState) {
         await this.saleOutboundService.delete_data(deleteDto.outboundid, state);
         return {
             code: 200,
@@ -105,7 +104,7 @@ export class SaleOutboundController {
     }
 
     @Post("l1Review")
-    public async level1Review(@Body() level1ReviewSaleOutboundDto: Level1ReviewSaleOutboundDto, @ReqState() state: State) {
+    public async level1Review(@Body() level1ReviewSaleOutboundDto: Level1ReviewSaleOutboundDto, @ReqState() state: IState) {
         await this.saleOutboundService.level1Review(level1ReviewSaleOutboundDto.outboundid, state.user.username);
         return {
             code: 200,
@@ -114,7 +113,7 @@ export class SaleOutboundController {
     }
 
     @Post("unL1Review")
-    public async unLevel1Review(@Body() level1ReviewSaleOutboundDto: Level1ReviewSaleOutboundDto, @ReqState() state: State) {
+    public async unLevel1Review(@Body() level1ReviewSaleOutboundDto: Level1ReviewSaleOutboundDto, @ReqState() state: IState) {
         await this.saleOutboundService.unLevel1Review(level1ReviewSaleOutboundDto.outboundid, state);
         return {
             code: 200,
@@ -123,7 +122,7 @@ export class SaleOutboundController {
     }
 
     @Post("l2Review")
-    public async level2Review(@Body() level2ReviewSaleOutboundDto: Level2ReviewSaleOutboundDto, @ReqState() state: State) {
+    public async level2Review(@Body() level2ReviewSaleOutboundDto: Level2ReviewSaleOutboundDto, @ReqState() state: IState) {
         await this.saleOutboundService.level2Review(level2ReviewSaleOutboundDto.outboundid, state.user.username);
         return {
             code: 200,
@@ -132,7 +131,7 @@ export class SaleOutboundController {
     }
 
     @Post("unL2Review")
-    public async unLevel2Review(@Body() level2ReviewSaleOutboundDto: Level2ReviewSaleOutboundDto, @ReqState() state: State) {
+    public async unLevel2Review(@Body() level2ReviewSaleOutboundDto: Level2ReviewSaleOutboundDto, @ReqState() state: IState) {
         await this.saleOutboundService.unLevel2Review(level2ReviewSaleOutboundDto.outboundid);
         return {
             code: 200,

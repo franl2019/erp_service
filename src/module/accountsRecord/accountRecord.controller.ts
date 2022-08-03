@@ -1,8 +1,7 @@
 import {Body, Controller, Post} from "@nestjs/common";
 import {AccountRecordService} from "./accountRecord.service";
 import {AccountRecordFindDto} from "./dto/accountRecordFind.dto";
-import {ReqState} from "../../decorator/user.decorator";
-import {IState} from "../../interface/IState";
+import {IState, ReqState} from "../../decorator/user.decorator";
 
 @Controller("erp/accountsRecord")
 export class AccountRecordController {

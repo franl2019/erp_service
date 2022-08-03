@@ -1,7 +1,6 @@
 import {Body, Controller, Post} from "@nestjs/common";
 import {AccountInComeFindDto} from "./dto/accountInComeFind.dto";
-import {ReqState} from "../../decorator/user.decorator";
-import {IState} from "../../interface/IState";
+import {IState, ReqState} from "../../decorator/user.decorator";
 import {AccountInComeService} from "./accountInCome.service";
 import {AccountInComeCreateDto} from "./dto/accountInComeCreate.dto";
 import {AccountInComeUpdateDto} from "./dto/accountInComeUpdate.dto";

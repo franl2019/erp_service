@@ -1,7 +1,6 @@
 import {Body, Controller, Post} from "@nestjs/common";
 import {WeightedAverageRecordService} from "./weightedAverageRecord.service";
-import {ReqState} from "../../decorator/user.decorator";
-import {IState} from "../../interface/IState";
+import {IState, ReqState} from "../../decorator/user.decorator";
 import {WeightedAverageRecordL1ReviewDto} from "./dto/weightedAverageRecordL1Review.dto";
 
 @Controller('erp/weightedAverageRecord')

@@ -3,8 +3,7 @@ import { AddClientDto } from "./dto/addClient.dto";
 import { UpdateClientDto } from "./dto/updateClient.dto";
 import { DeleteClientDto } from "./dto/deleteClient.dto";
 import { ClientService } from "./client.service";
-import { ReqState } from "../../decorator/user.decorator";
-import { State } from "../../interface/IState";
+import {ReqState, IState} from "../../decorator/user.decorator";
 import { SelectClientDto } from "./dto/selectClient.dto";
 import { L1reviewClientDto } from "./dto/l1reviewClient.dto";
 import { L2reviewClientDto } from "./dto/l2reviewClient.dto";
@@ -19,7 +18,7 @@ export class ClientController {
   }
 
   @Post("select")
-  async select(@Body() selectClientDto: SelectClientDto, @ReqState() state: State) {
+  async select(@Body() selectClientDto: SelectClientDto, @ReqState() state: IState) {
     const data = await this.clientService.find(selectClientDto, state);
     return {
       code: 200,
@@ -39,7 +38,7 @@ export class ClientController {
   }
 
   @Post("add")
-  async create(@Body() addDto: AddClientDto, @ReqState() state: State) {
+  async create(@Body() addDto: AddClientDto, @ReqState() state: IState) {
     await this.clientService.create(addDto, state);
     return {
       code: 200,
@@ -48,7 +47,7 @@ export class ClientController {
   }
 
   @Post("update")
-  async update(@Body() updateDto: UpdateClientDto, @ReqState() state: State) {
+  async update(@Body() updateDto: UpdateClientDto, @ReqState() state: IState) {
     await this.clientService.update(updateDto, state);
     return {
       code: 200,
@@ -57,7 +56,7 @@ export class ClientController {
   }
 
   @Post("delete")
-  async delete_data(@Body() deleteDto: DeleteClientDto, @ReqState() state: State) {
+  async delete_data(@Body() deleteDto: DeleteClientDto, @ReqState() state: IState) {
     await this.clientService.delete_data(deleteDto, state);
     return {
       code: 200,
@@ -66,7 +65,7 @@ export class ClientController {
   }
 
   @Post("level1Review")
-  async level1Review(@Body() l1reviewDto: L1reviewClientDto, @ReqState() state: State) {
+  async level1Review(@Body() l1reviewDto: L1reviewClientDto, @ReqState() state: IState) {
     await this.clientService.level1Review(l1reviewDto.clientid, state.user.username);
     return {
       code: 200,
@@ -75,7 +74,7 @@ export class ClientController {
   }
 
   @Post("unLevel1Review")
-  async unLevel1Review(@Body() l1reviewDto: L1reviewClientDto, @ReqState() state: State) {
+  async unLevel1Review(@Body() l1reviewDto: L1reviewClientDto, @ReqState() state: IState) {
     await this.clientService.unLevel1Review(l1reviewDto.clientid);
     return {
       code: 200,
@@ -84,7 +83,7 @@ export class ClientController {
   }
 
   @Post("level2Review")
-  async level2Review(@Body() l2reviewDto: L2reviewClientDto, @ReqState() state: State) {
+  async level2Review(@Body() l2reviewDto: L2reviewClientDto, @ReqState() state: IState) {
     await this.clientService.level2Review(l2reviewDto.clientid, state.user.username);
     return {
       code: 200,
@@ -93,7 +92,7 @@ export class ClientController {
   }
 
   @Post("unLevel2Review")
-  async unLevel2Review(@Body() l2reviewDto: L2reviewClientDto, @ReqState() state: State) {
+  async unLevel2Review(@Body() l2reviewDto: L2reviewClientDto, @ReqState() state: IState) {
     await this.clientService.unLevel2Review(l2reviewDto.clientid);
     return {
       code: 200,

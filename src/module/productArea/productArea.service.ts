@@ -3,9 +3,9 @@ import { ProductAreaSql } from "./productArea.sql";
 import { UpdateProductAreaDto } from "./dto/updateProductArea.dto";
 import { AddProductAreaDto } from "./dto/addProductArea.dto";
 import { DeleteProductAreaDto } from "./dto/deleteProductArea.dto";
-import { State } from "../../interface/IState";
 import { MysqldbAls } from "../mysqldb/mysqldbAls";
 import {IProductArea} from "./productArea";
+import {IState} from "../../decorator/user.decorator";
 
 @Injectable()
 export class ProductAreaService {
@@ -146,7 +146,7 @@ export class ProductAreaService {
     });
   }
 
-  public async delete_data(productArea: DeleteProductAreaDto, state: State) {
+  public async delete_data(productArea: DeleteProductAreaDto, state: IState) {
     productArea.del_uuid = productArea.productareaid;
     productArea.deletedAt = new Date();
     productArea.deleter = state.user.username;

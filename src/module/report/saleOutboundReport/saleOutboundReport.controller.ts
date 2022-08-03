@@ -4,8 +4,7 @@ import {SaleOutboundMxReport} from "./saleOutboundMx.report";
 import {SaleOutboundProductSummaryReport} from "./saleOutboundProductSummary.report";
 import {SaleOutboundClientProductSummaryReport} from "./saleOutboundClientProductSummary.report";
 import {FindSaleOutboundDto} from "./dto/findSaleOutbound.dto";
-import {ReqState} from "../../../decorator/user.decorator";
-import {IState} from "../../../interface/IState";
+import {IState, ReqState} from "../../../decorator/user.decorator";
 import {SaleOutboundProductSummaryReportFindDto} from "./dto/saleOutboundProductSummaryReportFind.dto";
 import {SaleOutboundClientProductSummaryReportFindDto} from "./dto/saleOutboundClientProductSummaryReportFind.dto";
 

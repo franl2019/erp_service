@@ -1,6 +1,5 @@
 import { Body, Controller, Post, Request } from "@nestjs/common";
-import { ReqState } from "../../decorator/user.decorator";
-import { State } from "../../interface/IState";
+import {ReqState, IState} from "../../decorator/user.decorator";
 import { UserWarehouseMxService } from "./userWarehouseMx.service";
 
 import { AddUserWarehouseMxDto } from "./dto/addUserWarehouseMx.dto";
@@ -34,7 +33,7 @@ export class UserWarehouseMxController {
   }
 
   @Post("add")
-  async add(@Body() addDto: AddUserWarehouseMxDto, @Request() req: Request,@ReqState() state:State) {
+  async add(@Body() addDto: AddUserWarehouseMxDto, @Request() req: Request,@ReqState() state:IState) {
     addDto.creater = state.user.username;
     addDto.createdAt = new Date();
     await this.userWarehouseMxService.add(addDto);

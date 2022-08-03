@@ -2,13 +2,13 @@ import {Injectable} from "@nestjs/common";
 import {OutboundService} from "../outbound/outbound.service";
 import {FindSaleOutboundDto} from "./dto/findSaleOutbound.dto";
 import {SaleOutboundDto} from "./dto/saleOutbound.dto";
-import {IState} from "../../interface/IState";
 import {CodeType} from "../autoCode/codeType";
 import * as mathjs from "mathjs";
 import {AccountCategoryType} from "../accountsVerifySheetMx/accountCategoryType";
 import {AccountsReceivableService} from "../accountsReceivable/accountsReceivable.service";
 import {MysqldbAls} from "../mysqldb/mysqldbAls";
 import {IOutboundMx} from "../outboundMx/outboundMx";
+import {IState} from "../../decorator/user.decorator";
 
 const {chain, bignumber, round} = mathjs;
 

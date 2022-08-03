@@ -1,6 +1,5 @@
 import { Body, Controller, Post } from "@nestjs/common";
-import { ReqState } from "../../decorator/user.decorator";
-import { State } from "../../interface/IState";
+import {ReqState, IState} from "../../decorator/user.decorator";
 import { ProductService } from "./product.service";
 import { SelectProductDto } from "./dto/selectProduct.dto";
 import { AddProductDto } from "./dto/addProduct.dto";
@@ -20,7 +19,7 @@ export class ProductController {
   }
 
   @Post("select")
-  public async find(@Body() selectClientDto: SelectProductDto, @ReqState() state: State) {
+  public async find(@Body() selectClientDto: SelectProductDto, @ReqState() state: IState) {
     const data = await this.productService.find(selectClientDto,state);
     return {
       code: 200,
@@ -30,7 +29,7 @@ export class ProductController {
   }
 
   @Post("add")
- public async create(@Body() addDto: AddProductDto, @ReqState() state: State) {
+ public async create(@Body() addDto: AddProductDto, @ReqState() state: IState) {
     await this.productService.create(addDto,state);
     return {
       code: 200,
@@ -39,7 +38,7 @@ export class ProductController {
   }
 
   @Post("update")
-  public async update(@Body() updateDto: UpdateProductDto, @ReqState() state: State) {
+  public async update(@Body() updateDto: UpdateProductDto, @ReqState() state: IState) {
     await this.productService.update(updateDto,state);
     return {
       code: 200,
@@ -48,7 +47,7 @@ export class ProductController {
   }
 
   @Post("delete")
-  public async delete_data(@Body() deleteDto: DeleteProductDto, @ReqState() state: State) {
+  public async delete_data(@Body() deleteDto: DeleteProductDto, @ReqState() state: IState) {
     await this.productService.delete_data(deleteDto.productid,state);
     return {
       code: 200,
@@ -57,7 +56,7 @@ export class ProductController {
   }
 
   @Post("level1Review")
-  async level1Review(@Body() l1reviewDto: L1ReviewProductDto, @ReqState() state: State) {
+  async level1Review(@Body() l1reviewDto: L1ReviewProductDto, @ReqState() state: IState) {
     await this.productService.l1Review(l1reviewDto.productid,state.user.username);
     return {
       code: 200,
@@ -75,7 +74,7 @@ export class ProductController {
   }
 
   @Post("level2Review")
-  async level2Review(@Body() l2reviewDto: L2ReviewProductDto, @ReqState() state: State) {
+  async level2Review(@Body() l2reviewDto: L2ReviewProductDto, @ReqState() state: IState) {
     await this.productService.l2Review(l2reviewDto.productid,state.user.username);
     return {
       code: 200,

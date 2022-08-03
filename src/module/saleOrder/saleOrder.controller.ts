@@ -1,8 +1,7 @@
 import {SaleOrderService} from "./saleOrder.service";
 import {Body, Controller, Post} from "@nestjs/common";
 import {SaleOrderFindDto} from "./dto/saleOrderFind.dto";
-import {ReqState} from "../../decorator/user.decorator";
-import {IState} from "../../interface/IState";
+import {IState, ReqState} from "../../decorator/user.decorator";
 import {SaleOrderCreateDto} from "./dto/saleOrderCreate.dto";
 import {SaleOrderUpdateDto} from "./dto/saleOrderUpdate.dto";
 import {SaleReviewDto} from "./dto/saleReview.dto";

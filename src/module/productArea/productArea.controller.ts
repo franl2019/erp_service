@@ -3,8 +3,7 @@ import { AddProductAreaDto } from "./dto/addProductArea.dto";
 import { UpdateProductAreaDto } from "./dto/updateProductArea.dto";
 import { DeleteProductAreaDto } from "./dto/deleteProductArea.dto";
 import { ProductAreaService } from "./productArea.service";
-import { ReqState } from "../../decorator/user.decorator";
-import { State } from "../../interface/IState";
+import {ReqState, IState} from "../../decorator/user.decorator";
 
 
 @Controller("erp/productArea")
@@ -34,7 +33,7 @@ export class ProductAreaController {
   }
 
   @Post("add")
-  async add(@Body() addDto: AddProductAreaDto, @ReqState() state:State) {
+  async add(@Body() addDto: AddProductAreaDto, @ReqState() state:IState) {
     addDto.creater = state.user.username;
     addDto.createdAt = new Date();
     await this.productAreaService.create(addDto);
@@ -45,7 +44,7 @@ export class ProductAreaController {
   }
 
   @Post("update")
-  async update(@Body() updateDto: UpdateProductAreaDto, @ReqState() state:State) {
+  async update(@Body() updateDto: UpdateProductAreaDto, @ReqState() state:IState) {
     updateDto.updater = state.user.username;
     updateDto.updatedAt = new Date();
     await this.productAreaService.update(updateDto);
@@ -56,7 +55,7 @@ export class ProductAreaController {
   }
 
   @Post("delete")
-  async delete_data(@Body() deleteDto: DeleteProductAreaDto, @ReqState() state:State) {
+  async delete_data(@Body() deleteDto: DeleteProductAreaDto, @ReqState() state:IState) {
     await this.productAreaService.delete_data(deleteDto,state);
     return {
       code: 200,

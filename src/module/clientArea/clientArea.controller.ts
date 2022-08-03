@@ -3,8 +3,7 @@ import { AddClientAreaDto } from "./dto/addClientArea.dto";
 import { UpdateClientAreaDto } from "./dto/updateClientArea.dto";
 import { DeleteClientAreaDto } from "./dto/deleteClientArea.dto";
 import { ClientAreaService } from "./clientArea.service";
-import { ReqState } from "../../decorator/user.decorator";
-import { State } from "../../interface/IState";
+import {ReqState, IState} from "../../decorator/user.decorator";
 
 
 @Controller("erp/clientArea")
@@ -24,7 +23,7 @@ export class ClientAreaController {
   }
 
   @Post("create")
-  public async add(@Body() addDto: AddClientAreaDto, @ReqState() state:State) {
+  public async add(@Body() addDto: AddClientAreaDto, @ReqState() state:IState) {
     addDto.creater = state.user.username;
     addDto.createdAt = new Date();
     await this.clientAreaService.create(addDto);
@@ -35,7 +34,7 @@ export class ClientAreaController {
   }
 
   @Post("update")
-  public async update(@Body() updateDto: UpdateClientAreaDto, @ReqState() state:State) {
+  public async update(@Body() updateDto: UpdateClientAreaDto, @ReqState() state:IState) {
     updateDto.updater = state.user.username;
     updateDto.updatedAt = new Date();
     await this.clientAreaService.update(updateDto);
@@ -46,7 +45,7 @@ export class ClientAreaController {
   }
 
   @Post("delete")
-  public async delete_data(@Body() deleteDto: DeleteClientAreaDto, @ReqState() state:State) {
+  public async delete_data(@Body() deleteDto: DeleteClientAreaDto, @ReqState() state:IState) {
     await this.clientAreaService.delete_data(deleteDto.clientareaid,state.user.username);
     return {
       code: 200,

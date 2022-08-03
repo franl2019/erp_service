@@ -2,8 +2,7 @@ import {Body, Controller, Post} from "@nestjs/common";
 import {BuyInboundMxReport} from "./buyInboundMx.report";
 import {BuyInboundProductSummaryReport} from "./buyInboundProductSummary.report";
 import {BuyInboundMxReportFindDto} from "./dto/buyInboundMxReportFind.dto";
-import {ReqState} from "../../../decorator/user.decorator";
-import {IState} from "../../../interface/IState";
+import {IState, ReqState} from "../../../decorator/user.decorator";
 import {BuyInboundProductSummaryReportFindDto} from "./dto/buyInboundProductSummaryReportFind.dto";
 
 @Controller('erp/report')

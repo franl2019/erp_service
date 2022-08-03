@@ -1,7 +1,6 @@
 import {Body, Controller, Post} from "@nestjs/common";
 import {FindInboundDto} from "../inbound/dto/findInbound.dto";
-import {ReqState} from "../../decorator/user.decorator";
-import {State} from "../../interface/IState";
+import {ReqState, IState} from "../../decorator/user.decorator";
 import {InboundDto} from "../inbound/dto/Inbound.dto";
 import {L1RInboundDto} from "../inbound/dto/L1RInbound.dto";
 import {ProductionInboundService} from "./productionInbound.service";
@@ -14,7 +13,7 @@ export class ProductionInboundController {
     }
 
     @Post("select")
-    public async select(@Body() findInboundDto: FindInboundDto, @ReqState() state: State) {
+    public async select(@Body() findInboundDto: FindInboundDto, @ReqState() state: IState) {
         if (findInboundDto.warehouseids.length === 0) {
             findInboundDto.warehouseids = state.user.warehouseids;
         }
@@ -34,7 +33,7 @@ export class ProductionInboundController {
     }
 
     @Post("add")
-    public async add(@Body() inboundDto: InboundDto, @ReqState() state: State) {
+    public async add(@Body() inboundDto: InboundDto, @ReqState() state: IState) {
 
         inboundDto.inboundtype = 2;
         inboundDto.creater = state.user.username;
@@ -48,7 +47,7 @@ export class ProductionInboundController {
     }
 
     @Post("update")
-    public async update(@Body() inboundDto: InboundDto, @ReqState() state: State) {
+    public async update(@Body() inboundDto: InboundDto, @ReqState() state: IState) {
 
         inboundDto.inboundtype = 2;
         inboundDto.updater = state.user.username;
@@ -63,7 +62,7 @@ export class ProductionInboundController {
     }
 
     @Post("delete")
-    public async delete_data(@Body() deleteDto: DeleteProductInboundDto, @ReqState() state: State) {
+    public async delete_data(@Body() deleteDto: DeleteProductInboundDto, @ReqState() state: IState) {
         await this.productionInboundService.delete_data(deleteDto.inboundid, state.user.username);
         return {
             code: 200,
@@ -81,7 +80,7 @@ export class ProductionInboundController {
     }
 
     @Post("level1Review")
-    public async level1Review(@Body() l1RInboundDto: L1RInboundDto, @ReqState() state: State) {
+    public async level1Review(@Body() l1RInboundDto: L1RInboundDto, @ReqState() state: IState) {
         await this.productionInboundService.level1Review(l1RInboundDto.inboundid, state.user.username);
         return {
             code: 200,
@@ -90,7 +89,7 @@ export class ProductionInboundController {
     }
 
     @Post("unLevel1Review")
-    public async unLevel1Review(@Body() l1RInboundDto: L1RInboundDto, @ReqState() state: State) {
+    public async unLevel1Review(@Body() l1RInboundDto: L1RInboundDto, @ReqState() state: IState) {
         await this.productionInboundService.unLevel1Review(l1RInboundDto.inboundid, state.user.username);
         return {
             code: 200,

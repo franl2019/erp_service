@@ -4,11 +4,11 @@ import {SelectClientDto} from "./dto/selectClient.dto";
 import {AddClientDto} from "./dto/addClient.dto";
 import {UpdateClientDto} from "./dto/updateClient.dto";
 import {DeleteClientDto} from "./dto/deleteClient.dto";
-import {State} from "../../interface/IState";
 import {ClientAreaEntity} from "../clientArea/clientArea.entity";
 import {MysqldbAls} from "../mysqldb/mysqldbAls";
 import {IClient} from "./client";
 import {ClientAutoCodeService} from "../clientAutoCode/clientAutoCode.service";
+import {IState} from "../../decorator/user.decorator";
 
 
 @Injectable()
@@ -33,7 +33,7 @@ export class ClientService {
         return await this.clientEntity.findOne(clientid);
     }
 
-    public async find(client: SelectClientDto, state: State) {
+    public async find(client: SelectClientDto, state: IState) {
         client.operateareaids = state.user.client_operateareaids;
         return await this.clientEntity.find(client);
     }
@@ -42,7 +42,7 @@ export class ClientService {
         return await this.clientEntity.getGsClient();
     }
 
-    public async create(client: AddClientDto, state: State) {
+    public async create(client: AddClientDto, state: IState) {
         client.creater = state.user.username;
         client.createdAt = new Date();
 
@@ -68,7 +68,7 @@ export class ClientService {
 
     }
 
-    public async update(client: UpdateClientDto, state: State) {
+    public async update(client: UpdateClientDto, state: IState) {
         return await this.mysqldbAls.sqlTransaction(async () => {
             client.updater = state.user.username;
             client.updatedAt = new Date();
@@ -91,7 +91,7 @@ export class ClientService {
         });
     }
 
-    public async delete_data(client: DeleteClientDto, state: State) {
+    public async delete_data(client: DeleteClientDto, state: IState) {
         return await this.mysqldbAls.sqlTransaction(async () => {
             const client_DB = await this.clientEntity.findOne(client.clientid);
             //验证操作区域权限，没有该客户的操作区域不能修改，更新的操作区域没有权限也不能更新

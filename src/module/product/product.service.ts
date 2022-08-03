@@ -2,11 +2,11 @@ import {Injectable} from "@nestjs/common";
 import {ProductEntity} from "./product.entity";
 import {SelectProductDto} from "./dto/selectProduct.dto";
 import {UpdateProductDto} from "./dto/updateProduct.dto";
-import {State} from "../../interface/IState";
 import {AddProductDto} from "./dto/addProduct.dto";
 import {MysqldbAls} from "../mysqldb/mysqldbAls";
 import {ProductAreaService} from "../productArea/productArea.service";
 import {ProductAutoCodeService} from "../productAutoCode/productAutoCode.service";
+import {IState} from "../../decorator/user.decorator";
 
 
 @Injectable()
@@ -24,12 +24,12 @@ export class ProductService {
         return await this.productEntity.findOne(productId);
     }
 
-    public async find(product: SelectProductDto, state: State) {
+    public async find(product: SelectProductDto, state: IState) {
         if(product.warehouseids.length === 0)product.warehouseids = state.user.warehouseids;
         return await this.productEntity.find(product);
     }
 
-    public async create(product: AddProductDto, state: State) {
+    public async create(product: AddProductDto, state: IState) {
         product.creater = state.user.username;
         product.createdAt = new Date();
 
@@ -48,7 +48,7 @@ export class ProductService {
         })
     }
 
-    public async update(product: UpdateProductDto, state: State) {
+    public async update(product: UpdateProductDto, state: IState) {
 
         product.updater = state.user.username;
         product.updatedAt = new Date();
@@ -64,7 +64,7 @@ export class ProductService {
         });
     }
 
-    public async delete_data(productid: number, state: State) {
+    public async delete_data(productid: number, state: IState) {
         const product_DB = await this.productEntity.findOne(productid);
         //验证操作区域权限，没有该客户的操作区域不能修改，更新的操作区域没有权限也不能更新
         if (state.user.warehouseids.indexOf(product_DB.warehouseid) === -1) {

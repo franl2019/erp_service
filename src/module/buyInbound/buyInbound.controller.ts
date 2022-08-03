@@ -1,7 +1,6 @@
 import {Body, Controller, Post} from "@nestjs/common";
 import {BuyInboundService} from "./buyInbound.service";
-import {ReqState} from "../../decorator/user.decorator";
-import {State} from "../../interface/IState";
+import {ReqState, IState} from "../../decorator/user.decorator";
 import {BuyInboundDto} from "./dto/buyInbound.dto";
 import {DeleteBuyInboundDto} from "./dto/deleteBuyInbound.dto";
 import {Level1ReviewBuyInboundDto} from "./dto/level1ReviewBuyInbound.dto";
@@ -16,7 +15,7 @@ export class BuyInboundController {
     }
 
     @Post("find")
-    public async select(@Body() findInboundDto: FindBuyInboundDto, @ReqState() state: State) {
+    public async select(@Body() findInboundDto: FindBuyInboundDto, @ReqState() state: IState) {
         if (findInboundDto.warehouseids.length === 0) {
             findInboundDto.warehouseids = state.user.warehouseids;
         }
@@ -35,7 +34,7 @@ export class BuyInboundController {
     }
 
     @Post('findSheetCompleteState')
-    public async findSheetCompleteState(@Body() findInboundDto: FindBuyInboundDto, @ReqState() state: State){
+    public async findSheetCompleteState(@Body() findInboundDto: FindBuyInboundDto, @ReqState() state: IState){
         if (findInboundDto.warehouseids.length === 0) {
             findInboundDto.warehouseids = state.user.warehouseids;
         }
@@ -53,7 +52,7 @@ export class BuyInboundController {
     }
 
     @Post("create")
-    public async create(@Body() buyInboundDto: BuyInboundDto, @ReqState() state: State) {
+    public async create(@Body() buyInboundDto: BuyInboundDto, @ReqState() state: IState) {
         buyInboundDto.inboundtype = CodeType.buyInbound;
         buyInboundDto.creater = state.user.username;
         buyInboundDto.createdAt = new Date();
@@ -67,7 +66,7 @@ export class BuyInboundController {
     }
 
     @Post("create_l1Review")
-    public async create_l1Review(@Body() buyInboundDto: BuyInboundDto, @ReqState() state: State) {
+    public async create_l1Review(@Body() buyInboundDto: BuyInboundDto, @ReqState() state: IState) {
         buyInboundDto.inboundtype = CodeType.buyInbound;
         buyInboundDto.creater = state.user.username;
         buyInboundDto.createdAt = new Date();
@@ -81,7 +80,7 @@ export class BuyInboundController {
     }
 
     @Post("update")
-    public async update(@Body() buyInboundDto: BuyInboundDto, @ReqState() state: State) {
+    public async update(@Body() buyInboundDto: BuyInboundDto, @ReqState() state: IState) {
         buyInboundDto.inboundtype = CodeType.buyInbound;
         buyInboundDto.updater = state.user.username;
         buyInboundDto.updatedAt = new Date();
@@ -94,7 +93,7 @@ export class BuyInboundController {
     }
 
     @Post("update_l1Review")
-    public async update_l1Review(@Body() buyInboundDto: BuyInboundDto, @ReqState() state: State) {
+    public async update_l1Review(@Body() buyInboundDto: BuyInboundDto, @ReqState() state: IState) {
         buyInboundDto.inboundtype = CodeType.buyInbound;
         buyInboundDto.updater = state.user.username;
         buyInboundDto.updatedAt = new Date();
@@ -107,7 +106,7 @@ export class BuyInboundController {
     }
 
     @Post("delete")
-    public async delete_data(@Body() deleteDto: DeleteBuyInboundDto, @ReqState() state: State) {
+    public async delete_data(@Body() deleteDto: DeleteBuyInboundDto, @ReqState() state: IState) {
         await this.buyInboundService.delete_data(deleteDto.inboundid, state.user.username);
         return {
             code: 200,
@@ -125,7 +124,7 @@ export class BuyInboundController {
     }
 
     @Post("level1Review")
-    public async level1Review(@Body() l1RInboundDto: Level1ReviewBuyInboundDto, @ReqState() state: State) {
+    public async level1Review(@Body() l1RInboundDto: Level1ReviewBuyInboundDto, @ReqState() state: IState) {
         await this.buyInboundService.level1Review(l1RInboundDto.inboundid, state.user.username);
         return {
             code: 200,
@@ -134,7 +133,7 @@ export class BuyInboundController {
     }
 
     @Post("unLevel1Review")
-    public async unLevel1Review(@Body() l1RInboundDto: Level1ReviewBuyInboundDto, @ReqState() state: State) {
+    public async unLevel1Review(@Body() l1RInboundDto: Level1ReviewBuyInboundDto, @ReqState() state: IState) {
         await this.buyInboundService.unLevel1Review(l1RInboundDto.inboundid, state.user.username);
         return {
             code: 200,
@@ -143,7 +142,7 @@ export class BuyInboundController {
     }
 
     @Post("level2Review")
-    public async level2Review(@Body() buyInboundLevel2ReviewDto: BuyInboundLevel2ReviewDto, @ReqState() state: State) {
+    public async level2Review(@Body() buyInboundLevel2ReviewDto: BuyInboundLevel2ReviewDto, @ReqState() state: IState) {
         await this.buyInboundService.level2Review(buyInboundLevel2ReviewDto.inboundid, state.user.username);
         return {
             code: 200,

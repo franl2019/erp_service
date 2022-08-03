@@ -3,9 +3,9 @@ import { WarehouseSql } from "./warehouse.sql";
 import { AddWarehouseDto } from "./dto/addWarehouse.dto";
 import { UpdateWarehouseDto } from "./dto/updateWarehouse.dto";
 import { DeleteWarehouseDto } from "./dto/deleteWarehouse.dto";
-import { State } from "../../interface/IState";
 import { MysqldbAls } from "../mysqldb/mysqldbAls";
 import { SelectWarehouse_authDto } from "./dto/selectWarehouse_auth.dto";
+import {IState} from "../../decorator/user.decorator";
 
 @Injectable()
 export class WarehouseService {
@@ -43,7 +43,7 @@ export class WarehouseService {
     return await this.warehouseSql.update(updateDto);
   }
 
-  public async delete_data(deleteDto: DeleteWarehouseDto, state: State) {
+  public async delete_data(deleteDto: DeleteWarehouseDto, state: IState) {
     deleteDto.del_uuid = deleteDto.warehouseid;
     deleteDto.deletedAt = new Date();
     deleteDto.deleter = state.user.username;

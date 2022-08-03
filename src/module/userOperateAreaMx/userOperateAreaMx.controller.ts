@@ -3,8 +3,7 @@ import { SelectUserOperateAreaMxDto } from "./dto/selectUserOperateAreaMx.dto";
 import { AddUserOperateAreaMxDto } from "./dto/addUserOperateAreaMx.dto";
 import { DeleteUserOperateAreaMxDto } from "./dto/deleteUserOperateAreaMx.dto";
 import { UserOperateAreaMxService } from "./userOperateAreaMx.service";
-import { ReqState } from "../../decorator/user.decorator";
-import { State } from "../../interface/IState";
+import {ReqState, IState} from "../../decorator/user.decorator";
 
 
 @Controller("erp/user_operatearea_mx")
@@ -34,7 +33,7 @@ export class UserOperateAreaMxController {
   }
 
   @Post("findDefaultUserOperateArea")
-  async findDefaultUserOperateArea(@ReqState() state:State) {
+  async findDefaultUserOperateArea(@ReqState() state:IState) {
     const data = await this.userOperateAreaMxService.findUserDefaultOperateArea(state);
     return {
       code: 200,
@@ -44,7 +43,7 @@ export class UserOperateAreaMxController {
   }
 
   @Post("add")
-  async add(@Body() addDto: AddUserOperateAreaMxDto, @Request() req: Request, @ReqState() state: State) {
+  async add(@Body() addDto: AddUserOperateAreaMxDto, @Request() req: Request, @ReqState() state: IState) {
     addDto.creater = state.user.username;
     addDto.createdAt = new Date();
     await this.userOperateAreaMxService.add(addDto);

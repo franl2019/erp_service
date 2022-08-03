@@ -3,8 +3,7 @@ import { AddWarehouseDto } from "./dto/addWarehouse.dto";
 import { UpdateWarehouseDto } from "./dto/updateWarehouse.dto";
 import { DeleteWarehouseDto } from "./dto/deleteWarehouse.dto";
 import { WarehouseService } from "./warehouse.service";
-import { ReqState } from "../../decorator/user.decorator";
-import { State } from "../../interface/IState";
+import {ReqState, IState} from "../../decorator/user.decorator";
 import { SelectWarehouse_authDto } from "./dto/selectWarehouse_auth.dto";
 
 @Controller("erp/warehouse")
@@ -24,7 +23,7 @@ export class WarehouseController {
   }
 
   @Post("select_auth")
-  async select_auth(@Body() selectAuthDto: SelectWarehouse_authDto, @ReqState() state: State) {
+  async select_auth(@Body() selectAuthDto: SelectWarehouse_authDto, @ReqState() state: IState) {
     selectAuthDto.userid = state.user.userid;
     const data = await this.warehouseService.select_auth(selectAuthDto);
     return {
@@ -35,7 +34,7 @@ export class WarehouseController {
   }
 
   @Post("select_auth_default")
-  async select_auth_default(@Body() selectAuthDto: SelectWarehouse_authDto, @ReqState() state: State) {
+  async select_auth_default(@Body() selectAuthDto: SelectWarehouse_authDto, @ReqState() state: IState) {
     selectAuthDto.userid = state.user.userid;
     const data = await this.warehouseService.getWarehouseAuthDefault(selectAuthDto);
     return {
@@ -56,7 +55,7 @@ export class WarehouseController {
   }
 
   @Post("add")
-  async add(@Body() addDto: AddWarehouseDto, @ReqState() state: State) {
+  async add(@Body() addDto: AddWarehouseDto, @ReqState() state: IState) {
     addDto.creater = state.user.username;
     addDto.createdAt = new Date();
     await this.warehouseService.add(addDto);
@@ -67,7 +66,7 @@ export class WarehouseController {
   }
 
   @Post("update")
-  async update(@Body() updateDto: UpdateWarehouseDto, @ReqState() state: State) {
+  async update(@Body() updateDto: UpdateWarehouseDto, @ReqState() state: IState) {
     updateDto.updater = state.user.username;
     updateDto.updatedAt = new Date();
     await this.warehouseService.update(updateDto);
@@ -78,7 +77,7 @@ export class WarehouseController {
   }
 
   @Post("delete")
-  async delete_data(@Body() deleteDto: DeleteWarehouseDto, @ReqState() state: State) {
+  async delete_data(@Body() deleteDto: DeleteWarehouseDto, @ReqState() state: IState) {
     await this.warehouseService.delete_data(deleteDto, state);
     return {
       code: 200,

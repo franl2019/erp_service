@@ -2,8 +2,7 @@ import { Body, Controller, Post } from "@nestjs/common";
 
 import { InventoryService } from "./inventory.service";
 import { FindInventoryDto } from "./dto/findInventory.dto";
-import { ReqState } from "../../decorator/user.decorator";
-import { State } from "../../interface/IState";
+import {ReqState, IState} from "../../decorator/user.decorator";
 
 @Controller("erp/inventory")
 export class InventoryController {
@@ -12,7 +11,7 @@ export class InventoryController {
   }
 
   @Post("select")
-  public async find(@Body() selectDto: FindInventoryDto, @ReqState() state: State) {
+  public async find(@Body() selectDto: FindInventoryDto, @ReqState() state: IState) {
     if (selectDto.warehouseids.length === 0) {
       selectDto.warehouseids = state.user.warehouseids;
     }

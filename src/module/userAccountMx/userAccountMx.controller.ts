@@ -3,8 +3,7 @@ import {UserAccountMxService} from "./userAccountMx.service";
 import {UserAccountAuthFindDto} from "./dto/userAccountAuthFind.dto";
 import {UserAccountAuthCreateDto} from "./dto/userAccountAuthCreate.dto";
 import {UserAccountAuthDeleteDto} from "./dto/userAccountAuthDelete.dto";
-import {ReqState} from "../../decorator/user.decorator";
-import {IState} from "../../interface/IState";
+import {IState, ReqState} from "../../decorator/user.decorator";
 
 @Controller('erp/user_account_mx')
 export class UserAccountMxController {

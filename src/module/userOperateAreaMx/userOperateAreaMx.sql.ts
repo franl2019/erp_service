@@ -5,7 +5,7 @@ import { UserOperateAreaMx } from "./userOperateAreaMx";
 import { AddUserOperateAreaMxDto } from "./dto/addUserOperateAreaMx.dto";
 import { DeleteUserOperateAreaMxDto } from "./dto/deleteUserOperateAreaMx.dto";
 import { MysqldbAls } from "../mysqldb/mysqldbAls";
-import { State } from "../../interface/IState";
+import {IState} from "../../decorator/user.decorator";
 
 @Injectable()
 export class UserOperateAreaMxSql {
@@ -79,7 +79,7 @@ export class UserOperateAreaMxSql {
   }
 
   //查询用户默认操作区域
-  public async getUserDefaultOperateArea(state: State): Promise<UserOperateAreaMx> {
+  public async getUserDefaultOperateArea(state: IState): Promise<UserOperateAreaMx> {
     const conn = await this.mysqldbAls.getConnectionInAls();
     const sql: string = `SELECT 
                            user_operateareamx.userid,

@@ -3,8 +3,7 @@ import { AddOperateAreaDto } from "./dto/addOperateArea.dto";
 import { UpdateOperateAreaDto } from "./dto/updateOperateArea.dto";
 import { DeleteOperateAreaDto } from "./dto/deleteOperateArea.dto";
 import { OperateareaService } from "./operatearea.service";
-import { ReqState } from "../../decorator/user.decorator";
-import { State } from "../../interface/IState";
+import {ReqState, IState} from "../../decorator/user.decorator";
 import { SelectOperateAreaDto } from "./dto/selectOperateArea.dto";
 
 @Controller("erp/operateArea")
@@ -44,7 +43,7 @@ export class OperateareaController {
   }
 
   @Post("add")
-  async add(@Body() addDto: AddOperateAreaDto,@ReqState() state:State) {
+  async add(@Body() addDto: AddOperateAreaDto,@ReqState() state:IState) {
     addDto.creater = state.user.username;
     addDto.createdAt = new Date();
     await this.operateareaService.add(addDto);
@@ -55,7 +54,7 @@ export class OperateareaController {
   }
 
   @Post("update")
-  async update(@Body() updateDto: UpdateOperateAreaDto,@ReqState() state:State) {
+  async update(@Body() updateDto: UpdateOperateAreaDto,@ReqState() state:IState) {
     updateDto.updater = state.user.username
     updateDto.updatedAt = new Date();
     await this.operateareaService.update(updateDto);
@@ -66,7 +65,7 @@ export class OperateareaController {
   }
 
   @Post("delete")
-  async delete_data(@Body() deleteDto: DeleteOperateAreaDto,@ReqState() state:State) {
+  async delete_data(@Body() deleteDto: DeleteOperateAreaDto,@ReqState() state:IState) {
     deleteDto.del_uuid = deleteDto.operateareaid;
     deleteDto.deletedAt = new Date();
     deleteDto.deleter = state.user.username;
