@@ -19,9 +19,9 @@ async function bootstrap() {
       },
     }),
   );
-  await app.listen(3000);
+  await app.listen(3001);
 }
 
 bootstrap().then(() => {
-  Logger.info('server start ,listen port 3000');
+  Logger.info('server start ,listen port 3001');
 });
