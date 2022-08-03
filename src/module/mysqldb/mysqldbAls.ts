@@ -1,6 +1,6 @@
 import { Injectable, Scope } from "@nestjs/common";
 import { AsyncLocalStorage } from "async_hooks";
-import { Pool, PoolConnection } from "mysql2/promise";
+import { PoolConnection } from "mysql2/promise";
 import { Mysqldb } from "./mysqldb";
 
 @Injectable({ scope: Scope.REQUEST })
@@ -11,12 +11,12 @@ export class MysqldbAls {
     this.asyncLocalStorage = new AsyncLocalStorage();
   }
 
-  public getConnectionInAls(): PoolConnection | Pool {
+  public getConnectionInAls(): PoolConnection {
     const conn = this.asyncLocalStorage.getStore();
     if (conn) {
       return conn;
     } else {
-      return this.mysqldb.getPool();
+      return this.mysqldb.getPool() as unknown as PoolConnection;
     }
   }
 
