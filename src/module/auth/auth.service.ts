@@ -1,34 +1,46 @@
-import { HttpException, Injectable } from "@nestjs/common";
-import { UserService } from "../user/user.service";
-import { compareSync } from "bcryptjs";
-import { sign } from "jsonwebtoken";
-import { JWT_CONFIG } from "src/config/jwt";
-import { User } from "../user/user";
-import { RegisterDto } from "./dto/register.dto";
-import { AddUserOperateAreaMxDto } from "../userOperateAreaMx/dto/addUserOperateAreaMx.dto";
-import { AddOperateAreaDto } from "../operateArea/dto/addOperateArea.dto";
-import { UserSql } from "../user/user.sql";
-import { UserOperateAreaMxSql } from "../userOperateAreaMx/userOperateAreaMx.sql";
-import { OperateareaSql } from "../operateArea/operatearea.sql";
-import { MysqldbAls } from "../mysqldb/mysqldbAls";
+import {HttpException, Injectable} from "@nestjs/common";
+import {UserService} from "../user/user.service";
+import {compareSync, genSaltSync, hashSync} from "bcryptjs";
+import {User} from "../user/user";
+import {RegisterDto} from "./dto/register.dto";
+import {AddUserOperateAreaMxDto} from "../userOperateAreaMx/dto/addUserOperateAreaMx.dto";
+import {AddOperateAreaDto} from "../operateArea/dto/addOperateArea.dto";
+import {UserSql} from "../user/user.sql";
+import {UserOperateAreaMxSql} from "../userOperateAreaMx/userOperateAreaMx.sql";
+import {OperateareaSql} from "../operateArea/operatearea.sql";
+import {MysqldbAls} from "../mysqldb/mysqldbAls";
+import {JwtService} from "@nestjs/jwt";
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly mysqldbAls: MysqldbAls,
-    private readonly usersService: UserService,
-    private readonly userSql: UserSql,
-    private readonly userOperateAreaMxSql: UserOperateAreaMxSql,
-    private readonly operateareaSql: OperateareaSql
+      private readonly mysqldbAls: MysqldbAls,
+      private readonly usersService: UserService,
+      private readonly userSql: UserSql,
+      private readonly userOperateAreaMxSql: UserOperateAreaMxSql,
+      private readonly operateareaSql: OperateareaSql,
+      private readonly jwtService: JwtService,
   ) {
   }
 
-  async login(usercode: string, password: string): Promise<any> {
+  public async validateUser(usercode: string, password: string) {
+    const user = await this.usersService.findOne(usercode);
+    if (
+        user &&
+        (hashSync(password, genSaltSync(10)) === password)
+    ) {
+      return user
+    } else {
+      return Promise.reject(new HttpException("密码错误", 500));
+    }
+  }
+
+  public async login(usercode: string, password: string): Promise<any> {
     const user = await this.usersService.findOne(usercode);
     if (user && compareSync(password, user.password)) {
-      return sign({
+      return this.jwtService.sign({
         userid: user.userid
-      }, JWT_CONFIG.SECRET_KEY, { expiresIn: "7D" });
+      });
     } else {
       return Promise.reject(new HttpException("密码错误", 500));
     }

@@ -4,7 +4,7 @@ import {AuthModule} from './module/auth/auth.module';
 import {LoggerMiddleware} from './middleware/logger.middleware';
 import {UserOperateAreaMxModule} from './module/userOperateAreaMx/userOperateAreaMx.module';
 import {OperateareaModule} from './module/operateArea/operatearea.module';
-import {APP_INTERCEPTOR} from '@nestjs/core';
+import {APP_GUARD, APP_INTERCEPTOR} from '@nestjs/core';
 import {UserInfoInterceptor} from './interceptors/userInfo.interceptor';
 import {BuyAreaModule} from './module/buyArea/buyArea.module';
 import {BuyModule} from './module/buy/buy.module';
@@ -54,10 +54,17 @@ import {WeightedAverageRecordModule} from "./module/weightedAverageRecord/weight
 import {WeightedAverageRecordMxModule} from "./module/weightedAverageRecordMx/weightedAverageRecordMx.module";
 import {SaleOrderModule} from "./module/saleOrder/saleOrder.module";
 import {SaleOrderMxModule} from "./module/saleOrderMx/saleOrderMx.module";
+import {AuthGuard} from "./guard/auth.guard";
+import {JwtModule} from "@nestjs/jwt";
+import {JWT_CONFIG} from "./config/jwt";
 
 @Module({
     imports: [
         MysqldbModule,
+        JwtModule.register({
+            secret: JWT_CONFIG.SECRET_KEY,
+            signOptions: { expiresIn: '7D' },
+        }),
         UserModule,
         AuthModule,
         UserOperateAreaMxModule,
@@ -141,8 +148,12 @@ import {SaleOrderMxModule} from "./module/saleOrderMx/saleOrderMx.module";
     ],
     providers: [
         {
+            provide: APP_GUARD,
+            useClass:AuthGuard
+        },
+        {
             provide: APP_INTERCEPTOR,
-            scope: Scope.REQUEST,
+            scope: Scope.DEFAULT,
             useClass: UserInfoInterceptor,
         },
     ],

@@ -1,13 +1,15 @@
-import { Injectable, Scope } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { AsyncLocalStorage } from "async_hooks";
 import { PoolConnection } from "mysql2/promise";
 import { Mysqldb } from "./mysqldb";
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class MysqldbAls {
   private asyncLocalStorage: AsyncLocalStorage<PoolConnection>;
 
-  constructor(private readonly mysqldb: Mysqldb) {
+  constructor(
+      private readonly mysqldb: Mysqldb
+  ) {
     this.asyncLocalStorage = new AsyncLocalStorage();
   }
 

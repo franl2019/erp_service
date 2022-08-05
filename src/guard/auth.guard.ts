@@ -1,36 +1,36 @@
 import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
-import * as jwt from "jsonwebtoken";
-import { JWT_CONFIG } from "../config/jwt";
+import {JwtService} from "@nestjs/jwt";
 
 @Injectable()
 export class AuthGuard implements CanActivate {
 
-  constructor() {
+  constructor(
+      private readonly jwtService: JwtService
+  ) {
   }
 
-  canActivate(context: ExecutionContext): boolean {
-    const ctx = context.switchToHttp();
-    const req = ctx.getRequest();
-    const url = req.url;
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const request = context.switchToHttp().getRequest();
+    const url = request.url;
     const noVerifyURL = [
       "/auth/register",//注册
-      "/auth/login"//登录
+      "/auth/login",//登录
     ];
-    const token = req.headers.token;
+    const token = request.headers.token;
     if (noVerifyURL.indexOf(url) !== -1) {
       return true;
     } else {
       try {
-        const decoded = jwt.verify(token, JWT_CONFIG.SECRET_KEY);
+        const decoded = this.jwtService.verify(token)
         const userid = JSON.parse(JSON.stringify(decoded)).userid;
-        req.state = {
+        request.state = {
           token: {
             userid: userid
           }
         };
         return true;
       } catch (e) {
-        return false;
+        return Promise.reject(new Error("TOKEN信息错误"))
       }
     }
   }
