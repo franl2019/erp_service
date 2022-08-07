@@ -20,11 +20,13 @@ export class BuyService {
     ) {
     }
 
+    public async findOne(buyid:number){
+        return await this.buyEntity.findOne(buyid);
+    }
 
     public async find(buy: SelectBuyDto, state: IState) {
         buy.operateareaids = state.user.buy_operateareaids;
         return await this.buyEntity.find(buy);
-
     }
 
     public async findDeleted(buy: SelectBuyDto, state: IState) {

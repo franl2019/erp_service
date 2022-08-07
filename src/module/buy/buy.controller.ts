@@ -7,6 +7,7 @@ import {ReqState, IState} from "../../decorator/user.decorator";
 import {SelectBuyDto} from "./dto/selectBuy.dto";
 import {L1reviewBuyDto} from "./dto/l1reviewBuy.dto";
 import {L2reviewDto} from "./dto/l2review.dto";
+import {FindOneBuyDto} from "./dto/findOneBuy.dto";
 
 
 @Controller("erp/buy")
@@ -15,6 +16,16 @@ export class BuyController {
     constructor(
         private readonly buyService: BuyService,
     ) {
+    }
+
+    @Post("findOne")
+    async findOne(@Body() findOneDto:FindOneBuyDto) {
+        const buy = await this.buyService.findOne(findOneDto.buyid);
+        return {
+            code: 200,
+            msg: "查询成功",
+            data:[buy]
+        };
     }
 
     @Post("find")

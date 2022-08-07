@@ -18,47 +18,47 @@ export class BuyEntity {
     public async findOne(buyId: number): Promise<Buy> {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql: string = `SELECT 
-                            buy.buyid,
-                            buy.buycode,
-                            buy.buyname,
-                            buy.contactperson,
-                            buy.salesman,
-                            buy.ymrep,
-                            buy.phone_no,
-                            buy.tel_no,
-                            buy.email,
-                            buy.address,
-                            buy.moneytype,
-                            buy.useflag,
-                            buy.accountspayabletype,
-                            buy.level1review,
-                            buy.level1name,
-                            buy.level1date,
-                            buy.level2review,
-                            buy.level2name,
-                            buy.level2date,
-                            buy.remark1,
-                            buy.remark2,
-                            buy.remark3,
-                            buy.remark4,
-                            buy.remark5,
-                            buy.remark6,
-                            buy.remark7,
-                            buy.remark8,
-                            buy.remark9,
-                            buy.remark10,
-                            buy.creater,
-                            buy.createdAt,
-                            buy.updater,
-                            buy.updatedAt,
-                            buy.buyareaid,
-                            buy.operateareaid,
-                            buy.del_uuid,
-                            buy.deletedAt,
-                            buy.deleter
-                         FROM 
-                            buy 
-                         WHERE buy.del_uuid = 0 AND buy.buyid = ?`;
+                                buy.buyid,
+                                buy.buycode,
+                                buy.buyname,
+                                buy.contactperson,
+                                buy.salesman,
+                                buy.ymrep,
+                                buy.phone_no,
+                                buy.tel_no,
+                                buy.email,
+                                buy.address,
+                                buy.moneytype,
+                                buy.useflag,
+                                buy.accountspayabletype,
+                                buy.level1review,
+                                buy.level1name,
+                                buy.level1date,
+                                buy.level2review,
+                                buy.level2name,
+                                buy.level2date,
+                                buy.remark1,
+                                buy.remark2,
+                                buy.remark3,
+                                buy.remark4,
+                                buy.remark5,
+                                buy.remark6,
+                                buy.remark7,
+                                buy.remark8,
+                                buy.remark9,
+                                buy.remark10,
+                                buy.creater,
+                                buy.createdAt,
+                                buy.updater,
+                                buy.updatedAt,
+                                buy.buyareaid,
+                                buy.operateareaid,
+                                buy.del_uuid,
+                                buy.deletedAt,
+                                buy.deleter
+                             FROM 
+                                buy 
+                             WHERE buy.del_uuid = 0 AND buy.buyid = ?`;
         const [res] = await conn.query(sql, [buyId]);
         if ((res as Buy[]).length > 0) {
             return (res as Buy[])[0];
@@ -309,7 +309,7 @@ export class BuyEntity {
         }
     }
 
-    public async l1Review(buyId: number,userName:string): Promise<ResultSetHeader> {
+    public async l1Review(buyId: number, userName: string): Promise<ResultSetHeader> {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql: string = `UPDATE 
                                 buy 
@@ -333,7 +333,7 @@ export class BuyEntity {
         }
     }
 
-    public async l2Review(buyId: number,userName:string): Promise<ResultSetHeader> {
+    public async l2Review(buyId: number, userName: string): Promise<ResultSetHeader> {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql: string = `UPDATE 
                                 buy 
@@ -401,7 +401,7 @@ export class BuyEntity {
         }
     }
 
-    public async delete_data(buyId: number,userName:string): Promise<ResultSetHeader> {
+    public async delete_data(buyId: number, userName: string): Promise<ResultSetHeader> {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql: string = `UPDATE
                                 buy 
