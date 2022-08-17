@@ -69,7 +69,7 @@ export class ProductEntity {
         }
     }
 
-    public async find(product: SelectProductDto): Promise<IProduct[]> {
+    public async find(findDto: SelectProductDto): Promise<IProduct[]> {
         const conn = await this.mysqldbAls.getConnectionInAls();
         let sql: string = `SELECT
                                 product.productid,
@@ -118,34 +118,34 @@ export class ProductEntity {
                                 product.del_uuid = 0`;
         let param = [];
 
-        if (product.warehouseids.length > 0) {
+        if (findDto.warehouseids.length > 0) {
             sql = sql + ` AND product.warehouseid in (?)`
-            param.push(product.warehouseids);
+            param.push(findDto.warehouseids);
         } else {
             sql = sql + ` AND product.warehouseid in (?)`
             param.push([0]);
         }
 
-        if (product.productareaid && product.productareaid !== 0) {
+        if (findDto.productareaid && findDto.productareaid !== 0) {
             sql = sql + ` AND productareaid IN (?)`;
-            const productArea = await this.productAreaService.findOne(product.productareaid);
+            const productArea = await this.productAreaService.findOne(findDto.productareaid);
             const childIdList = await this.productAreaService.getChildIdList(productArea)
             param.push(childIdList);
         }
 
-        if (product.useflag !== null) {
+        if (findDto.useflag !== null) {
             sql = sql + ` AND product.useflag = ?`;
-            param.push(product.useflag);
+            param.push(findDto.useflag);
         }
 
-        if (product.search) {
-            sql = sql + ` AND (productcode LIKE ? OR productname LIKE ?)`;
-            param.push(`%${product.search}%`, `%${product.search}%`);
+        if (findDto.search) {
+            sql = sql + ` AND (product.productcode LIKE ? OR product.productname LIKE ?)`;
+            param.push(`%${findDto.search}%`, `%${findDto.search}%`);
         }
 
-        if (product.page && product.pagesize) {
+        if (findDto.page && findDto.pagesize) {
             sql = sql + ` LIMIT ?,?`;
-            param.push(product.page, product.pagesize);
+            param.push(findDto.page, findDto.pagesize);
         }
         const [res] = await conn.query(sql, param);
         return (res as IProduct[]);

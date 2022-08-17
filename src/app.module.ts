@@ -57,6 +57,8 @@ import {SaleOrderMxModule} from "./module/saleOrderMx/saleOrderMx.module";
 import {AuthGuard} from "./guard/auth.guard";
 import {JwtModule} from "@nestjs/jwt";
 import {JWT_CONFIG} from "./config/jwt";
+import {ProductOtherUnitModule} from "./module/productOtherUnit/productOtherUnit.module";
+import {ProductOtherUnitMxModule} from "./module/productOtherUnitMx/productOtherUnitMx.module";
 
 @Module({
     imports: [
@@ -144,7 +146,11 @@ import {JWT_CONFIG} from "./config/jwt";
 
         //销售订单
         SaleOrderModule,
-        SaleOrderMxModule
+        SaleOrderMxModule,
+
+        //产品辅助单位
+        ProductOtherUnitModule,
+        ProductOtherUnitMxModule
     ],
     providers: [
         {
