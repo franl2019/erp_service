@@ -1,7 +1,12 @@
-import { IsInt, IsNumber, IsString } from "class-validator";
+import {IsArray, IsInt, IsNumber, IsString} from "class-validator";
 import {IProduct} from "../product";
+import {IProductOtherUnitMx} from "../../productOtherUnitMx/productOtherUnitMx";
 
-export class UpdateProductDto implements IProduct{
+interface IAddProductOtherUnitMxList {
+  productOtherUnitMxList:IProductOtherUnitMx[]
+}
+
+export class UpdateProductDto implements IProduct,IAddProductOtherUnitMxList{
   @IsInt()
   productid: number;
   @IsString()
@@ -69,4 +74,7 @@ export class UpdateProductDto implements IProduct{
   level2date: Date;
   level2name: string;
   level2review: number;
+
+  @IsArray()
+  productOtherUnitMxList: IProductOtherUnitMx[];
 }

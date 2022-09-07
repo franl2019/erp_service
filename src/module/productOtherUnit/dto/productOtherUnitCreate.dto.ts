@@ -2,9 +2,6 @@ import {IProductOtherUnit} from "../productOtherUnit";
 import {IsInt, IsString, NotEquals} from "class-validator";
 
 export class ProductOtherUnitCreateDto implements IProductOtherUnit{
-    //id
-    @IsInt()
-    @NotEquals(0)
     productOtherUnitId: number;
 
     //辅助单位名称

@@ -18,7 +18,7 @@ export class ProductOtherUnitMxService {
         return await this.productOtherUnitMxEntity.create(createDto);
     }
 
-    public async delete_data(productid: number,productOtherUnitId:number){
-        return await this.productOtherUnitMxEntity.delete_data(productid,productOtherUnitId);
+    public async delete_data(productid: number){
+        return await this.productOtherUnitMxEntity.delete_data(productid);
     }
 }

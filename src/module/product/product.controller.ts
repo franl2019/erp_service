@@ -7,6 +7,7 @@ import { UpdateProductDto } from "./dto/updateProduct.dto";
 import { DeleteProductDto } from "./dto/deleteProduct.dto";
 import { L1ReviewProductDto } from "./dto/l1ReviewProduct.dto";
 import { L2ReviewProductDto } from "./dto/l2ReviewProduct.dto";
+import {FindOneProductDto} from "./dto/findOneProduct.dto";
 
 
 
@@ -18,7 +19,7 @@ export class ProductController {
   ) {
   }
 
-  @Post("select")
+  @Post("find")
   public async find(@Body() selectClientDto: SelectProductDto, @ReqState() state: IState) {
     const data = await this.productService.find(selectClientDto,state);
     return {
@@ -28,12 +29,23 @@ export class ProductController {
     };
   }
 
-  @Post("add")
+    @Post("findOne")
+    public async findOne(@Body() findOneProductDto: FindOneProductDto) {
+        const product = await this.productService.findOne(findOneProductDto.productid);
+        return {
+            code: 200,
+            msg: "查询成功",
+            data:[product]
+        };
+    }
+
+  @Post("create")
  public async create(@Body() addDto: AddProductDto, @ReqState() state: IState) {
-    await this.productService.create(addDto,state);
+    const createResult = await this.productService.create(addDto,state);
     return {
       code: 200,
-      msg: "保存成功"
+      msg: "保存成功",
+        createResult
     };
   }
 

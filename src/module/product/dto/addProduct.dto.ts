@@ -1,7 +1,16 @@
-import { IsInt, IsNumber, IsString } from "class-validator";
+import {IsArray, IsInt, IsNumber, IsString} from "class-validator";
 import {IProduct} from "../product";
+import {IProductOtherUnitMx} from "../../productOtherUnitMx/productOtherUnitMx";
 
-export class AddProductDto implements IProduct{
+interface IAddProductOtherUnitMxList {
+  productOtherUnitMxList:IProductOtherUnitMx[]
+}
+
+export class AddProductDto implements IProduct,IAddProductOtherUnitMxList{
+  //辅助单位
+  @IsArray()
+  productOtherUnitMxList: IProductOtherUnitMx[];
+
   productid: number;
 
   @IsString()

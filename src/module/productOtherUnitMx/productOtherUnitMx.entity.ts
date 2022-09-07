@@ -76,13 +76,13 @@ export class ProductOtherUnitMxEntity {
         }
     }
 
-    public async delete_data(productid: number,productOtherUnitId:number){
+    public async delete_data(productid: number){
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `DELETE FROM product_other_unit_mx
                      WHERE product_other_unit_mx.productid = ?
-                     AND product_other_unit_mx.productOtherUnitId = ?`;
+                     `;
 
-        const [res] = await conn.query<ResultSetHeader>(sql,[productid,productOtherUnitId]);
+        const [res] = await conn.query<ResultSetHeader>(sql,[productid]);
 
         if(res.affectedRows > 0){
             return res;

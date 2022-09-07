@@ -1,10 +1,10 @@
 import {IProductOtherUnit} from "../productOtherUnit";
-import {IsInt, IsString, NotEquals} from "class-validator";
+import {IsInt, IsString} from "class-validator";
+import {IProductOtherUnitMx} from "../../productOtherUnitMx/productOtherUnitMx";
 
-export class ProductOtherUnitFindDto implements IProductOtherUnit{
+export class ProductOtherUnitFindDto implements IProductOtherUnit,IProductOtherUnitMx{
     //id
     @IsInt()
-    @NotEquals(0)
     productOtherUnitId: number;
 
     //辅助单位名称
@@ -13,11 +13,9 @@ export class ProductOtherUnitFindDto implements IProductOtherUnit{
 
     //辅助单位转换率
     @IsInt()
-    @NotEquals(0)
     defaultConversionRate: number;
 
-    //使用率
-    @IsInt()
+    //使用
     useflag: number;
 
     //使用日期
@@ -37,4 +35,8 @@ export class ProductOtherUnitFindDto implements IProductOtherUnit{
     del_uuid: number;
     deleter: string;
     deletedAt: Date;
+
+    @IsInt()
+    productid: number;
+    conversionRate: number;
 }
