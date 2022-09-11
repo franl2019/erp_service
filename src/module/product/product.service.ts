@@ -18,7 +18,7 @@ export class ProductService {
         private readonly productAreaService: ProductAreaService,
         private readonly productAutoCodeService: ProductAutoCodeService,
         private readonly productEntity: ProductEntity,
-        private readonly productOtherUnitMxService:ProductOtherUnitMxService
+        private readonly productOtherUnitMxService: ProductOtherUnitMxService
     ) {
     }
 
@@ -27,11 +27,11 @@ export class ProductService {
     }
 
     public async find(product: SelectProductDto, state: IState) {
-        if(product.warehouseids.length === 0)product.warehouseids = state.user.warehouseids;
+        if (product.warehouseids.length === 0) product.warehouseids = state.user.warehouseids;
         return await this.productEntity.find(product);
     }
 
-    public async create(addProductDto: AddProductDto, state: IState):Promise<{id:number,code:string}> {
+    public async create(addProductDto: AddProductDto, state: IState): Promise<{ id: number, code: string }> {
         addProductDto.creater = state.user.username;
         addProductDto.createdAt = new Date();
 
@@ -49,20 +49,24 @@ export class ProductService {
             const result = await this.productEntity.create(addProductDto);
 
             //创建辅助单位明细
-            if(addProductDto.productOtherUnitMxList.length > 0){
+            if (addProductDto.productOtherUnitMxList.length > 0) {
                 const productOtherUnitMxList = addProductDto.productOtherUnitMxList;
                 for (let i = 0; i < productOtherUnitMxList.length; i++) {
                     const productOtherUnitMx = productOtherUnitMxList[i];
-                    productOtherUnitMx.productid = result.insertId;
-                    productOtherUnitMx.creater = state.user.username;
-                    productOtherUnitMx.createdAt = new Date();
-                    await this.productOtherUnitMxService.create(productOtherUnitMx);
+                    if (
+                        productOtherUnitMx.conversionRate !== 0
+                    ) {
+                        productOtherUnitMx.productid = result.insertId;
+                        productOtherUnitMx.creater = state.user.username;
+                        productOtherUnitMx.createdAt = new Date();
+                        await this.productOtherUnitMxService.create(productOtherUnitMx);
+                    }
                 }
             }
 
             return {
-                id:result.insertId,
-                code:addProductDto.productcode
+                id: result.insertId,
+                code: addProductDto.productcode
             }
         })
     }
@@ -82,18 +86,25 @@ export class ProductService {
             await this.productEntity.update(updateProductDto);
 
             //创建辅助单位明细
-            if(updateProductDto.productOtherUnitMxList.length > 0){
-                const productOtherUnitMxList_db =  await this.productOtherUnitMxService.find(updateProductDto.productid)
-                if(productOtherUnitMxList_db.length !== 0){
+            if (updateProductDto.productOtherUnitMxList.length > 0) {
+                const productOtherUnitMxList_db = await this.productOtherUnitMxService.find(updateProductDto.productid);
+
+
+                if (productOtherUnitMxList_db.length !== 0) {
                     await this.productOtherUnitMxService.delete_data(updateProductDto.productid)
                 }
+
                 const productOtherUnitMxList = updateProductDto.productOtherUnitMxList;
                 for (let i = 0; i < productOtherUnitMxList.length; i++) {
                     const productOtherUnitMx = productOtherUnitMxList[i];
-                    productOtherUnitMx.productid = updateProductDto.productid;
-                    productOtherUnitMx.creater = state.user.username;
-                    productOtherUnitMx.createdAt = new Date();
-                    await this.productOtherUnitMxService.create(productOtherUnitMx);
+                    if(
+                        productOtherUnitMx.conversionRate !== 0
+                    ){
+                        productOtherUnitMx.productid = updateProductDto.productid;
+                        productOtherUnitMx.creater = state.user.username;
+                        productOtherUnitMx.createdAt = new Date();
+                        await this.productOtherUnitMxService.create(productOtherUnitMx);
+                    }
                 }
             }
         });
