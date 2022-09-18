@@ -11,6 +11,28 @@ export class SystemConfigHeadEntity {
     ) {
     }
 
+    public async findAll(){
+        const conn = await this.mysqldbAls.getConnectionInAls();
+        const sql = `SELECT
+                        system_config_head.systemConfigHeadId,
+                        system_config_head.systemConfigName,
+                        system_config_head.creater,
+                        system_config_head.createdAt,
+                        system_config_head.updater,
+                        system_config_head.updatedAt,
+                        system_config_head.del_uuid,
+                        system_config_head.deleter,
+                        system_config_head.deletedAt
+                     FROM
+                        system_config_head`;
+        const [res] = await conn.query(sql);
+        if((res as ISystemConfigHead[]).length>0){
+            return res as ISystemConfigHead[]
+        }else{
+            return Promise.reject(new Error('查询全部账套单头失败'))
+        }
+    }
+
     public async findById(systemConfigHeadId:number){
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `SELECT

@@ -11,7 +11,7 @@ export class SystemConfigMxEntity {
     ) {
     }
 
-    public async findOne(systemConfigHeadId: number, systemConfigOptionId: number) {
+    public async findOne(systemConfigHeadId: number, systemConfigOptionId: number, catchErrors: boolean = true) {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `SELECT
                         system_config_mx.systemConfigHeadId,
@@ -31,8 +31,10 @@ export class SystemConfigMxEntity {
         ]);
         if ((res as ISystemConfigMx[]).length > 0) {
             return (res as ISystemConfigMx[])[0]
-        } else {
+        } else if (catchErrors) {
             return Promise.reject(new Error('查找单个账套明细失败'))
+        } else {
+            return null
         }
     }
 
@@ -77,14 +79,14 @@ export class SystemConfigMxEntity {
             )
         ]);
 
-        if(res.affectedRows > 0){
+        if (res.affectedRows > 0) {
             return res
-        }else{
+        } else {
             return Promise.reject(new Error('新增账套明细失败'));
         }
     }
 
-    public async update(systemConfigMx:ISystemConfigMx){
+    public async update(systemConfigMx: ISystemConfigMx) {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `UPDATE
                         system_config_mx
@@ -96,7 +98,7 @@ export class SystemConfigMxEntity {
                         system_config_mx.systemConfigHeadId = ? 
                         AND system_config_mx.systemConfigOptionId = ?
         `;
-        const [res] = await conn.query<ResultSetHeader>(sql,[
+        const [res] = await conn.query<ResultSetHeader>(sql, [
             systemConfigMx.systemConfigOptionMxId,
             systemConfigMx.updater,
             systemConfigMx.updatedAt,
@@ -104,9 +106,9 @@ export class SystemConfigMxEntity {
             systemConfigMx.systemConfigOptionId
         ]);
 
-        if(res.affectedRows > 0){
+        if (res.affectedRows > 0) {
             return res
-        }else{
+        } else {
             return Promise.reject(new Error('更新账套明细失败'))
         }
     }

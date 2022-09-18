@@ -59,6 +59,7 @@ import {JwtModule} from "@nestjs/jwt";
 import {JWT_CONFIG} from "./config/jwt";
 import {ProductOtherUnitModule} from "./module/productOtherUnit/productOtherUnit.module";
 import {ProductOtherUnitMxModule} from "./module/productOtherUnitMx/productOtherUnitMx.module";
+import {SystemConfigModule} from "./module/systemConfig/systemConfig.module";
 
 @Module({
     imports: [
@@ -69,6 +70,7 @@ import {ProductOtherUnitMxModule} from "./module/productOtherUnitMx/productOther
         }),
         UserModule,
         AuthModule,
+        SystemConfigModule,
         UserOperateAreaMxModule,
         UserWarehouseMxModule,
         OperateareaModule,
