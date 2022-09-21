@@ -7,6 +7,9 @@ import {SystemConfigMxCreateDto} from "./systemConfigMx/dto/systemConfigMxCreate
 import {SystemConfigOptionUpdateDto} from "./systemConfigOption/dto/systemConfigOptionUpdate.dto";
 import {SystemConfigHeadCreateDto} from "./systemConfigHead/dto/systemConfigHeadCreate.dto";
 import {SystemConfigHeadUpdateDto} from "./systemConfigHead/dto/systemConfigHeadUpdate.dto";
+import {SystemConfigOptionMxCreateDto} from "./systemConfigOptionMx/dto/systemConfigOptionMxCreate.dto";
+import {SystemConfigOptionMxService} from "./systemConfigOptionMx/systemConfigOptionMx.service";
+import {SystemConfigOptionMxUpdateDto} from "./systemConfigOptionMx/dto/systemConfigOptionMxUpdate.dto";
 
 @Injectable()
 export class SystemConfigService {
@@ -15,10 +18,48 @@ export class SystemConfigService {
         private readonly systemConfigHeadService: SystemConfigHeadService,
         private readonly systemConfigMxService: SystemConfigMxService,
         private readonly systemConfigOptionService: SystemConfigOptionService,
+        private readonly systemConfigOptionMxService:SystemConfigOptionMxService
     ) {
     }
 
+    //创建账套头
+    public async createSystemConfigHead(systemConfigHead:SystemConfigHeadCreateDto){
+        //创建账套单头
+        const createResult = await this.systemConfigHeadService.create(systemConfigHead);
+        systemConfigHead.systemConfigHeadId = createResult.insertId;
 
+        //查找现有账套资料
+        const existingSystemConfigOptionList = await this.systemConfigOptionService.findAll();
+
+        //创建账套配置明细
+        const systemConfigMxCreateDtoList = []
+
+        for (let i = 0; i < existingSystemConfigOptionList.length; i++) {
+            const systemConfigOption = existingSystemConfigOptionList[i]
+            const systemConfigMxCreateDto = new SystemConfigMxCreateDto();
+            systemConfigMxCreateDto.systemConfigHeadId = systemConfigHead.systemConfigHeadId;
+            systemConfigMxCreateDto.systemConfigOptionId = systemConfigOption.systemConfigOptionId;
+            systemConfigMxCreateDto.systemConfigOptionMxId = 1;
+            systemConfigMxCreateDto.updater = systemConfigHead.updater;
+            systemConfigMxCreateDto.updatedAt = systemConfigHead.updatedAt;
+
+            systemConfigMxCreateDtoList.push(systemConfigMxCreateDto);
+        }
+
+        await this.systemConfigMxService.create(systemConfigMxCreateDtoList)
+    }
+
+    //更新账套头
+    public async updateSystemConfigHead(systemConfigHead:SystemConfigHeadUpdateDto){
+        return await this.systemConfigHeadService.update(systemConfigHead);
+    }
+
+    //删除账套头
+    public async deleteSystemConfigHead(systemConfigHeadId: number, userName: string) {
+        return await this.systemConfigHeadService.delete_data(systemConfigHeadId, userName);
+    }
+
+    //创建账套明细配置
     public async createSystemConfigOption(systemConfigOption: SystemConfigOptionCreateDto) {
 
         //创建账套配置选项
@@ -55,42 +96,19 @@ export class SystemConfigService {
         return createResult
     }
 
+    //更新账套明细配置
     public async updateSystemConfigOption(systemConfigOption: SystemConfigOptionUpdateDto) {
         //更新账套配置项
         await this.systemConfigOptionService.update(systemConfigOption);
     }
 
-    public async createSystemConfigHead(systemConfigHead: SystemConfigHeadCreateDto) {
-        //创建账套单头
-        const createResult = await this.systemConfigHeadService.create(systemConfigHead);
-        systemConfigHead.systemConfigHeadId = createResult.insertId;
-
-        //查找现有账套资料
-        const existingSystemConfigOptionList = await this.systemConfigOptionService.findAll();
-
-        //创建账套配置明细
-        const systemConfigMxCreateDtoList = []
-
-        for (let i = 0; i < existingSystemConfigOptionList.length; i++) {
-            const systemConfigOption = existingSystemConfigOptionList[i]
-            const systemConfigMxCreateDto = new SystemConfigMxCreateDto();
-            systemConfigMxCreateDto.systemConfigHeadId = systemConfigHead.systemConfigHeadId;
-            systemConfigMxCreateDto.systemConfigOptionId = systemConfigOption.systemConfigOptionId;
-            systemConfigMxCreateDto.systemConfigOptionMxId = 1;
-            systemConfigMxCreateDto.updater = systemConfigHead.updater;
-            systemConfigMxCreateDto.updatedAt = systemConfigHead.updatedAt;
-
-            systemConfigMxCreateDtoList.push(systemConfigMxCreateDto);
-        }
-
-        await this.systemConfigMxService.create(systemConfigMxCreateDtoList)
+    //创建账套明细配置选项
+    public async createSystemConfigOptionMx(systemConfigOptionMx:SystemConfigOptionMxCreateDto){
+        return await this.systemConfigOptionMxService.create(systemConfigOptionMx);
     }
 
-    public async updateSystemConfigHead(systemConfigHead: SystemConfigHeadUpdateDto) {
-        return await this.systemConfigHeadService.update(systemConfigHead);
-    }
-
-    public async deleteSystemConfigHead(systemConfigHeadId: number, userName: string) {
-        return await this.systemConfigHeadService.delete_data(systemConfigHeadId, userName);
+    //更新账套明细配置选项
+    public async updateSystemConfigOptionMx(systemConfigOptionMx:SystemConfigOptionMxUpdateDto){
+        return await this.systemConfigOptionMxService.update(systemConfigOptionMx);
     }
 }
