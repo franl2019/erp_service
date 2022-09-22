@@ -11,6 +11,10 @@ export class SystemConfigHeadService {
     ) {
     }
 
+    public async findOne(systemConfigHeadId:number){
+        return await this.systemConfigHeadEntity.findById(systemConfigHeadId);
+    }
+
     public async findAll(){
         return await this.systemConfigHeadEntity.findAll();
     }

@@ -60,6 +60,7 @@ import {JWT_CONFIG} from "./config/jwt";
 import {ProductOtherUnitModule} from "./module/productOtherUnit/productOtherUnit.module";
 import {ProductOtherUnitMxModule} from "./module/productOtherUnitMx/productOtherUnitMx.module";
 import {SystemConfigModule} from "./module/systemConfig/systemConfig.module";
+import {UserSystemConfigModule} from "./module/userSystemConfig/userSystemConfig.module";
 
 @Module({
     imports: [
@@ -71,8 +72,11 @@ import {SystemConfigModule} from "./module/systemConfig/systemConfig.module";
         UserModule,
         AuthModule,
         SystemConfigModule,
+
         UserOperateAreaMxModule,
         UserWarehouseMxModule,
+        UserSystemConfigModule,
+
         OperateareaModule,
         BuyAreaModule,
         BuyModule,
