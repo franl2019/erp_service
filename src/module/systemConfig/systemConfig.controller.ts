@@ -52,6 +52,18 @@ export class SystemConfigController {
         }
     }
 
+    @Post('findUserSystemConfigMx')
+    public async findSystemConfigMx(
+        @ReqState() state: IState
+    ) {
+        const userSystemConfigMxList = await this.systemConfigService.getSystemConfigMx(state.user.systemConfigHeadId);
+        return {
+            code: 200,
+            msg: '查询成功',
+            data: userSystemConfigMxList,
+        }
+    }
+
     @Post('updateSystemConfigMx')
     public async updateSystemConfigMx(
         @Body() systemConfigMxUpdateListDto: SystemConfigMxUpdateListDto

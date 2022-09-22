@@ -19,6 +19,6 @@ export class UserService {
   }
 
   public async findOne(usercode: string) {
-      return await this.userSql.findWithUsercode(usercode);
+      return await this.userSql.findWithUserCode(usercode);
   }
 }

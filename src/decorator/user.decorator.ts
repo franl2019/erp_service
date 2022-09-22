@@ -1,8 +1,5 @@
 import {createParamDecorator, ExecutionContext} from '@nestjs/common';
 
-
-
-
 export interface IState {
     token: {
         userid: number;
@@ -10,6 +7,7 @@ export interface IState {
     user: {
         userid: number;
         username: string;
+        systemConfigHeadId:number;
         buy_operateareaids: number[];
         client_operateareaids: number[];
         warehouseids: number[];

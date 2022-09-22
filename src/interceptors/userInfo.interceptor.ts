@@ -7,6 +7,7 @@ import { SelectUserWarehouseMxDto } from "../module/userWarehouseMx/dto/selectUs
 import { UserWarehouseMxService } from "../module/userWarehouseMx/userWarehouseMx.service";
 import {UserAccountAuthFindDto} from "../module/userAccountMx/dto/userAccountAuthFind.dto";
 import {UserAccountMxService} from "../module/userAccountMx/userAccountMx.service";
+import {IState} from "../decorator/user.decorator";
 
 
 @Injectable()
@@ -19,8 +20,8 @@ export class UserInfoInterceptor implements NestInterceptor {
   ) {
   }
 
-  async intercept(context: ExecutionContext, next: CallHandler<any>): Promise<Observable<any>> {
-    const req = context.switchToHttp().getRequest();
+  async intercept(context: ExecutionContext, next: CallHandler<{state:IState}>): Promise<Observable<{state:IState}>> {
+    const req = context.switchToHttp().getRequest<{state:IState}>();
     if (req.state) {
       const userid = req.state.token.userid;
       const user_DB = await this.userService.findById(userid);
@@ -61,6 +62,7 @@ export class UserInfoInterceptor implements NestInterceptor {
         user: {
           userid: user_DB.userid,
           username: user_DB.username,
+          systemConfigHeadId:user_DB.systemConfigHeadId,
           buy_operateareaids: buyOperateArea,
           client_operateareaids: clientOperateArea,
           warehouseids,

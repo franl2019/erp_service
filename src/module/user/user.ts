@@ -16,9 +16,10 @@ interface IUser {
   del_uuid:number;
   deletedAt:Date;
   deleter:string;
+  systemConfigHeadId:number;
 }
 
-export interface IUserNotPassword {
+export interface IUserNotPassword extends Omit<IUser, 'password'>{
   userid: number;
   usercode: string;
   username: string;
@@ -28,6 +29,10 @@ export interface IUserNotPassword {
   createdAt: Date;
   updater: string;
   updatedAt: Date;
+  del_uuid:number;
+  deletedAt:Date;
+  deleter:string;
+  systemConfigHeadId:number;
 }
 
 export class User implements IUser {
@@ -44,6 +49,7 @@ export class User implements IUser {
   del_uuid:number;
   deletedAt:Date;
   deleter:string;
+  systemConfigHeadId:number;
 
   public passwordHash(){
     this.password = hashSync(this.password, genSaltSync(10));
