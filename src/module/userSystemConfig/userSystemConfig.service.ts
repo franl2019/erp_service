@@ -16,7 +16,7 @@ export class UserSystemConfigService implements ISystemConfigHead {
     deleter: string | null;
 
     //<systemConfigOptionId,systemConfigOptionMxId>
-    private systemConfigMxMap: Map<number, number>
+    private systemConfigMxMap: Map<number, number> = new Map();
 
     constructor(
         private readonly systemConfigService: SystemConfigService
@@ -39,7 +39,7 @@ export class UserSystemConfigService implements ISystemConfigHead {
 
     public can(systemConfigOptionId: number, systemConfigOptionMxId: number): boolean {
         const systemConfigOptionMxId_now: number = this.systemConfigMxMap.get(systemConfigOptionId);
-        if (systemConfigOptionMxId === systemConfigOptionMxId_now) return true
+        return systemConfigOptionMxId === systemConfigOptionMxId_now
     }
 
     public editSystemConfig(systemConfigOptionId: number,systemConfigOptionMxId: number) {

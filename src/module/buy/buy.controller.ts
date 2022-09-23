@@ -9,7 +9,6 @@ import {L1reviewBuyDto} from "./dto/l1reviewBuy.dto";
 import {L2reviewDto} from "./dto/l2review.dto";
 import {FindOneBuyDto} from "./dto/findOneBuy.dto";
 
-
 @Controller("erp/buy")
 export class BuyController {
 

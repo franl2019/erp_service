@@ -1,11 +1,12 @@
 import {Module} from "@nestjs/common";
-import {MysqldbModule} from "../mysqldb/mysqldb.module";
 import {AccountsPayableMxController} from "./accountsPayableMx.controller";
 import {AccountsPayableMxService} from "./accountsPayableMx.service";
 import {AccountsPayableMxEntity} from "./accountsPayableMx.entity";
 
 @Module({
-    imports: [MysqldbModule,AccountsPayableMxModule],
+    imports: [
+        AccountsPayableMxModule
+    ],
     controllers: [AccountsPayableMxController],
     providers: [AccountsPayableMxService, AccountsPayableMxEntity],
     exports: [AccountsPayableMxService]

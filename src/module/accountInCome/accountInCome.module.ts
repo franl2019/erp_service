@@ -1,5 +1,4 @@
 import {Module} from "@nestjs/common";
-import {MysqldbModule} from "../mysqldb/mysqldb.module";
 import {AccountInComeController} from "./accountInCome.controller";
 import {AccountInComeEntity} from "./accountInCome.entity";
 import {AccountInComeService} from "./accountInCome.service";
@@ -11,7 +10,6 @@ import {AccountInComeSheetMxModule} from "../accountInComeSheetMx/accountInComeS
 
 @Module({
     imports: [
-        MysqldbModule,
         AutoCodeMxModule,
         AccountRecordModule,
         AccountsReceivableModule,

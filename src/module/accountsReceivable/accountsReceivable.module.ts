@@ -1,5 +1,4 @@
 import {Module} from "@nestjs/common";
-import {MysqldbModule} from "../mysqldb/mysqldb.module";
 import {AccountsReceivableService} from "./accountsReceivable.service";
 import {AccountsReceivableEntity} from "./accountsReceivable.entity";
 import {AccountsReceivableController} from "./accountsReceivable.controller";
@@ -7,7 +6,10 @@ import {AccountsReceivableMxModule} from "../accountsReceivableMx/accountsReceiv
 import {AccountsReceivableSubjectMxModule} from "../accountsReceivableSubjectMx/accountsReceivableSubjectMx.module";
 
 @Module({
-    imports: [MysqldbModule,AccountsReceivableMxModule,AccountsReceivableSubjectMxModule],
+    imports: [
+        AccountsReceivableMxModule,
+        AccountsReceivableSubjectMxModule
+    ],
     providers: [AccountsReceivableService, AccountsReceivableEntity],
     controllers: [AccountsReceivableController],
     exports: [AccountsReceivableService]

@@ -3,13 +3,12 @@ import { ProductController } from './product.controller';
 import { ProductEntity } from "./product.entity";
 import { ProductService } from "./product.service";
 import { ProductAreaModule } from "../productArea/productArea.module";
-import { MysqldbModule } from "../mysqldb/mysqldb.module";
 import {ProductAutoCodeModule} from "../productAutoCode/productAutoCode.module";
 import {ProductOtherUnitMxModule} from "../productOtherUnitMx/productOtherUnitMx.module";
 
 
 @Module({
-  imports:[MysqldbModule,ProductAreaModule,ProductAutoCodeModule,ProductOtherUnitMxModule],
+  imports:[ProductAreaModule,ProductAutoCodeModule,ProductOtherUnitMxModule],
   providers: [ProductService,ProductEntity],
   controllers: [ProductController],
   exports:[ProductService,ProductEntity]

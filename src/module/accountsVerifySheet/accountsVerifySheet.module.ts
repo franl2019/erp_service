@@ -1,5 +1,4 @@
 import {Module} from "@nestjs/common";
-import {MysqldbModule} from "../mysqldb/mysqldb.module";
 import {AccountsVerifySheetController} from "./accountsVerifySheet.controller";
 import {AccountsVerifySheetService} from "./accountsVerifySheet.service";
 import {AccountsVerifySheetEntity} from "./accountsVerifySheet.entity";
@@ -12,7 +11,6 @@ import {AutoCodeMxModule} from "../autoCodeMx/autoCodeMx.module";
 
 @Module({
     imports: [
-        MysqldbModule,
         AccountsVerifySheetMxModule,
         AccountsPayableModule,
         AccountsPayableMxModule,

@@ -1,5 +1,4 @@
-import {Module} from "@nestjs/common";
-import {MysqldbModule} from "../mysqldb/mysqldb.module";
+import {Global, Module} from "@nestjs/common";
 import {SystemConfigHeadService} from "./systemConfigHead/systemConfigHead.service";
 import {SystemConfigHeadEntity} from "./systemConfigHead/systemConfigHead.entity";
 import {SystemConfigMxEntity} from "./systemConfigMx/systemConfigMx.entity";
@@ -10,8 +9,8 @@ import {SystemConfigService} from "./systemConfig.service";
 import {SystemConfigOptionMxService} from "./systemConfigOptionMx/systemConfigOptionMx.service";
 import {SystemConfigOptionMxEntity} from "./systemConfigOptionMx/systemConfigOptionMx.entity";
 
+@Global()
 @Module({
-    imports:[MysqldbModule],
     providers:[
         SystemConfigHeadEntity,
         SystemConfigHeadService,
@@ -27,7 +26,9 @@ import {SystemConfigOptionMxEntity} from "./systemConfigOptionMx/systemConfigOpt
 
         SystemConfigService,
     ],
-    exports:[SystemConfigService]
+    exports:[
+        SystemConfigService
+    ]
 })
 export class SystemConfigModule {
 

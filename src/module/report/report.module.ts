@@ -1,5 +1,4 @@
 import {Module} from "@nestjs/common";
-import {MysqldbModule} from "../mysqldb/mysqldb.module";
 import {CashBankDepositJournalReport} from "./cashBankDepositJournal/cashBankDepositJournal.report";
 import {ReportController} from "./report.controller";
 import {SaleOutboundMxReport} from "./saleOutboundReport/saleOutboundMx.report";
@@ -24,7 +23,9 @@ import {SaleGrossMarginSumReportController} from "./saleGrossMarginSum/saleGross
 import {SaleGrossMarginSumReportService} from "./saleGrossMarginSum/saleGrossMarginSumReport.service";
 
 @Module({
-    imports: [MysqldbModule,WeightedAverageRecordModule],
+    imports: [
+        WeightedAverageRecordModule
+    ],
     controllers: [
         ReportController,
         SaleOutboundReportController,

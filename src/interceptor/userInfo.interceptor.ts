@@ -24,7 +24,7 @@ export class UserInfoInterceptor implements NestInterceptor {
     const req = context.switchToHttp().getRequest<{state:IState}>();
     if (req.state) {
       const userid = req.state.token.userid;
-      const user_DB = await this.userService.findById(userid);
+      const user = await this.userService.findById(userid);
 
       //获取权限
       //操作区域权限
@@ -60,9 +60,9 @@ export class UserInfoInterceptor implements NestInterceptor {
           userid
         },
         user: {
-          userid: user_DB.userid,
-          username: user_DB.username,
-          systemConfigHeadId:user_DB.systemConfigHeadId,
+          userid: user.userid,
+          username: user.username,
+          systemConfigHeadId:user.systemConfigHeadId,
           buy_operateareaids: buyOperateArea,
           client_operateareaids: clientOperateArea,
           warehouseids,

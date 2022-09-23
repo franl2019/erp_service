@@ -2,13 +2,16 @@ import { Module } from "@nestjs/common";
 import { OutboundMxController } from "./outboundMx.controller";
 import { OutboundMxService } from "./outboundMx.service";
 import { OutboundMxEntity } from "./outboundMx.entity";
-import { MysqldbModule } from "../mysqldb/mysqldb.module";
 import {WarehouseModule} from "../warehouse/warehouse.module";
 import {ProductModule} from "../product/product.module";
 import {ClientModule} from "../client/client.module";
 
 @Module({
-  imports:[MysqldbModule,WarehouseModule,ProductModule,ClientModule],
+  imports:[
+    WarehouseModule,
+    ProductModule,
+    ClientModule
+  ],
   controllers: [OutboundMxController],
   providers: [OutboundMxService, OutboundMxEntity],
   exports:[OutboundMxService]

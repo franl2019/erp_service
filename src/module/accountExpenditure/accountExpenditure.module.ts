@@ -1,5 +1,4 @@
 import {Module} from "@nestjs/common";
-import {MysqldbModule} from "../mysqldb/mysqldb.module";
 import {AccountExpenditureEntity} from "./accountExpenditure.entity";
 import {AccountExpenditureService} from "./accountExpenditure.service";
 import {AccountExpenditureController} from "./accountExpenditure.controller";
@@ -10,7 +9,13 @@ import {AccountExpenditureSheetMxModule} from "../accountExpenditureSheetMx/acco
 import {AccountsPayableModule} from "../accountsPayable/accountsPayable.module";
 
 @Module({
-    imports:[MysqldbModule,AutoCodeMxModule,AccountRecordModule,AccountExpenditureAmountMxModule,AccountExpenditureSheetMxModule,AccountsPayableModule],
+    imports:[
+        AutoCodeMxModule,
+        AccountRecordModule,
+        AccountExpenditureAmountMxModule,
+        AccountExpenditureSheetMxModule,
+        AccountsPayableModule
+    ],
     controllers:[AccountExpenditureController],
     providers:[AccountExpenditureEntity,AccountExpenditureService],
     exports:[AccountExpenditureService]

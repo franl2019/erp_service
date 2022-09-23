@@ -5,7 +5,7 @@ import {LoggerMiddleware} from './middleware/logger.middleware';
 import {UserOperateAreaMxModule} from './module/userOperateAreaMx/userOperateAreaMx.module';
 import {OperateareaModule} from './module/operateArea/operatearea.module';
 import {APP_GUARD, APP_INTERCEPTOR} from '@nestjs/core';
-import {UserInfoInterceptor} from './interceptors/userInfo.interceptor';
+import {UserInfoInterceptor} from './interceptor/userInfo.interceptor';
 import {BuyAreaModule} from './module/buyArea/buyArea.module';
 import {BuyModule} from './module/buy/buy.module';
 import {CurrencyModule} from './module/currency/currency.module';
