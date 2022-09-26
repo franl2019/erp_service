@@ -17,17 +17,18 @@ export class AuthGuard implements CanActivate {
       "/auth/login",//登录
     ];
     const token = request.headers.token;
+    request.state = {
+      token: {
+        userid: 0
+      }
+    };
     if (noVerifyURL.indexOf(url) !== -1) {
       return true;
     } else {
       try {
         const decoded = this.jwtService.verify(token)
         const userid = JSON.parse(JSON.stringify(decoded)).userid;
-        request.state = {
-          token: {
-            userid: userid
-          }
-        };
+        request.state.token.userid = userid
         return true;
       } catch (e) {
         return Promise.reject(new Error("TOKEN信息错误"))

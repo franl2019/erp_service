@@ -71,8 +71,17 @@ export class SystemConfigService {
         return await this.systemConfigHeadService.delete_data(systemConfigHeadId, userName);
     }
 
-    public async getSystemConfigMx(systemConfigHeadId:number){
+    public async findAllSystemConfigMx(systemConfigHeadId:number){
         return await this.systemConfigMxService.findAll(systemConfigHeadId);
+    }
+
+    public async findOneSystemConfigMx(systemConfigHeadId: number, systemConfigOptionId: number){
+        return await this.systemConfigMxService.findOne(systemConfigHeadId,systemConfigOptionId)
+    }
+
+    public async can(systemConfigHeadId: number, systemConfigOptionId: number,systemConfigOptionMxId: number){
+        const systemConfigMx = await this.findOneSystemConfigMx(systemConfigHeadId,systemConfigOptionId);
+        return systemConfigMx.systemConfigOptionMxId === systemConfigOptionMxId
     }
 
     //更新账套明细

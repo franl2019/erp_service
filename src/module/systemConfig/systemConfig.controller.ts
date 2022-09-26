@@ -56,7 +56,7 @@ export class SystemConfigController {
     public async findSystemConfigMx(
         @ReqState() state: IState
     ) {
-        const userSystemConfigMxList = await this.systemConfigService.getSystemConfigMx(state.user.systemConfigHeadId);
+        const userSystemConfigMxList = await this.systemConfigService.findAllSystemConfigMx(state.user.systemConfigHeadId);
         return {
             code: 200,
             msg: '查询成功',

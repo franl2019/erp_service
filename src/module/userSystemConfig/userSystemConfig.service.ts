@@ -30,7 +30,7 @@ export class UserSystemConfigService implements ISystemConfigHead {
     public async getSystemConfigMxList(systemConfigHeadId: number) {
         const systemConfigHead = await this.systemConfigService.getSystemConfigHead(systemConfigHeadId);
         this.setHead(systemConfigHead);
-        const systemConfigMxList = await this.systemConfigService.getSystemConfigMx(systemConfigHeadId);
+        const systemConfigMxList = await this.systemConfigService.findAllSystemConfigMx(systemConfigHeadId);
         for (let i = 0; i < systemConfigMxList.length; i++) {
             const systemConfigMx = systemConfigMxList[i];
             this.setSystemConfigMx(systemConfigMx.systemConfigOptionId, systemConfigMx.systemConfigOptionMxId)

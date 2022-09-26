@@ -7,7 +7,6 @@ import {MysqldbAls} from "../mysqldb/mysqldbAls";
 import {BuyAreaService} from "../buyArea/buyArea.service";
 import {BuyAutoCodeService} from "../buyAutoCode/buyAutoCode.service";
 import {IState} from "../../decorator/user.decorator";
-import {SystemConfigService} from "../systemConfig/systemConfig.service";
 
 
 @Injectable()
@@ -17,8 +16,7 @@ export class BuyService {
         private readonly mysqldbAls: MysqldbAls,
         private readonly buyEntity: BuyEntity,
         private readonly buyAreaService: BuyAreaService,
-        private readonly buyAutoCodeService: BuyAutoCodeService,
-        private readonly systemConfigService:SystemConfigService
+        private readonly buyAutoCodeService: BuyAutoCodeService
     ) {
     }
 

@@ -4,8 +4,7 @@ import {AuthModule} from './module/auth/auth.module';
 import {LoggerMiddleware} from './middleware/logger.middleware';
 import {UserOperateAreaMxModule} from './module/userOperateAreaMx/userOperateAreaMx.module';
 import {OperateareaModule} from './module/operateArea/operatearea.module';
-import {APP_GUARD, APP_INTERCEPTOR} from '@nestjs/core';
-import {UserInfoInterceptor} from './interceptor/userInfo.interceptor';
+import {APP_GUARD} from '@nestjs/core';
 import {BuyAreaModule} from './module/buyArea/buyArea.module';
 import {BuyModule} from './module/buy/buy.module';
 import {CurrencyModule} from './module/currency/currency.module';
@@ -61,6 +60,7 @@ import {ProductOtherUnitModule} from "./module/productOtherUnit/productOtherUnit
 import {ProductOtherUnitMxModule} from "./module/productOtherUnitMx/productOtherUnitMx.module";
 import {SystemConfigModule} from "./module/systemConfig/systemConfig.module";
 import {UserSystemConfigModule} from "./module/userSystemConfig/userSystemConfig.module";
+import {UserInfoGuard} from "./guard/userInfo.guard";
 
 @Module({
     imports: [
@@ -164,10 +164,9 @@ import {UserSystemConfigModule} from "./module/userSystemConfig/userSystemConfig
             useClass:AuthGuard
         },
         {
-            provide: APP_INTERCEPTOR,
-            scope: Scope.DEFAULT,
-            useClass: UserInfoInterceptor,
-        },
+            provide: APP_GUARD,
+            useClass:UserInfoGuard
+        }
     ],
     controllers: [],
 })
