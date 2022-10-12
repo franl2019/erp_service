@@ -7,6 +7,7 @@ import {IState} from "../decorator/user.decorator";
 import {SelectUserOperateAreaMxDto} from "../module/userOperateAreaMx/dto/selectUserOperateAreaMx.dto";
 import {SelectUserWarehouseMxDto} from "../module/userWarehouseMx/dto/selectUserWarehouseMx.dto";
 import {UserAccountAuthFindDto} from "../module/userAccountMx/dto/userAccountAuthFind.dto";
+import {UserRoleMxService} from "../module/userRoleMx/userRoleMx.service";
 
 @Injectable()
 export class UserInfoGuard implements CanActivate {
@@ -15,7 +16,8 @@ export class UserInfoGuard implements CanActivate {
         private readonly userService: UserService,
         private readonly userOperateAreaMxService: UserOperateAreaMxService,
         private readonly userWarehouseMxService: UserWarehouseMxService,
-        private readonly userAccountMxService: UserAccountMxService
+        private readonly userAccountMxService: UserAccountMxService,
+        private readonly userRoleMxService:UserRoleMxService
     ) {
     }
 
@@ -59,12 +61,17 @@ export class UserInfoGuard implements CanActivate {
                 accountIds = userAccountAuthList.map(userAccountAuth => userAccountAuth.accountId)
             }
 
+            const userRoleMxList = await this.userRoleMxService.findAll(userid);
+            const roleIds = userRoleMxList.map(userRoleMx=>{
+                return userRoleMx.roleId
+            })
 
             request.state = {
                 token: {
                     userid
                 },
                 user: {
+                    roleIds:roleIds,
                     userid: user.userid,
                     username: user.username,
                     systemConfigHeadId: user.systemConfigHeadId,

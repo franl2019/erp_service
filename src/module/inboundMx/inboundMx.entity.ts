@@ -15,7 +15,7 @@ export class InboundMxEntity {
     const conn = await this.mysqldbAls.getConnectionInAls();
     const sql = `SELECT 
  	              inbound_mx.inboundid, 
-                  inbound_mx.printid, 
+                  inbound_mx.printid,
                   inbound_mx.clientid, 
                   inbound_mx.productid, 
                   inbound_mx.spec_d, 
@@ -49,9 +49,10 @@ export class InboundMxEntity {
                  WHERE 
                   inbound_mx.inboundid = ?
                  GROUP BY
-	              inbound_mx.inboundid ASC,
-	              inbound_mx.printid ASC
-	              `;
+                  inbound_mx.inboundid,
+	              inbound_mx.printid
+                 ORDER BY
+	              inbound_mx.printid ASC`;
     const [res] = await conn.query(sql, [inboundid]);
     if ((res as IFindInboundMx[]).length > 0) {
       return (res as IFindInboundMx[]);

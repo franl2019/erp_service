@@ -7,5 +7,5 @@ export class RolePermissionsMxDeleteDto implements IRolePermissionsMx{
     @IsInt()
     permissionsId:number;
     updater:string;
-    updatedAt:string;
+    updatedAt:Date;
 }

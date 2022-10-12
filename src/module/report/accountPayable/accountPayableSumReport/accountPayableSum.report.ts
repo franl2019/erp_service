@@ -62,7 +62,7 @@ export class AccountPayableSumReport {
                             1 = 1
                             ${findDto.buyid?` AND buy.buyid = ${conn.escape(findDto.buyid)}`:''}
         `;
-        console.log(sql)
+
         const [res] = await conn.query(sql);
         return res as IAccountPayableSumReport[]
     }

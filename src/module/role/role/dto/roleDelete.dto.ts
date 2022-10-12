@@ -1,5 +1,5 @@
 import {IRole} from "../role";
-import {IsInt, IsString} from "class-validator";
+import {IsInt} from "class-validator";
 
 export class RoleDeleteDto implements IRole{
     @IsInt()

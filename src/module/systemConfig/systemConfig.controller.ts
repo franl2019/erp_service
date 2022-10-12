@@ -9,6 +9,7 @@ import {SystemConfigOptionCreateDto} from "./systemConfigOption/dto/systemConfig
 import {SystemConfigOptionUpdateDto} from "./systemConfigOption/dto/systemConfigOptionUpdate.dto";
 import {SystemConfigOptionMxCreateDto} from "./systemConfigOptionMx/dto/systemConfigOptionMxCreate.dto";
 import {SystemConfigOptionMxUpdateDto} from "./systemConfigOptionMx/dto/systemConfigOptionMxUpdate.dto";
+import {SystemConfigOptionDeleteDto} from "./systemConfigOption/dto/systemConfigOptionDelete.dto";
 
 @Controller('erp/systemConfig')
 export class SystemConfigController {
@@ -20,23 +21,19 @@ export class SystemConfigController {
 
     @Post('createSystemConfig')
     public async createSystemConfig(@Body() systemConfigHead: SystemConfigHeadCreateDto, @ReqState() state: IState) {
-        systemConfigHead.creater = state.user.username;
-        systemConfigHead.createdAt = new Date();
-        await this.systemConfigService.createSystemConfig(systemConfigHead);
+        await this.systemConfigService.createSystemConfig(systemConfigHead,state.user.username);
         return {
             code: 200,
             msg: '保存成功,创建账套'
         }
     }
 
-    @Post('updateSystemConfigHead')
+    @Post('updateSystemConfig')
     public async updateSystemConfigHead(@Body() systemConfigHead: SystemConfigHeadUpdateDto, @ReqState() state: IState) {
-        systemConfigHead.updater = state.user.username;
-        systemConfigHead.updatedAt = new Date();
-        await this.systemConfigService.updateSystemConfigHead(systemConfigHead);
+        await this.systemConfigService.updateSystemConfigHead(systemConfigHead,state.user.username);
         return {
             code: 200,
-            msg: '保存成功,更新账套头'
+            msg: '保存成功,更新账套'
         }
     }
 
@@ -48,12 +45,12 @@ export class SystemConfigController {
         await this.systemConfigService.deleteSystemConfigHead(systemConfigHeadDeleteDto.systemConfigHeadId, state.user.username);
         return {
             code: 200,
-            msg: '删除成功,账套头'
+            msg: '删除成功,删除账套'
         }
     }
 
     @Post('findUserSystemConfigMx')
-    public async findSystemConfigMx(
+    public async findUserSystemConfigMx(
         @ReqState() state: IState
     ) {
         const userSystemConfigMxList = await this.systemConfigService.findAllSystemConfigMx(state.user.systemConfigHeadId);
@@ -66,9 +63,10 @@ export class SystemConfigController {
 
     @Post('updateSystemConfigMx')
     public async updateSystemConfigMx(
-        @Body() systemConfigMxUpdateListDto: SystemConfigMxUpdateListDto
+        @Body() systemConfigMxUpdateListDto: SystemConfigMxUpdateListDto,
+        @ReqState() state: IState
     ) {
-        await this.systemConfigService.updateSystemConfigMx(systemConfigMxUpdateListDto.systemConfigMxUpdateList);
+        await this.systemConfigService.updateSystemConfigMx(systemConfigMxUpdateListDto.systemConfigMxUpdateList, state.user.username);
         return {
             code: 200,
             msg: '更新成功,更新账套系统配置明细'
@@ -85,7 +83,7 @@ export class SystemConfigController {
         await this.systemConfigService.createSystemConfigOption(systemConfigOption)
         return {
             code: 200,
-            msg: '保存成功,创建账套系统配置项'
+            msg: '保存成功,创建账套资料'
         }
     }
 
@@ -94,12 +92,22 @@ export class SystemConfigController {
         @Body() systemConfigOption: SystemConfigOptionUpdateDto,
         @ReqState() state: IState
     ) {
-        systemConfigOption.updater = state.user.username;
-        systemConfigOption.updatedAt = new Date();
-        await this.systemConfigService.updateSystemConfigOption(systemConfigOption);
+        await this.systemConfigService.updateSystemConfigOption(systemConfigOption,state.user.username);
         return {
             code: 200,
-            msg: '更新成功,更新账套系统配置项'
+            msg: '更新成功,更新账套资料'
+        }
+    }
+
+    @Post('')
+    public async deleteSystemConfigOption(
+        @Body() systemConfigOptionDeleteDto: SystemConfigOptionDeleteDto,
+        @ReqState() state: IState
+    ) {
+        await this.systemConfigService.deleteSystemConfigOption(systemConfigOptionDeleteDto, state.user.username);
+        return {
+            code: 200,
+            msg: '删除成功,删除账套资料'
         }
     }
 
@@ -110,7 +118,7 @@ export class SystemConfigController {
         await this.systemConfigService.createSystemConfigOptionMx(systemConfigOptionMx);
         return {
             code: 200,
-            msg: '保存成功,创建账套系统配置项选择'
+            msg: '保存成功,创建账套资料选项'
         }
     }
 
@@ -121,7 +129,7 @@ export class SystemConfigController {
         await this.systemConfigService.updateSystemConfigOptionMx(systemConfigOptionMx);
         return {
             code: 200,
-            msg: '更新成功,更新账套系统配置项选择'
+            msg: '更新成功,更新账套资料选项'
         }
     }
 }

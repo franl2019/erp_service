@@ -58,7 +58,7 @@ export class SystemConfigHeadEntity {
         }
     }
 
-    public async create(systemConfigHead:ISystemConfigHead){
+    public async create(systemConfigHead:ISystemConfigHead,username:string){
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `INSERT INTO system_config_head (
                         system_config_head.systemConfigName,
@@ -67,8 +67,8 @@ export class SystemConfigHeadEntity {
                       ) VALUES ?`;
         const [res] = await conn.query<ResultSetHeader>(sql,[[[
             systemConfigHead.systemConfigName,
-            systemConfigHead.creater,
-            systemConfigHead.createdAt
+            username,
+            new Date(),
         ]]]);
         if(res.affectedRows>0){
             return res
@@ -77,7 +77,7 @@ export class SystemConfigHeadEntity {
         }
     }
 
-    public async update(systemConfigHead:ISystemConfigHead){
+    public async update(systemConfigHead:ISystemConfigHead,username:string){
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `UPDATE 
                         system_config_head 
@@ -91,8 +91,8 @@ export class SystemConfigHeadEntity {
                      `;
         const [res] = await conn.query<ResultSetHeader>(sql,[
             systemConfigHead.systemConfigName,
-            systemConfigHead.updater,
-            systemConfigHead.updatedAt,
+            username,
+            new Date(),
             systemConfigHead.systemConfigHeadId
         ]);
         if(res.affectedRows>0){

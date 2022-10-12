@@ -1,4 +1,4 @@
-import {MiddlewareConsumer, Module, NestModule, Scope} from '@nestjs/common';
+import {MiddlewareConsumer, Module, NestModule} from '@nestjs/common';
 import {UserModule} from './module/user/user.module';
 import {AuthModule} from './module/auth/auth.module';
 import {LoggerMiddleware} from './middleware/logger.middleware';
@@ -61,6 +61,9 @@ import {ProductOtherUnitMxModule} from "./module/productOtherUnitMx/productOther
 import {SystemConfigModule} from "./module/systemConfig/systemConfig.module";
 import {UserSystemConfigModule} from "./module/userSystemConfig/userSystemConfig.module";
 import {UserInfoGuard} from "./guard/userInfo.guard";
+import {PermissionModule} from "./module/permission/permission.module";
+import {UserRoleMxModule} from "./module/userRoleMx/userRoleMx.module";
+import {RoleModule} from "./module/role/role.module";
 
 @Module({
     imports: [
@@ -71,11 +74,15 @@ import {UserInfoGuard} from "./guard/userInfo.guard";
         }),
         UserModule,
         AuthModule,
+        //角色
+        RoleModule,
+        //账套
         SystemConfigModule,
-
+        PermissionModule,
         UserOperateAreaMxModule,
         UserWarehouseMxModule,
         UserSystemConfigModule,
+        UserRoleMxModule,
 
         OperateareaModule,
         BuyAreaModule,

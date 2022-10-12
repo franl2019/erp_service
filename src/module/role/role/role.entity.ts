@@ -1,5 +1,5 @@
 import {Injectable} from "@nestjs/common";
-import {MysqldbAls} from "../mysqldb/mysqldbAls";
+import {MysqldbAls} from "../../mysqldb/mysqldbAls";
 import {IRole} from "./role";
 import {ResultSetHeader} from "mysql2/promise";
 
@@ -61,6 +61,7 @@ export class RoleEntity {
                          role.deletedAt
                      FROM
                          role
+                        
                      WHERE
                          role.roleId = ?   
                          `;

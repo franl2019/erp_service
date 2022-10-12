@@ -176,7 +176,7 @@ export class ClientEntity {
         }
 
         if (client.clientareaid) {
-            sql = sql + ` AND clientareaid = ?`;
+            sql = sql + ` AND client.clientareaid = ?`;
             param.push(client.clientareaid);
         }
 
@@ -194,6 +194,8 @@ export class ClientEntity {
             sql = sql + ` LIMIT ?,?`;
             param.push(client.page, client.pagesize);
         }
+
+
         const [res] = await conn.query(sql, param);
         return (res as IClient[]);
     }

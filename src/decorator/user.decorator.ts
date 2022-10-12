@@ -7,6 +7,7 @@ export interface IState {
     user: {
         userid: number;
         username: string;
+        roleIds:number[];
         systemConfigHeadId:number;
         buy_operateareaids: number[];
         client_operateareaids: number[];

@@ -58,7 +58,9 @@ export class OutboundMxEntity {
                 WHERE
                    outbound_mx.outboundid = ?
                 GROUP BY
-                   outbound_mx.outboundid ASC, 
+                   outbound_mx.outboundid, 
+                   outbound_mx.printid
+                ORDER BY
                    outbound_mx.printid ASC`;
     const [rows] = await conn.query(sql, [outboundid]);
     if ((rows as IFindOutboundMx[]).length > 0) {

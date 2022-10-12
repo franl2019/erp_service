@@ -56,7 +56,7 @@ export class SystemConfigOptionEntity {
         }
     }
 
-    public async update(systemConfigOption: ISystemConfigOption) {
+    public async update(systemConfigOption: ISystemConfigOption,username:string) {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `UPDATE
                         system_config_option
@@ -66,13 +66,14 @@ export class SystemConfigOptionEntity {
                         system_config_option.updater = ?,
                         system_config_option.updatedAt = ?
                      WHERE
-                        system_config_option.systemConfigOptionId = ?`;
+                        system_config_option.del_uuid = 0
+                        AND system_config_option.systemConfigOptionId = ?`;
 
         const [res] = await conn.query<ResultSetHeader>(sql, [
             systemConfigOption.systemConfigOptionName,
             systemConfigOption.reMark,
-            systemConfigOption.updater,
-            systemConfigOption.updatedAt,
+            username,
+            new Date(),
             systemConfigOption.systemConfigOptionId
         ]);
 
@@ -80,6 +81,32 @@ export class SystemConfigOptionEntity {
             return res
         } else {
             return Promise.reject(new Error('更新账套资料失败'))
+        }
+    }
+
+    public async delete_data(systemConfigOption: ISystemConfigOption,username:string) {
+        const conn = await this.mysqldbAls.getConnectionInAls();
+        const sql = `UPDATE
+                        system_config_option
+                     SET
+                        system_config_option.del_uuid = ?,
+                        system_config_option.deleter = ?,
+                        system_config_option.deletedAt = ?
+                     WHERE
+                        system_config_option.del_uuid = 0
+                        AND system_config_option.systemConfigOptionId = ?`;
+
+        const [res] = await conn.query<ResultSetHeader>(sql, [
+            systemConfigOption.systemConfigOptionId,
+            username,
+            new Date(),
+            systemConfigOption.systemConfigOptionId
+        ]);
+
+        if (res.affectedRows > 0) {
+            return res
+        } else {
+            return Promise.reject(new Error('删除账套资料失败'))
         }
     }
 }

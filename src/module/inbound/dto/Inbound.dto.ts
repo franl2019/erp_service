@@ -1,4 +1,4 @@
-import { IsArray, IsInt, IsString } from "class-validator";
+import {IsArray, IsDate, IsInt, IsString} from "class-validator";
 import { InboundMxDto } from "../../inboundMx/dto/inboundMx.dto";
 import { IInbound } from "../inbound";
 
@@ -13,7 +13,7 @@ export class InboundDto implements IInboundDto{
   inboundcode: string;
   @IsInt()
   inboundtype: number;
-  @IsString()
+  @IsDate()
   indate: Date;
   @IsString()
   moneytype: string;

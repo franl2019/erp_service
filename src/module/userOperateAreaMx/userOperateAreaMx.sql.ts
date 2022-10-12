@@ -17,8 +17,9 @@ export class UserOperateAreaMxSql {
     const conn = await this.mysqldbAls.getConnectionInAls();
     const sql: string = `SELECT 
                             operatearea.operateareaid 
-                         FROM user_operateareamx
-                            INNER JOIN operatearea ON user_operateareamx.operateareaid = operatearea.operateareaid
+                         FROM 
+                            user_operateareamx
+                            LEFT JOIN operatearea ON user_operateareamx.operateareaid = operatearea.operateareaid
                          WHERE 
                             user_operateareamx.userid = ? 
                             AND operatearea.operateareatype = ?`;

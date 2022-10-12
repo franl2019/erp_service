@@ -19,12 +19,12 @@ export class SystemConfigHeadService {
         return await this.systemConfigHeadEntity.findAll();
     }
 
-    public async create(systemConfigHeadCreateDto:SystemConfigHeadCreateDto){
-        return await this.systemConfigHeadEntity.create(systemConfigHeadCreateDto)
+    public async create(systemConfigHeadCreateDto:SystemConfigHeadCreateDto,username:string){
+        return await this.systemConfigHeadEntity.create(systemConfigHeadCreateDto,username);
     }
 
-    public async update(systemConfigHeadUpdateDto:SystemConfigHeadUpdateDto){
-        return await this.systemConfigHeadEntity.update(systemConfigHeadUpdateDto)
+    public async update(systemConfigHeadUpdateDto:SystemConfigHeadUpdateDto,username:string){
+        return await this.systemConfigHeadEntity.update(systemConfigHeadUpdateDto,username)
     }
 
     public async delete_data(systemConfigHeadId:number,userName:string){

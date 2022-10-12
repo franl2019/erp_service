@@ -1,7 +1,22 @@
 import {Injectable} from "@nestjs/common";
-import {MysqldbAls} from "../mysqldb/mysqldbAls";
+import {MysqldbAls} from "../../mysqldb/mysqldbAls";
 import {IRolePermissionsMx} from "./rolePermissionsMx";
 import {ResultSetHeader} from "mysql2/promise";
+import {IPermissions} from "../../permission/permissions/permissions";
+
+export abstract class IRolePermissionMxAndPermissions implements IRolePermissionsMx,IPermissions{
+    createdAt: Date;
+    creater: string;
+    del_uuid: number;
+    deletedAt: Date;
+    deleter: string;
+    permissionsId: number;
+    permissionsName: string;
+    permissionsThemeId: number;
+    roleId: number;
+    updatedAt: string & Date;
+    updater: string;
+}
 
 @Injectable()
 export class RolePermissionsMxEntity {
@@ -17,13 +32,17 @@ export class RolePermissionsMxEntity {
                         role_permissions_mx.roleId,
                         role_permissions_mx.permissionsId,
                         role_permissions_mx.updater,
-                        role_permissions_mx.updatedAt
+                        role_permissions_mx.updatedAt,
+                        permissions.permissionsId,
+                        permissions.permissionsName,
+                        permissions.permissionsThemeId
                      FROM
                         role_permissions_mx
+                        INNER JOIN permissions ON permissions.permissionsId = role_permissions_mx.permissionsId
                      WHERE
                         role_permissions_mx.roleId = ?`;
         const [res] = await conn.query(sql, [roleId]);
-        return (res as IRolePermissionsMx[])
+        return (res as IRolePermissionMxAndPermissions[])
     }
 
     public async findOne(roleId: number, permissionsId: number) {
