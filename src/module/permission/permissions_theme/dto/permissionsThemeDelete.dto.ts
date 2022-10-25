@@ -5,6 +5,7 @@ export class PermissionsThemeDeleteDto implements IPermissionsTheme{
     @IsInt()
     @NotEquals(0)
     permissionsThemeId: number;
+
     permissionsThemeName: string;
     printid: number;
     creater: string;

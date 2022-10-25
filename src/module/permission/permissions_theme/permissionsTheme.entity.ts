@@ -27,6 +27,8 @@ export class PermissionsThemeEntity {
                         permissions_theme.deletedAt
                     FROM
                         permissions_theme
+                    WHERE
+                        permissions_theme.del_uuid = 0
         `;
         const [res] = await conn.query(sql);
         return res as IPermissionsTheme[];
@@ -95,6 +97,7 @@ export class PermissionsThemeEntity {
                         permissions_theme
                     SET
                         permissions_theme.permissionsThemeName = ?,
+                        permissions_theme.printid = ?,
                         permissions_theme.updater = ?,
                         permissions_theme.updatedAt = ?
                     WHERE
@@ -103,6 +106,7 @@ export class PermissionsThemeEntity {
 
         const [res] = await conn.query<ResultSetHeader>(sql,[
             permissionsTheme.permissionsThemeName,
+            permissionsTheme.printid,
             permissionsTheme.updater,
             permissionsTheme.updatedAt,
             permissionsTheme.permissionsThemeId

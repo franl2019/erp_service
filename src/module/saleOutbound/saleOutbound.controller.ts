@@ -2,10 +2,11 @@ import {Body, Controller, Post} from "@nestjs/common";
 import {SaleOutboundService} from "./saleOutbound.service";
 import {ReqState, IState} from "../../decorator/user.decorator";
 import {FindOutboundDto} from "../outbound/dto/find.dto";
-import {OutboundDto} from "../outbound/dto/outbound.dto";
 import {DeleteOutboundDto} from "../outbound/dto/deleteOutbound.dto";
 import {Level1ReviewSaleOutboundDto} from "./dto/level1ReviewSaleOutbound.dto";
 import {Level2ReviewSaleOutboundDto} from "./dto/level2ReviewSaleOutbound.dto";
+import {SaleOutboundCreateDto} from "./dto/saleOutboundCreate.dto";
+import {SaleOutboundUpdateDto} from "./dto/saleOutboundUpdate.dto";
 
 @Controller('erp/saleOutbound')
 export class SaleOutboundController {
@@ -14,7 +15,7 @@ export class SaleOutboundController {
     }
 
     @Post("find")
-    public async select(@Body() findOutbound: FindOutboundDto, @ReqState() state: IState) {
+    public async find(@Body() findOutbound: FindOutboundDto, @ReqState() state: IState) {
         if (findOutbound.warehouseids.length === 0) {
             findOutbound.warehouseids = state.user.warehouseids;
         }
@@ -48,8 +49,10 @@ export class SaleOutboundController {
     }
 
     @Post("create")
-    public async create(@Body() outboundDto: OutboundDto, @ReqState() state: IState) {
-        const createResult = await this.saleOutboundService.create(outboundDto, state.user.username);
+    public async create(@Body() saleOutboundCreateDto: SaleOutboundCreateDto, @ReqState() state: IState) {
+        saleOutboundCreateDto.creater = state.user.username;
+        saleOutboundCreateDto.createdAt = new Date();
+        const createResult = await this.saleOutboundService.create(saleOutboundCreateDto);
         return {
             code: 200,
             msg: "保存成功",
@@ -58,8 +61,10 @@ export class SaleOutboundController {
     }
 
     @Post("create_l1Review")
-    public async create_l1Review(@Body() outboundDto: OutboundDto, @ReqState() state: IState) {
-        const createResult = await this.saleOutboundService.create_l1Review(outboundDto, state.user.username);
+    public async create_l1Review(@Body() saleOutboundCreateDto: SaleOutboundCreateDto, @ReqState() state: IState) {
+        saleOutboundCreateDto.creater = state.user.username;
+        saleOutboundCreateDto.createdAt = new Date();
+        const createResult = await this.saleOutboundService.create_l1Review(saleOutboundCreateDto, state.user.username);
         return {
             code: 200,
             msg: "保存成功",
@@ -68,8 +73,10 @@ export class SaleOutboundController {
     }
 
     @Post("update")
-    public async update(@Body() outboundDto: OutboundDto, @ReqState() state: IState) {
-        await this.saleOutboundService.update(outboundDto, state);
+    public async update(@Body() saleOutboundUpdateDto: SaleOutboundUpdateDto, @ReqState() state: IState) {
+        saleOutboundUpdateDto.updater = state.user.username;
+        saleOutboundUpdateDto.updatedAt = new Date();
+        await this.saleOutboundService.update(saleOutboundUpdateDto, state);
         return {
             code: 200,
             msg: "更新成功"
@@ -77,8 +84,10 @@ export class SaleOutboundController {
     }
 
     @Post("updateAndL1Review")
-    public async updateAndL1Review(@Body() outboundDto: OutboundDto, @ReqState() state: IState) {
-        await this.saleOutboundService.updateAndL1Review(outboundDto, state);
+    public async updateAndL1Review(@Body() saleOutboundUpdateDto: SaleOutboundUpdateDto, @ReqState() state: IState) {
+        saleOutboundUpdateDto.updater = state.user.username;
+        saleOutboundUpdateDto.updatedAt = new Date();
+        await this.saleOutboundService.updateAndL1Review(saleOutboundUpdateDto, state);
         return {
             code: 200,
             msg: "更新加审核成功"

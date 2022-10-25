@@ -1,19 +1,8 @@
-import {IPermissionsTheme} from "../permissionsTheme";
-import {IsInt, IsString, NotEquals} from "class-validator";
+import {IsInt, NotEquals} from "class-validator";
+import {PermissionsThemeCreateDto} from "./permissionsThemeCreate.dto";
 
-export class PermissionsThemeUpdateDto implements IPermissionsTheme{
+export class PermissionsThemeUpdateDto extends PermissionsThemeCreateDto{
     @IsInt()
     @NotEquals(0)
     permissionsThemeId: number;
-    @IsString()
-    permissionsThemeName: string;
-    @IsInt()
-    printid: number;
-    creater: string;
-    createdAt: Date;
-    updater: string;
-    updatedAt: Date;
-    del_uuid: number;
-    deleter: string;
-    deletedAt: Date;
 }

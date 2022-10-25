@@ -47,7 +47,6 @@ export class FindOutboundDto implements IFindOutboundDto {
     outboundid: number;
     @IsString()
     outboundcode: string;
-    @IsInt()
     outboundtype: number;
     @IsString()
     relatednumber: string;

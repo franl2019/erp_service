@@ -40,12 +40,10 @@ export class OutboundService {
     }
 
     //创建出仓单
-    public async create(createOutboundDto: IOutboundDto, username: string):Promise<ResultSetHeader> {
+    public async create(createOutboundDto: IOutboundDto):Promise<ResultSetHeader> {
         return this.mysqlAls.sqlTransaction(async () => {
             //创建单号
             createOutboundDto.outboundcode = await this.autoCodeMxService.getSheetAutoCode(createOutboundDto.outboundtype);
-            createOutboundDto.creater = username;
-            createOutboundDto.createdAt = new Date();
             //创建单头
             const outbound = new Outbound(createOutboundDto);
             const createResult = await this.outboundEntity.create(outbound);

@@ -1,12 +1,9 @@
 import {IOutboundDto} from "../../outbound/dto/outbound.dto";
 import {IsArray, IsDateString, IsInt, IsString} from "class-validator";
 import {IOutboundMx} from "../../outboundMx/outboundMx";
-import {CodeType} from "../../autoCode/codeType";
 
-export class SaleOutboundDto implements IOutboundDto{
-    @IsInt()
+export class SaleOutboundCreateDto implements IOutboundDto{
     outboundid: number;
-    @IsString()
     outboundcode: string;
     @IsDateString()
     outdate: Date;
@@ -30,10 +27,9 @@ export class SaleOutboundDto implements IOutboundDto{
     clientid: number;
     @IsArray()
     outboundMx: IOutboundMx[];
-    
-    
+
     printcount: number;
-    outboundtype: number = CodeType.XS;
+    outboundtype: number;
     level1review: number;
     level1name: string;
     level1date: Date;

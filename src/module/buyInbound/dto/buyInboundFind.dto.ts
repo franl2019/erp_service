@@ -1,7 +1,7 @@
 import {IFindInboundDto} from "../../inbound/dto/findInbound.dto";
 import {IsArray, IsInt, IsString} from "class-validator";
 
-export class FindBuyInboundDto implements IFindInboundDto {
+export class BuyInboundFindDto implements IFindInboundDto {
     @IsArray()
     warehouseids: number[];
     @IsArray()

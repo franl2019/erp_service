@@ -50,13 +50,12 @@ export class SaleOutboundService {
     }
 
     public async find(findDto: FindSaleOutboundDto) {
-        findDto.outboundtype = CodeType.XS;
+        findDto.outboundtype = CodeType.XS
         return await this.outboundService.find(findDto);
     }
 
     public async findSheetState(findDto: FindSaleOutboundDto) {
         findDto.outboundtype = CodeType.XS;
-
         const outboundList = await this.outboundService.find(findDto);
         let completeL1Review = 0;
         let undoneL1Review = 0;
@@ -81,11 +80,12 @@ export class SaleOutboundService {
         }
     }
 
-    public async create(saleOutboundDto: SaleOutboundDto, username: string) {
+    public async create(saleOutboundDto: SaleOutboundDto) {
         saleOutboundDto.outboundtype = CodeType.XS;
-        const result = await this.outboundService.create(saleOutboundDto, username);
+        const result = await this.outboundService.create(saleOutboundDto);
+        saleOutboundDto.outboundid = result.insertId;
         return {
-            id: result.insertId,
+            id: saleOutboundDto.outboundid,
             code: saleOutboundDto.outboundcode
         }
     }
@@ -93,7 +93,7 @@ export class SaleOutboundService {
     public async create_l1Review(saleOutboundDto: SaleOutboundDto, username: string) {
         return this.mysqldbAls.sqlTransaction(async () => {
             saleOutboundDto.outboundtype = CodeType.XS;
-            const result = await this.outboundService.create(saleOutboundDto, username);
+            const result = await this.outboundService.create(saleOutboundDto);
             await this.outboundService.l1Review(result.insertId, username);
             return {
                 id: result.insertId,

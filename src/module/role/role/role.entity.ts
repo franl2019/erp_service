@@ -33,7 +33,10 @@ export class RoleEntity {
                          role.deleter,
                          role.deletedAt
                      FROM
-                         role`;
+                         role
+                     WHERE
+                         role.del_uuid = 0
+                         `;
         const [res] = await conn.query(sql);
         return (res as IRole[])
     }

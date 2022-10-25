@@ -1,8 +1,9 @@
 import {IRole} from "../role";
-import {IsInt} from "class-validator";
+import {IsInt, NotEquals} from "class-validator";
 
 export class RoleDeleteDto implements IRole{
     @IsInt()
+    @NotEquals(0)
     roleId: number
 
     roleName: string

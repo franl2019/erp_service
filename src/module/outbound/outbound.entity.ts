@@ -224,39 +224,24 @@ export class OutboundEntity {
 
     //新增出仓单的单头
     public async create(outbound: IOutbound) {
-        outbound.outdate = new Date(outbound.outdate);
         const conn = await this.mysqlAls.getConnectionInAls();
         const sql = `INSERT INTO outbound (
-                  outbound.outboundid, 
-                  outbound.outboundcode, 
-                  outbound.outboundtype, 
-                  outbound.outdate, 
-                  outbound.moneytype, 
-                  outbound.relatednumber, 
-                  outbound.remark1, 
-                  outbound.remark2, 
-                  outbound.remark3, 
-                  outbound.remark4, 
-                  outbound.remark5, 
-                  outbound.printcount, 
-                  outbound.level1review, 
-                  outbound.level1name, 
-                  outbound.level1date, 
-                  outbound.level2review, 
-                  outbound.level2name, 
-                  outbound.level2date, 
-                  outbound.creater, 
-                  outbound.createdAt, 
-                  outbound.updater, 
-                  outbound.updatedAt, 
-                  outbound.warehouseid,
-                  outbound.clientid,
-                  outbound.del_uuid, 
-                  outbound.deletedAt, 
-                  outbound.deleter)
-                 VALUES ?`;
-        const [res] = await conn.query(sql, [[[
-            outbound.outboundid,
+                      outbound.outboundcode, 
+                      outbound.outboundtype, 
+                      outbound.outdate, 
+                      outbound.moneytype, 
+                      outbound.relatednumber, 
+                      outbound.remark1, 
+                      outbound.remark2, 
+                      outbound.remark3, 
+                      outbound.remark4, 
+                      outbound.remark5, 
+                      outbound.creater, 
+                      outbound.createdAt, 
+                      outbound.warehouseid,
+                      outbound.clientid
+                      ) VALUES ?`;
+        const [res] = await conn.query<ResultSetHeader>(sql, [[[
             outbound.outboundcode,
             outbound.outboundtype,
             outbound.outdate,
@@ -267,24 +252,13 @@ export class OutboundEntity {
             outbound.remark3,
             outbound.remark4,
             outbound.remark5,
-            outbound.printcount,
-            outbound.level1review,
-            outbound.level1name,
-            outbound.level1date,
-            outbound.level2review,
-            outbound.level2name,
-            outbound.level2date,
             outbound.creater,
             outbound.createdAt,
-            outbound.updater,
-            outbound.updatedAt,
             outbound.warehouseid,
-            outbound.clientid,
-            outbound.del_uuid,
-            outbound.deletedAt,
-            outbound.deleter]]]);
-        if ((res as ResultSetHeader).affectedRows > 0) {
-            return (res as ResultSetHeader);
+            outbound.clientid
+        ]]]);
+        if (res.affectedRows > 0) {
+            return res;
         } else {
             return Promise.reject(new Error("新增出仓单的单头失败"));
         }
@@ -292,7 +266,6 @@ export class OutboundEntity {
 
     //修改出仓单单头
     public async update(outbound: IOutbound) {
-        outbound.outdate = new Date(outbound.outdate);
         const conn = await this.mysqlAls.getConnectionInAls();
         const sql = `UPDATE 
                     outbound 

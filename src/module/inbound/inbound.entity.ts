@@ -222,7 +222,6 @@ export class InboundEntity {
     }
 
     public async create(inbound: IInbound) {
-        inbound.indate = new Date(inbound.indate);
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql: string = `INSERT INTO inbound (
                           inbound.inboundid,
@@ -291,7 +290,6 @@ export class InboundEntity {
     }
 
     public async update(inbound: IInbound) {
-        inbound.indate = new Date(inbound.indate);
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql: string = `UPDATE 
                                   inbound 

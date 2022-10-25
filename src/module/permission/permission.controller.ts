@@ -103,7 +103,7 @@ export class PermissionController {
     ) {
         permissionsTheme.updater = state.user.username;
         permissionsTheme.updatedAt = new Date();
-        await this.permissionsThemeService.create(permissionsTheme);
+        await this.permissionsThemeService.update(permissionsTheme);
         return {
             code: 200,
             msg: '更新成功'

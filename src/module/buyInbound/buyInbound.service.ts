@@ -1,6 +1,6 @@
 import {Injectable} from "@nestjs/common";
 import {InboundService} from "../inbound/inbound.service";
-import {FindBuyInboundDto} from "./dto/findBuyInbound.dto";
+import {BuyInboundFindDto} from "./dto/buyInboundFind.dto";
 import {BuyInboundDto} from "./dto/buyInbound.dto";
 import * as mathjs from "mathjs";
 import {bignumber} from "mathjs";
@@ -48,11 +48,11 @@ export class BuyInboundService {
         return amounts
     }
 
-    public async find(findDto: FindBuyInboundDto) {
+    public async find(findDto: BuyInboundFindDto) {
         return await this.inboundService.find(findDto);
     }
 
-    public async findBuyInboundState(findDto: FindBuyInboundDto){
+    public async findBuyInboundState(findDto: BuyInboundFindDto){
         const buyInboundList = await this.inboundService.find(findDto);
         let completeL1Review = 0;
         let undoneL1Review = 0;
