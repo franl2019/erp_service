@@ -9,7 +9,7 @@ export class UserPermissionsService {
 
     private userId: number;
     private roleIds: number[];
-    private rolePermissionsMap: Map<number, IRolePermissionMxJoinPermissions> = new Map()
+    private rolePermissionsMap: Map<number, IRolePermissionMxJoinPermissions>;
 
     constructor(
         @Inject(CACHE_MANAGER) private cacheManager: Cache,
@@ -18,23 +18,24 @@ export class UserPermissionsService {
     ) {
     }
 
+    //服务初始化
     public async init(userId: number, roleIds: number[]): Promise<UserPermissionsService> {
         this.userId = userId;
-        this.roleIds = [...roleIds];
-        const rolePermissionsMap: Map<number, IRolePermissionMxJoinPermissions> | undefined = await this.cacheManager.get(String(this.userId));
-        console.log(rolePermissionsMap)
-        if (rolePermissionsMap && rolePermissionsMap.size > 0) {
-            console.log('已有初始化')
-            this.rolePermissionsMap = rolePermissionsMap;
+        this.roleIds = roleIds;
+        this.rolePermissionsMap = (await this.cacheManager.get(String(this.userId))) || new Map<number, IRolePermissionMxJoinPermissions>();
+
+        if (this.rolePermissionsMap && this.rolePermissionsMap.size > 0) {
+            //权限缓存已存在
             return this
         } else {
-            console.log('初始化')
+            //初始化
             await this.initRolePermissionsMap();
             await this.setCache();
             return this
         }
     }
 
+    //初始化权限Map
     private async initRolePermissionsMap(): Promise<void> {
         if (this.roleIds.length === 0) return Promise.reject(new Error('初始化角色权限失败,缺少角色'));
         return await this.mysqldbAls.sqlTransaction(async () => {
@@ -50,14 +51,12 @@ export class UserPermissionsService {
         })
     }
 
+    //设置缓存
     private async setCache() {
         await this.cacheManager.set(String(this.userId), this.rolePermissionsMap)
     }
 
-    public async clearCache(userId:number){
-        await this.cacheManager.del(String(userId));
-    }
-
+    //判断是否有权限可以执行
     public can(permissionCode: number): boolean {
         const permissions = this.rolePermissionsMap.get(permissionCode)
         return !!(permissions && permissions.permissionsCode === permissionCode && permissions.can);

@@ -1,12 +1,14 @@
-import {Injectable} from "@nestjs/common";
+import {CACHE_MANAGER, Inject, Injectable} from "@nestjs/common";
 import {UserRoleMxEntity} from "./userRoleMx.entity";
 import {IUserRoleMx} from "./userRoleMx";
+import {Cache} from "cache-manager";
 
 @Injectable()
 export class UserRoleMxService {
 
     constructor(
-        private readonly userRoleMxEntity: UserRoleMxEntity
+        @Inject(CACHE_MANAGER) private cacheManager: Cache,
+        private readonly userRoleMxEntity: UserRoleMxEntity,
     ) {
     }
 
@@ -29,13 +31,21 @@ export class UserRoleMxService {
     public async create(userRoleMx:IUserRoleMx){
         const isExist = await this.isExist(userRoleMx.roleId,userRoleMx.userid)
         if(isExist){
-            return await this.userRoleMxEntity.create(userRoleMx);
+            const result = await this.userRoleMxEntity.create(userRoleMx);
+            await this.clearUserPermissionsCache(userRoleMx.userid);
+            return result
         }else{
             return Promise.reject(new Error("角色已经拥有该用户"))
         }
     }
 
     public async delete_data(userRoleMx:IUserRoleMx){
-        return await this.userRoleMxEntity.delete_data(userRoleMx)
+        const result = await this.userRoleMxEntity.delete_data(userRoleMx);
+        await this.clearUserPermissionsCache(userRoleMx.userid);
+        return result;
+    }
+
+    private async clearUserPermissionsCache(userId:number){
+       await this.cacheManager.del(String(userId));
     }
 }
