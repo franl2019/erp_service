@@ -9,11 +9,6 @@ import {SaleReviewDto} from "./dto/saleReview.dto";
 @Controller('erp/saleOrder')
 export class SaleOrderController {
 
-    constructor(
-        private readonly saleOrderService:SaleOrderService
-    ) {
-    }
-
     @Post('find')
     public async find(@Body() findDto:SaleOrderFindDto,@ReqState() state:IState){
         if(findDto.warehouseids.length ===0){
@@ -25,6 +20,12 @@ export class SaleOrderController {
             msg:'查询成功',
             data
         }
+    }
+
+
+    constructor(
+        private readonly saleOrderService:SaleOrderService
+    ) {
     }
 
     @Post('create')

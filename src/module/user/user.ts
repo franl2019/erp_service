@@ -2,7 +2,7 @@ import { genSaltSync, hashSync } from "bcryptjs";
 
 
 
-interface IUser {
+export interface IUser {
   userid: number;
   usercode: string;
   username: string;

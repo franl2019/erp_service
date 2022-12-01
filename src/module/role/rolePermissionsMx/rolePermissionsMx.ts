@@ -3,4 +3,5 @@ export interface IRolePermissionsMx {
     permissionsId:number;
     updater:string;
     updatedAt:Date;
+    can:number;
 }

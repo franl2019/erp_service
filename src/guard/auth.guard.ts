@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
+import {CanActivate, ExecutionContext, Injectable} from "@nestjs/common";
 import {JwtService} from "@nestjs/jwt";
 
 @Injectable()
@@ -27,8 +27,7 @@ export class AuthGuard implements CanActivate {
     } else {
       try {
         const decoded = this.jwtService.verify(token)
-        const userid = JSON.parse(JSON.stringify(decoded)).userid;
-        request.state.token.userid = userid
+        request.state.token.userid = JSON.parse(JSON.stringify(decoded)).userid
         return true;
       } catch (e) {
         return Promise.reject(new Error("TOKEN信息错误"))

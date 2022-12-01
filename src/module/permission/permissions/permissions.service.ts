@@ -27,7 +27,7 @@ export class PermissionsService {
         return await this.permissionsEntity.update(permission);
     }
 
-    public async delete_data(permissionsId:number,userName:string){
-        return await this.permissionsEntity.delete_data(permissionsId,userName);
-    }
+    // public async delete_data(permissionsId:number,userName:string){
+    //     return await this.permissionsEntity.delete_data(permissionsId,userName);
+    // }
 }

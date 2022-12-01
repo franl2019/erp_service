@@ -61,7 +61,7 @@ export class UserInfoGuard implements CanActivate {
                 accountIds = userAccountAuthList.map(userAccountAuth => userAccountAuth.accountId)
             }
 
-            const userRoleMxList = await this.userRoleMxService.findAll(userid);
+            const userRoleMxList = await this.userRoleMxService.findByUserId(userid);
             const roleIds = userRoleMxList.map(userRoleMx=>{
                 return userRoleMx.roleId
             })

@@ -4,10 +4,12 @@ import {UserRoleMxService} from "./userRoleMx.service";
 import {UserRoleMxController} from "./userRoleMx.controller";
 
 @Module({
-    controllers:[UserRoleMxController],
+    controllers:[
+        UserRoleMxController
+    ],
     providers:[
         UserRoleMxEntity,
-        UserRoleMxService
+        UserRoleMxService,
     ],
     exports:[UserRoleMxService]
 })

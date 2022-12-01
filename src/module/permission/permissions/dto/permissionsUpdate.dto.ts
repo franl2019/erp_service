@@ -8,6 +8,8 @@ export class PermissionsUpdateDto implements IPermissions {
     @IsString()
     permissionsName: string;
     @IsInt()
+    permissionsCode:number;
+    @IsInt()
     @NotEquals(0)
     permissionsThemeId: number;
     creater: string;

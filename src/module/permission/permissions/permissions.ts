@@ -1,5 +1,6 @@
 export interface IPermissions {
     permissionsId:number;
+    permissionsCode:number;
     permissionsName:string;
     creater:string;
     createdAt:Date;

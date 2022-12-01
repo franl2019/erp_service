@@ -1,6 +1,6 @@
 import {Injectable} from "@nestjs/common";
 import {MysqldbAls} from "../mysqldb/mysqldbAls";
-import {IUserRoleMx} from "./userRoleMx";
+import {IUserRoleMx, IUserRoleMxJoinUser} from "./userRoleMx";
 import {ResultSetHeader} from "mysql2/promise";
 
 @Injectable()
@@ -11,7 +11,41 @@ export class UserRoleMxEntity {
     ) {
     }
 
-    public async findAll(userid: number) {
+    public async findByUserId(userId: number) {
+        const conn = await this.mysqldbAls.getConnectionInAls();
+        const sql = `SELECT
+                        user.username,
+                        user_role_mx.userid,
+                        user_role_mx.roleId,
+                        user_role_mx.creater,
+                        user_role_mx.createdAt
+                     FROM
+                        user_role_mx
+                        INNER JOIN user on user.userid = user_role_mx.userid
+                     WHERE
+                        user_role_mx.userid = ?`;
+        const [res] = await conn.query(sql, [userId]);
+        return res as IUserRoleMxJoinUser[]
+    }
+
+    public async findByRoleId(roleId: number) {
+        const conn = await this.mysqldbAls.getConnectionInAls();
+        const sql = `SELECT
+                        user.username,
+                        user_role_mx.userid,
+                        user_role_mx.roleId,
+                        user_role_mx.creater,
+                        user_role_mx.createdAt
+                     FROM
+                        user_role_mx
+                        INNER JOIN user on user.userid = user_role_mx.userid
+                     WHERE
+                        user_role_mx.roleId = ?`;
+        const [res] = await conn.query(sql, [roleId]);
+        return res as IUserRoleMxJoinUser[]
+    }
+
+    public async isExist(roleId:number,userId:number){
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `SELECT
                         user_role_mx.userid,
@@ -21,9 +55,13 @@ export class UserRoleMxEntity {
                      FROM
                         user_role_mx
                      WHERE
-                        user_role_mx.userid = ?`;
-        const [res] = await conn.query(sql, [userid]);
-        return res as IUserRoleMx[]
+                        user_role_mx.userid = ?
+                        AND user_role_mx.roleId = ?`;
+        const [res] = await conn.query(sql, [
+            userId,
+            roleId,
+        ]);
+        return !((res as IUserRoleMx[]).length > 0);
     }
 
     public async findOne(userRoleMx: IUserRoleMx) {
@@ -51,7 +89,7 @@ export class UserRoleMxEntity {
 
     public async create(userRoleMx: IUserRoleMx) {
         const conn = await this.mysqldbAls.getConnectionInAls();
-        const sql = `INNER INTO user_role_mx (
+        const sql = `INSERT INTO user_role_mx (
                         user_role_mx.userid,
                         user_role_mx.roleId,
                         user_role_mx.creater,

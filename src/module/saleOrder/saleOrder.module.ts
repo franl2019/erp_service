@@ -8,7 +8,8 @@ import {AutoCodeMxModule} from "../autoCodeMx/autoCodeMx.module";
 @Module({
     imports:[
         SaleOrderMxModule,
-        AutoCodeMxModule
+        AutoCodeMxModule,
+
     ],
     controllers:[SaleOrderController],
     providers:[SaleOrderEntity,SaleOrderService],

@@ -5,8 +5,9 @@ import {RoleCreateDto} from "./role/dto/roleCreate.dto";
 import {IState, ReqState} from "../../decorator/user.decorator";
 import {RoleUpdateDto} from "./role/dto/roleUpdate.dto";
 import {RoleDeleteDto} from "./role/dto/roleDelete.dto";
-import {RolePermissionsMxBatchCreateDto} from "./rolePermissionsMx/dto/rolePermissionsMxBatchCreate.dto";
+import {UpdateRolePermissionsDto} from "./rolePermissionsMx/dto/updateRolePermissions.dto";
 import {RolePermissionsMxDeleteDto} from "./rolePermissionsMx/dto/rolePermissionsMxDelete.dto";
+import {RolePermissionsMxFindAllDto} from "./rolePermissionsMx/dto/rolePermissionsMxFindAll.dto";
 
 @Controller('erp')
 export class RoleController {
@@ -59,12 +60,25 @@ export class RoleController {
         }
     }
 
-    @Post('rolePermissionsMx/create')
-    public async rolePermissionsMxCreate(
-        @Body() rolePermissionsMxBatchCreateDto: RolePermissionsMxBatchCreateDto,
+    @Post('rolePermissionsMx/findAll')
+    public async rolePermissionsMxFindAll(
+        @Body() rolePermissionsMxFindAllDto: RolePermissionsMxFindAllDto,
         @ReqState() state: IState
     ) {
-        await this.rolePermissionsMxService.createBatch(rolePermissionsMxBatchCreateDto, state);
+        const data = await this.rolePermissionsMxService.findAll(rolePermissionsMxFindAllDto);
+        return {
+            code: 200,
+            msg: '查询成功',
+            data
+        }
+    }
+
+    @Post('rolePermissionsMx/update')
+    public async rolePermissionsMxUpdateRolePermissions(
+        @Body() updateRolePermissionsDto: UpdateRolePermissionsDto,
+        @ReqState() state: IState
+    ) {
+        await this.rolePermissionsMxService.update(updateRolePermissionsDto, state);
         return {
             code: 200,
             msg: '保存成功'

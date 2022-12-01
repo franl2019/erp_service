@@ -1,4 +1,4 @@
-import {MiddlewareConsumer, Module, NestModule} from '@nestjs/common';
+import { CacheModule, MiddlewareConsumer, Module, NestModule} from '@nestjs/common';
 import {UserModule} from './module/user/user.module';
 import {AuthModule} from './module/auth/auth.module';
 import {LoggerMiddleware} from './middleware/logger.middleware';
@@ -64,13 +64,18 @@ import {UserInfoGuard} from "./guard/userInfo.guard";
 import {PermissionModule} from "./module/permission/permission.module";
 import {UserRoleMxModule} from "./module/userRoleMx/userRoleMx.module";
 import {RoleModule} from "./module/role/role.module";
+import {UserPermissionsModule} from "./module/userPermissions/userPermissions.module";
 
 @Module({
     imports: [
         MysqldbModule,
         JwtModule.register({
             secret: JWT_CONFIG.SECRET_KEY,
-            signOptions: { expiresIn: '7D' },
+            signOptions: {expiresIn: '7D'},
+        }),
+        CacheModule.register({
+            ttl:0,
+            isGlobal: true
         }),
         UserModule,
         AuthModule,
@@ -83,7 +88,7 @@ import {RoleModule} from "./module/role/role.module";
         UserWarehouseMxModule,
         UserSystemConfigModule,
         UserRoleMxModule,
-
+        UserPermissionsModule,
         OperateareaModule,
         BuyAreaModule,
         BuyModule,
@@ -168,12 +173,12 @@ import {RoleModule} from "./module/role/role.module";
     providers: [
         {
             provide: APP_GUARD,
-            useClass:AuthGuard
+            useClass: AuthGuard
         },
         {
             provide: APP_GUARD,
-            useClass:UserInfoGuard
-        }
+            useClass: UserInfoGuard
+        },
     ],
     controllers: [],
 })

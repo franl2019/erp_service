@@ -1,4 +1,4 @@
-import {Body, Controller, Post} from "@nestjs/common";
+import {Body, Controller, Post, UseGuards} from "@nestjs/common";
 import {SaleOutboundService} from "./saleOutbound.service";
 import {ReqState, IState} from "../../decorator/user.decorator";
 import {FindOutboundDto} from "../outbound/dto/find.dto";
@@ -7,6 +7,7 @@ import {Level1ReviewSaleOutboundDto} from "./dto/level1ReviewSaleOutbound.dto";
 import {Level2ReviewSaleOutboundDto} from "./dto/level2ReviewSaleOutbound.dto";
 import {SaleOutboundCreateDto} from "./dto/saleOutboundCreate.dto";
 import {SaleOutboundUpdateDto} from "./dto/saleOutboundUpdate.dto";
+import {permissionFactoryGuard} from "../../guard/permissionFactory.guard";
 
 @Controller('erp/saleOutbound')
 export class SaleOutboundController {
@@ -15,6 +16,7 @@ export class SaleOutboundController {
     }
 
     @Post("find")
+    @UseGuards(permissionFactoryGuard(1))
     public async find(@Body() findOutbound: FindOutboundDto, @ReqState() state: IState) {
         if (findOutbound.warehouseids.length === 0) {
             findOutbound.warehouseids = state.user.warehouseids;

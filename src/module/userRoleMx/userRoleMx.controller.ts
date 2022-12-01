@@ -16,7 +16,7 @@ export class UserRoleMxController {
 
     @Post('findAll')
     public async findAll(@Body() userRoleMxFindAllDto:UserRoleMxFindAllDto){
-        const data = await this.userRoleMxService.findAll(userRoleMxFindAllDto.userid);
+        const data = await this.userRoleMxService.findByRoleId(userRoleMxFindAllDto.roleId);
         return {
             code:200,
             msg:'查询成功',

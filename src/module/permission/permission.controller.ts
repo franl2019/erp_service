@@ -5,7 +5,7 @@ import {IState, ReqState} from "../../decorator/user.decorator";
 import {PermissionsFindOneDto} from "./permissions/dto/permissionsFindOne.dto";
 import {PermissionsFindAllDto} from "./permissions/dto/permissionsFindAll.dto";
 import {PermissionsUpdateDto} from "./permissions/dto/permissionsUpdate.dto";
-import {PermissionsDeleteDto} from "./permissions/dto/permissionsDelete.dto";
+// import {PermissionsDeleteDto} from "./permissions/dto/permissionsDelete.dto";
 import {PermissionsThemeService} from "./permissions_theme/permissionsTheme.service";
 import {PermissionsThemeCreateDto} from "./permissions_theme/dto/permissionsThemeCreate.dto";
 import {PermissionsThemeUpdateDto} from "./permissions_theme/dto/permissionsThemeUpdate.dto";
@@ -63,14 +63,14 @@ export class PermissionController {
         }
     }
 
-    @Post('permissions/delete_data')
-    public async deletePermissions(@Body() permissions: PermissionsDeleteDto, @ReqState() state: IState) {
-        await this.permissionsService.delete_data(permissions.permissionsId, state.user.username);
-        return {
-            code: 200,
-            msg: '删除成功'
-        }
-    }
+    // @Post('permissions/delete_data')
+    // public async deletePermissions(@Body() permissions: PermissionsDeleteDto, @ReqState() state: IState) {
+    //     await this.permissionsService.delete_data(permissions.permissionsId, state.user.username);
+    //     return {
+    //         code: 200,
+    //         msg: '删除成功'
+    //     }
+    // }
 
     @Post('permissionsTheme/findAll')
     public async findAllPermissionsTheme() {

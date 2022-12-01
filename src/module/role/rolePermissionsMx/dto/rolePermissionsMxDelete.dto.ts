@@ -8,4 +8,5 @@ export class RolePermissionsMxDeleteDto implements IRolePermissionsMx{
     permissionsId:number;
     updater:string;
     updatedAt:Date;
+    can:number
 }

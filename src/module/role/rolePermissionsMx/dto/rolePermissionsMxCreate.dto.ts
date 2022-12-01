@@ -1,19 +1,20 @@
 import {IRolePermissionsMx} from "../rolePermissionsMx";
 import {IsInt} from "class-validator";
 
-export class RolePermissionsMxCreateDto implements IRolePermissionsMx{
+export class RolePermissionsMxCreateDto implements IRolePermissionsMx {
+    roleId: number;
     @IsInt()
-    roleId:number;
+    permissionsId: number;
+    updater: string;
+    updatedAt: Date;
     @IsInt()
-    permissionsId:number;
-    updater:string;
-    updatedAt:Date;
+    can: number;
 
-
-    constructor(roleId: number, permissionsId: number, updater: string, updatedAt: Date) {
+    constructor(roleId: number, permissionsId: number, updater: string, updatedAt: Date, can: number) {
         this.roleId = roleId;
         this.permissionsId = permissionsId;
         this.updater = updater;
         this.updatedAt = updatedAt;
+        this.can = can
     }
 }
