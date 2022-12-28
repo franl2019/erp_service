@@ -6,8 +6,8 @@ export class PermissionsFindAllDto implements IPermissions {
     permissionsId: number;
     @IsString()
     permissionsName: string;
-    @IsInt()
-    permissionsCode:number;
+    @IsString()
+    permissionsCode:string;
     @IsInt()
     permissionsThemeId: number;
     creater: string;

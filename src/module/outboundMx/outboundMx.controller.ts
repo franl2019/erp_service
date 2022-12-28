@@ -1,5 +1,5 @@
 import { Body, Controller, Post } from "@nestjs/common";
-import { FindOutboundMxDto } from "./dto/findOutboundMx.dto";
+import { OutboundMxFindDto } from "./dto/outboundMxFind.dto";
 import { OutboundMxService } from "./outboundMx.service";
 
 @Controller("erp/outbound_mx")
@@ -9,7 +9,7 @@ export class OutboundMxController {
 
   //查询出仓单明细
   @Post("find")
-  public async find(@Body() findDto: FindOutboundMxDto) {
+  public async find(@Body() findDto: OutboundMxFindDto) {
     const data = await this.outboundMxService.find(findDto.outboundid);
     return {
       code: 200,

@@ -1,7 +1,7 @@
 import {Injectable} from "@nestjs/common";
 import {InboundMxEntity} from "./inboundMx.entity";
 import {InboundMxDto} from "./dto/inboundMx.dto";
-import {useVerifyParam} from "../../utils/useVerifyParam";
+import {useVerifyParam} from "../../utils/verifyParam/useVerifyParam";
 import {IInboundMx} from "./inboundMx";
 import {bignumber, chain, round} from "mathjs"
 import {ProductService} from "../product/product.service";

@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from "@nestjs/common";
+import {Body, Controller, Post} from "@nestjs/common";
 import { AddClientDto } from "./dto/addClient.dto";
 import { UpdateClientDto } from "./dto/updateClient.dto";
 import { DeleteClientDto } from "./dto/deleteClient.dto";

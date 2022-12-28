@@ -5,7 +5,7 @@ export class PermissionsDeleteDto implements IPermissions {
     @IsInt()
     @NotEquals(0)
     permissionsId: number;
-    permissionsCode:number;
+    permissionsCode:string;
     permissionsName: string;
     permissionsThemeId: number;
     creater: string;

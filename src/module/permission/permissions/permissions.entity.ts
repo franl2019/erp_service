@@ -34,6 +34,7 @@ export class PermissionsEntity {
                        ${findDto.permissionsCode ? ` AND permissions.permissionsCode = ${findDto.permissionsCode}`:``}
                        ${findDto.permissionsName.length > 0 ? ` AND permissions.permissionsName = ${findDto.permissionsName}`:``}
                        ${findDto.permissionsThemeId ? ` AND permissions.permissionsThemeId = ${findDto.permissionsThemeId}`:``}
+                   
                      `;
         const [res] = await conn.query(sql)
         return res as IPermissions[]
@@ -117,28 +118,4 @@ export class PermissionsEntity {
             return Promise.reject(new Error('更新权限资料失败'))
         }
     }
-
-    // public async delete_data(permissionsId: number, userName: string) {
-    //     const conn = await this.mysqldbAls.getConnectionInAls();
-    //     const sql = `UPDATE
-    //                     permissions
-    //                  SET
-    //                     permissions.del_uuid = ?,
-    //                     permissions.deletedAt = ?,
-    //                     permissions.deleter = ?
-    //                  WHERE
-    //                     permissions.permissionsId = ?
-    //     `;
-    //     const [res] = await conn.query<ResultSetHeader>(sql, [
-    //         permissionsId,
-    //         new Date(),
-    //         userName,
-    //         permissionsId
-    //     ]);
-    //     if (res.affectedRows > 0) {
-    //         return res
-    //     } else {
-    //         return Promise.reject(new Error('更新产品资料删除标记失败'))
-    //     }
-    // }
 }

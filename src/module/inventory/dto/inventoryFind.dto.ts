@@ -1,6 +1,6 @@
 import { IsArray, IsInt, IsString } from "class-validator";
 
-export class FindInventoryDto {
+export class InventoryFindDto {
   @IsArray()
   warehouseids: number[];
 
@@ -36,6 +36,9 @@ export class FindInventoryDto {
 
   @IsString()
   remarkmx:string
+
+  @IsString()
+  batchNo:string
 
   @IsString()
   unit:string;

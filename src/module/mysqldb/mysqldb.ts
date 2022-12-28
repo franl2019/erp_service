@@ -16,13 +16,7 @@ export class Mysqldb {
     database: DATABASE_CONFIG.DATABASE,
     decimalNumbers: true,
     multipleStatements: false,
-    typeCast: function(field, next) {
-      if (field.type == "DECIMAL") {
-        let value = field.string();
-        return (value === null) ? null : Number(value);
-      }
-      return next();
-    }
+    dateStrings:true,
   };
 
 

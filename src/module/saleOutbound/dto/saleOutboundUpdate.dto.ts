@@ -1,12 +1,14 @@
-import {IOutboundDto} from "../../outbound/dto/outbound.dto";
+import {IOutboundSheetCreateDto} from "../../outbound/dto/outboundCreate.dto";
 import {IsArray, IsDateString, IsInt, IsString, NotEquals} from "class-validator";
 import {IOutboundMx} from "../../outboundMx/outboundMx";
 
-export class SaleOutboundUpdateDto implements IOutboundDto{
+export class SaleOutboundUpdateDto implements IOutboundSheetCreateDto{
     @IsInt()
     @NotEquals(0)
     outboundid: number;
     outboundcode: string;
+    @IsString()
+    deliveryDate: Date;
     @IsDateString()
     outdate: Date;
     @IsString()
@@ -24,8 +26,12 @@ export class SaleOutboundUpdateDto implements IOutboundDto{
     @IsString()
     remark5: string;
     @IsInt()
+    @NotEquals(0)
+    operateareaid: number;
+    @IsInt()
     warehouseid: number;
     @IsInt()
+    @NotEquals(0)
     clientid: number;
     @IsArray()
     outboundMx: IOutboundMx[];

@@ -6,8 +6,8 @@ export class RolePermissionsMxFindAllDto implements IRolePermissionsMx,IPermissi
     @IsInt()
     roleId: number;
 
-    @IsInt()
-    permissionsCode: number;
+    @IsString()
+    permissionsCode: string;
     @IsString()
     permissionsName: string;
     @IsInt()

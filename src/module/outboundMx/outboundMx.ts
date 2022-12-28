@@ -7,6 +7,7 @@ export interface IOutboundMx {
   materials_d:string;
   remarkmx:string;
   remark:string;
+  batchNo:string;
   outqty:number;
   bzqty:number;
   priceqty:number;
@@ -22,6 +23,24 @@ export interface IOutboundMx {
   pricetype:number;
   clientid:number;
   warehouseid:number
+
+  otherUnit:string;
+  otherUnitConversionRate:number;
+  kz_productCode:string;
+  kz_productName:string;
+  kz_spec:string;
+  kz_materials:string;
+  kz_remark:string;
+  kz_spec_d:string;
+  kz_materials_d:string;
+
+  remark1:string;
+  remark2:string;
+  remark3:string;
+  remark4:string;
+  remark5:string;
+
+  returnGoodsQty:number;
 }
 
 

@@ -5,7 +5,7 @@ import {AutoCodeMxService} from "../autoCodeMx/autoCodeMx.service";
 import {MysqldbAls} from "../mysqldb/mysqldbAls";
 import {AccountInComeAmountMxService} from "../accountInComeAmountMx/accountInComeAmountMx.service";
 import {AccountRecordService} from "../accountsRecord/accountRecord.service";
-import {useVerifyParam} from "../../utils/useVerifyParam";
+import {useVerifyParam} from "../../utils/verifyParam/useVerifyParam";
 import {AccountInComeAmountMxCreateDto} from "../accountInComeAmountMx/dto/accountInComeAmountMxCreate.dto";
 import {AccountInComeSheetMxCreateDto} from "../accountInComeSheetMx/dto/accountInComeSheetMxCreate.dto";
 import {AccountInComeCreateDto} from "./dto/accountInComeCreate.dto";

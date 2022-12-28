@@ -10,7 +10,7 @@ import {AccountExpenditureSheetMxService} from "../accountExpenditureSheetMx/acc
 import {AccountExpenditureCreateDto} from "./dto/accountExpenditureCreate.dto";
 import {IAccountExpenditureAmountMx} from "../accountExpenditureAmountMx/accountExpenditureAmountMx";
 import {IAccountExpenditureSheetMx} from "../accountExpenditureSheetMx/accountExpenditureSheetMx";
-import {useVerifyParam} from "../../utils/useVerifyParam";
+import {useVerifyParam} from "../../utils/verifyParam/useVerifyParam";
 import {
     AccountExpenditureAmountMxCreateDto
 } from "../accountExpenditureAmountMx/dto/accountExpenditureAmountMxCreate.dto";

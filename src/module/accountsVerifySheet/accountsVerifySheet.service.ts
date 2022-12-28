@@ -2,7 +2,7 @@ import {bignumber, chain, equal, round} from "mathjs";
 import {CodeType} from "../autoCode/codeType";
 import {Injectable} from "@nestjs/common";
 import {MysqldbAls} from "../mysqldb/mysqldbAls";
-import {useVerifyParam} from "../../utils/useVerifyParam";
+import {useVerifyParam} from "../../utils/verifyParam/useVerifyParam";
 import {IAccountsPayable} from "../accountsPayable/accountsPayable";
 import {AutoCodeMxService} from "../autoCodeMx/autoCodeMx.service";
 import {AccountCategoryType} from "../accountsVerifySheetMx/accountCategoryType";

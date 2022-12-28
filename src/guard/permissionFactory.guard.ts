@@ -2,7 +2,7 @@ import {CanActivate, ExecutionContext, Injectable} from "@nestjs/common";
 import {IState} from "../decorator/user.decorator";
 import {UserPermissionsService} from "../module/userPermissions/userPermissions.service";
 
-export function permissionFactoryGuard(permissionsCode: number): any {
+export function permissionFactoryGuard(permissionsCode: string): any {
 
     @Injectable()
     class PermissionsGuard implements CanActivate {

@@ -1,6 +1,7 @@
-import { IsDate, IsInt, IsNumber, IsString } from "class-validator";
+import {IsDate, IsInt, IsNumber, IsString, NotEquals} from "class-validator";
+import {IInventory} from "../inventory";
 
-export class AddInventoryDto {
+export class InventoryEditDto implements IInventory{
   @IsString()
   spec_d: string;
 
@@ -12,6 +13,9 @@ export class AddInventoryDto {
 
   @IsString()
   remarkmx: string;
+
+  @IsString()
+  batchNo: string;
 
   @IsNumber()
   qty: number;
@@ -26,11 +30,15 @@ export class AddInventoryDto {
   latest_sale_price: number;
 
   @IsInt()
+  @NotEquals(0)
   productid: number;
 
   @IsInt()
+  @NotEquals(0)
   clientid: number;
 
   @IsInt()
   warehouseid: number;
+
+  inventoryid: number;
 }

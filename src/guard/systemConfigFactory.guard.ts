@@ -2,7 +2,7 @@ import {CanActivate, ExecutionContext, Injectable} from "@nestjs/common";
 import {SystemConfigService} from "../module/systemConfig/systemConfig.service";
 import {IState} from "../decorator/user.decorator";
 
-export function systemConfigFactoryGuard(systemConfigOptionId: number, systemConfigOptionMxId: number):any {
+export function systemConfigFactoryGuard(systemConfigOptionId: number, systemConfigOptionMxId: number): any {
 
     @Injectable()
     class SystemConfigGuard implements CanActivate {
@@ -15,7 +15,7 @@ export function systemConfigFactoryGuard(systemConfigOptionId: number, systemCon
         async canActivate(
             context: ExecutionContext,
         ): Promise<boolean> {
-            const systemConfigHeadId = context.switchToHttp().getRequest<{state:IState}>().state.user.systemConfigHeadId
+            const systemConfigHeadId = context.switchToHttp().getRequest<{ state: IState }>().state.user.systemConfigHeadId
             const isCan = await this.systemConfigService.can(systemConfigHeadId, systemConfigOptionId, systemConfigOptionMxId);
             if (isCan) {
                 return true

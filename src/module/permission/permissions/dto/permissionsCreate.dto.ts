@@ -5,8 +5,8 @@ export class PermissionsCreateDto implements IPermissions {
     permissionsId: number;
     @IsString()
     permissionsName: string;
-    @IsInt()
-    permissionsCode:number;
+    @IsString()
+    permissionsCode:string;
     @IsInt()
     @NotEquals(0)
     permissionsThemeId: number;

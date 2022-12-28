@@ -1,13 +1,13 @@
 import {Body, Controller, Post, UseGuards} from "@nestjs/common";
 import {SaleOutboundService} from "./saleOutbound.service";
 import {ReqState, IState} from "../../decorator/user.decorator";
-import {FindOutboundDto} from "../outbound/dto/find.dto";
-import {DeleteOutboundDto} from "../outbound/dto/deleteOutbound.dto";
-import {Level1ReviewSaleOutboundDto} from "./dto/level1ReviewSaleOutbound.dto";
-import {Level2ReviewSaleOutboundDto} from "./dto/level2ReviewSaleOutbound.dto";
+import {SaleOutboundL1ReviewDto} from "./dto/saleOutboundL1Review.dto";
+import {SaleOutboundL2ReviewDto} from "./dto/saleOutboundL2Review.dto";
 import {SaleOutboundCreateDto} from "./dto/saleOutboundCreate.dto";
 import {SaleOutboundUpdateDto} from "./dto/saleOutboundUpdate.dto";
 import {permissionFactoryGuard} from "../../guard/permissionFactory.guard";
+import {SaleOutboundDeleteDto} from "./dto/saleOutboundDelete.dto";
+import {SaleOutboundFindDto} from "./dto/saleOutboundFind.dto";
 
 @Controller('erp/saleOutbound')
 export class SaleOutboundController {
@@ -16,8 +16,8 @@ export class SaleOutboundController {
     }
 
     @Post("find")
-    @UseGuards(permissionFactoryGuard(1))
-    public async find(@Body() findOutbound: FindOutboundDto, @ReqState() state: IState) {
+    @UseGuards(permissionFactoryGuard("saleOutboundFind"))
+    public async find(@Body() findOutbound: SaleOutboundFindDto, @ReqState() state: IState) {
         if (findOutbound.warehouseids.length === 0) {
             findOutbound.warehouseids = state.user.warehouseids;
         }
@@ -34,7 +34,7 @@ export class SaleOutboundController {
     }
 
     @Post("findSheetState")
-    public async findSheetState(@Body() findOutbound: FindOutboundDto, @ReqState() state: IState) {
+    public async findSheetState(@Body() findOutbound: SaleOutboundFindDto, @ReqState() state: IState) {
         if (findOutbound.warehouseids.length === 0) {
             findOutbound.warehouseids = state.user.warehouseids;
         }
@@ -54,7 +54,7 @@ export class SaleOutboundController {
     public async create(@Body() saleOutboundCreateDto: SaleOutboundCreateDto, @ReqState() state: IState) {
         saleOutboundCreateDto.creater = state.user.username;
         saleOutboundCreateDto.createdAt = new Date();
-        const createResult = await this.saleOutboundService.create(saleOutboundCreateDto);
+        const createResult = await this.saleOutboundService.create(saleOutboundCreateDto,state);
         return {
             code: 200,
             msg: "保存成功",
@@ -66,7 +66,7 @@ export class SaleOutboundController {
     public async create_l1Review(@Body() saleOutboundCreateDto: SaleOutboundCreateDto, @ReqState() state: IState) {
         saleOutboundCreateDto.creater = state.user.username;
         saleOutboundCreateDto.createdAt = new Date();
-        const createResult = await this.saleOutboundService.create_l1Review(saleOutboundCreateDto, state.user.username);
+        const createResult = await this.saleOutboundService.createL1Review(saleOutboundCreateDto, state);
         return {
             code: 200,
             msg: "保存成功",
@@ -89,7 +89,7 @@ export class SaleOutboundController {
     public async updateAndL1Review(@Body() saleOutboundUpdateDto: SaleOutboundUpdateDto, @ReqState() state: IState) {
         saleOutboundUpdateDto.updater = state.user.username;
         saleOutboundUpdateDto.updatedAt = new Date();
-        await this.saleOutboundService.updateAndL1Review(saleOutboundUpdateDto, state);
+        await this.saleOutboundService.updateL1Review(saleOutboundUpdateDto, state);
         return {
             code: 200,
             msg: "更新加审核成功"
@@ -97,7 +97,7 @@ export class SaleOutboundController {
     }
 
     @Post("delete_data")
-    public async delete_data(@Body() deleteDto: DeleteOutboundDto, @ReqState() state: IState) {
+    public async delete_data(@Body() deleteDto: SaleOutboundDeleteDto, @ReqState() state: IState) {
         await this.saleOutboundService.delete_data(deleteDto.outboundid, state);
         return {
             code: 200,
@@ -106,8 +106,8 @@ export class SaleOutboundController {
     }
 
     @Post("undelete_data")
-    public async undelete_data(@Body() deleteDto: DeleteOutboundDto) {
-        await this.saleOutboundService.unDelete_data(deleteDto.outboundid);
+    public async undelete_data(@Body() deleteDto: SaleOutboundDeleteDto) {
+        await this.saleOutboundService.unDeleteData(deleteDto.outboundid);
         return {
             code: 200,
             msg: "取消删除成功"
@@ -115,7 +115,7 @@ export class SaleOutboundController {
     }
 
     @Post("l1Review")
-    public async level1Review(@Body() level1ReviewSaleOutboundDto: Level1ReviewSaleOutboundDto, @ReqState() state: IState) {
+    public async level1Review(@Body() level1ReviewSaleOutboundDto: SaleOutboundL1ReviewDto, @ReqState() state: IState) {
         await this.saleOutboundService.level1Review(level1ReviewSaleOutboundDto.outboundid, state.user.username);
         return {
             code: 200,
@@ -124,7 +124,7 @@ export class SaleOutboundController {
     }
 
     @Post("unL1Review")
-    public async unLevel1Review(@Body() level1ReviewSaleOutboundDto: Level1ReviewSaleOutboundDto, @ReqState() state: IState) {
+    public async unLevel1Review(@Body() level1ReviewSaleOutboundDto: SaleOutboundL1ReviewDto, @ReqState() state: IState) {
         await this.saleOutboundService.unLevel1Review(level1ReviewSaleOutboundDto.outboundid, state);
         return {
             code: 200,
@@ -133,7 +133,7 @@ export class SaleOutboundController {
     }
 
     @Post("l2Review")
-    public async level2Review(@Body() level2ReviewSaleOutboundDto: Level2ReviewSaleOutboundDto, @ReqState() state: IState) {
+    public async level2Review(@Body() level2ReviewSaleOutboundDto: SaleOutboundL2ReviewDto, @ReqState() state: IState) {
         await this.saleOutboundService.level2Review(level2ReviewSaleOutboundDto.outboundid, state.user.username);
         return {
             code: 200,
@@ -142,7 +142,7 @@ export class SaleOutboundController {
     }
 
     @Post("unL2Review")
-    public async unLevel2Review(@Body() level2ReviewSaleOutboundDto: Level2ReviewSaleOutboundDto, @ReqState() state: IState) {
+    public async unLevel2Review(@Body() level2ReviewSaleOutboundDto: SaleOutboundL2ReviewDto, @ReqState() state: IState) {
         await this.saleOutboundService.unLevel2Review(level2ReviewSaleOutboundDto.outboundid);
         return {
             code: 200,

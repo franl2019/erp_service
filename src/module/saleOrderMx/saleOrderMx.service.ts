@@ -2,7 +2,7 @@ import {Injectable} from "@nestjs/common";
 import {SaleOrderMxEntity} from "./saleOrderMx.entity";
 import {ISaleOrderMx} from "./saleOrderMx";
 import {SaleOrderMxCreateDto} from "./dto/saleOrderMxCreate.dto";
-import {useVerifyParam} from "../../utils/useVerifyParam";
+import {useVerifyParam} from "../../utils/verifyParam/useVerifyParam";
 
 @Injectable()
 export class SaleOrderMxService {

@@ -1,8 +1,8 @@
 import {Injectable} from "@nestjs/common";
 import {OutboundMxEntity} from "./outboundMx.entity";
 import {IOutboundMx} from "./outboundMx";
-import {CreateOutboundDto} from "./dto/createOutbound.dto";
-import {useVerifyParam} from "../../utils/useVerifyParam";
+import {OutboundMxCreateDto} from "./dto/outboundMxCreate.dto";
+import {useVerifyParam} from "../../utils/verifyParam/useVerifyParam";
 import {ProductService} from "../product/product.service";
 import {bignumber, chain, round} from "mathjs";
 import {WarehouseService} from "../warehouse/warehouse.service";
@@ -101,7 +101,7 @@ export class OutboundMxService {
     private async getVerifiedOutboundMxList(outboundMxList: IOutboundMx[]): Promise<IOutboundMx[]> {
         const verifiedOutboundMxList: IOutboundMx[] = []
         for (let i = 0; i < outboundMxList.length; i++) {
-            const outboundMx = new CreateOutboundDto(outboundMxList[i]);
+            const outboundMx = new OutboundMxCreateDto(outboundMxList[i]);
             await useVerifyParam(outboundMx);
             await this.checkWarehouse(outboundMx.warehouseid);
             await this.checkClient(outboundMx.clientid);

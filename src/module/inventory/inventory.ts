@@ -11,6 +11,7 @@ export interface IInventory {
   productid: number;
   clientid: number;
   warehouseid: number;
+  batchNo:string;
 }
 
 export class Inventory implements IInventory {
@@ -26,6 +27,7 @@ export class Inventory implements IInventory {
   productid: number;
   clientid: number;
   warehouseid: number;
+  batchNo:string
 }
 
 export interface IFindInventory extends IInventory {

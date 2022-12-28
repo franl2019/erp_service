@@ -6,7 +6,7 @@ export class PermissionsFindOneDto implements IPermissions {
     @NotEquals(0)
     permissionsId: number;
     permissionsName: string;
-    permissionsCode:number;
+    permissionsCode:string;
     permissionsThemeId: number;
     creater: string;
     createdAt: Date;

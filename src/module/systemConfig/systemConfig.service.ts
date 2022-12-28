@@ -11,7 +11,7 @@ import {SystemConfigOptionMxCreateDto} from "./systemConfigOptionMx/dto/systemCo
 import {SystemConfigOptionMxService} from "./systemConfigOptionMx/systemConfigOptionMx.service";
 import {SystemConfigOptionMxUpdateDto} from "./systemConfigOptionMx/dto/systemConfigOptionMxUpdate.dto";
 import {SystemConfigMxUpdateDto} from "./systemConfigMx/dto/systemConfigMxUpdate.dto";
-import {useVerifyParam} from "../../utils/useVerifyParam";
+import {useVerifyParam} from "../../utils/verifyParam/useVerifyParam";
 import {MysqldbAls} from "../mysqldb/mysqldbAls";
 import {ISystemConfigMx} from "./systemConfigMx/systemConfigMx";
 import {SystemConfigOptionDeleteDto} from "./systemConfigOption/dto/systemConfigOptionDelete.dto";

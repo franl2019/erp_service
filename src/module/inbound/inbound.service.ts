@@ -4,7 +4,7 @@ import {Injectable} from "@nestjs/common";
 import {IInboundDto} from "./dto/Inbound.dto";
 import {MysqldbAls} from "../mysqldb/mysqldbAls";
 import {InventoryService} from "../inventory/inventory.service";
-import {AddInventoryDto} from "../inventory/dto/addInventory.dto";
+import {InventoryEditDto} from "../inventory/dto/inventoryEdit.dto";
 import {InboundMxService} from "../inboundMx/inboundMx.service";
 import {Inbound} from "./inbound";
 import {AutoCodeMxService} from "../autoCodeMx/autoCodeMx.service";
@@ -183,7 +183,7 @@ export class InboundService {
             const inboundMxList = await this.inboundMxService.findById(inboundid);
             for (let i = 0; i < inboundMxList.length; i++) {
                 const inboundMx = inboundMxList[i];
-                const inventory = new AddInventoryDto();
+                const inventory = new InventoryEditDto();
                 inventory.productid = inboundMx.productid;
                 inventory.spec_d = inboundMx.spec_d;
                 inventory.materials_d = inboundMx.materials_d;
@@ -194,6 +194,7 @@ export class InboundService {
                 inventory.updater = userName
                 inventory.latest_sale_price = inboundMx.netprice;
                 inventory.clientid = inboundMx.clientid;
+                inventory.batchNo = "";
 
                 if (inventory.clientid === 0) {
                     inventory.clientid = inbound.clientid;
@@ -221,25 +222,26 @@ export class InboundService {
             const inboundmxList = await this.inboundMxService.findById(inboundid);
             for (let i = 0; i < inboundmxList.length; i++) {
                 const inboundmx = inboundmxList[i];
-                const intoTheWarehouseDto = new AddInventoryDto();
-                intoTheWarehouseDto.productid = inboundmx.productid;
-                intoTheWarehouseDto.spec_d = inboundmx.spec_d;
-                intoTheWarehouseDto.materials_d = inboundmx.materials_d;
-                intoTheWarehouseDto.remark = inboundmx.remark;
-                intoTheWarehouseDto.remarkmx = inboundmx.remarkmx;
-                intoTheWarehouseDto.qty = inboundmx.inqty
-                intoTheWarehouseDto.updatedAt = new Date();
-                intoTheWarehouseDto.updater = userName;
-                intoTheWarehouseDto.latest_sale_price = inboundmx.netprice;
-                intoTheWarehouseDto.clientid = inboundmx.clientid;
+                const inventory = new InventoryEditDto();
+                inventory.productid = inboundmx.productid;
+                inventory.spec_d = inboundmx.spec_d;
+                inventory.materials_d = inboundmx.materials_d;
+                inventory.remark = inboundmx.remark;
+                inventory.remarkmx = inboundmx.remarkmx;
+                inventory.qty = inboundmx.inqty
+                inventory.updatedAt = new Date();
+                inventory.updater = userName;
+                inventory.latest_sale_price = inboundmx.netprice;
+                inventory.clientid = inboundmx.clientid;
+                inventory.batchNo = "";
 
                 if (inboundmx.clientid === 0) {
-                    intoTheWarehouseDto.clientid = inbound.clientid;
+                    inventory.clientid = inbound.clientid;
                 }
-                intoTheWarehouseDto.warehouseid = inbound.warehouseid;
+                inventory.warehouseid = inbound.warehouseid;
 
                 //出仓每个明细
-                await this.inventoryService.subtractInventory(intoTheWarehouseDto);
+                await this.inventoryService.subtractInventory(inventory);
             }
         });
     }

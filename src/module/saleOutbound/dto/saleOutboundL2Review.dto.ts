@@ -1,6 +1,6 @@
 import {IsInt} from "class-validator";
 
-export class Level2ReviewSaleOutboundDto {
+export class SaleOutboundL2ReviewDto {
     @IsInt()
     outboundid:number;
 }

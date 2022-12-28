@@ -1,9 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { MysqldbAls } from "../mysqldb/mysqldbAls";
 import { InventoryEntity } from "./inventory.entity";
-import { FindInventoryDto } from "./dto/findInventory.dto";
-import { AddInventoryDto} from "./dto/addInventory.dto";
+import { InventoryFindDto } from "./dto/inventoryFind.dto";
+import { InventoryEditDto} from "./dto/inventoryEdit.dto";
 import {chain, bignumber} from 'mathjs';
+import {useVerifyParam} from "../../utils/verifyParam/useVerifyParam";
 
 @Injectable()
 export class InventoryService {
@@ -14,12 +15,13 @@ export class InventoryService {
   }
 
   //查询库存
-  public async find(selectDto: FindInventoryDto) {
+  public async find(selectDto: InventoryFindDto) {
     return await this.inventoryEntity.find(selectDto);
   }
 
   //增加库存
-  public async addInventory(inventoryDto: AddInventoryDto) {
+  public async addInventory(inventoryDto: InventoryEditDto) {
+    await useVerifyParam(inventoryDto);
     const inventoryDb = await this.inventoryEntity.findOne(inventoryDto);
     if (inventoryDb&&inventoryDb.inventoryid !== 0) {
       //计算库存
@@ -28,12 +30,13 @@ export class InventoryService {
       inventoryDb.updater = inventoryDto.updater;
       await this.inventoryEntity.update(inventoryDb);
     } else {
-      await this.inventoryEntity.save(inventoryDto);
+      await this.inventoryEntity.create(inventoryDto);
     }
   }
 
   //减少库存
-  public async subtractInventory(inventoryDto: AddInventoryDto) {
+  public async subtractInventory(inventoryDto: InventoryEditDto) {
+    await useVerifyParam(inventoryDto);
     const inventoryDb = await this.inventoryEntity.findOne(inventoryDto);
     if (inventoryDb&&inventoryDb.inventoryid !== 0) {
       //计算库存
@@ -42,7 +45,7 @@ export class InventoryService {
       inventoryDb.updater = inventoryDto.updater;
       await this.inventoryEntity.update(inventoryDb);
     } else {
-      await this.inventoryEntity.save(inventoryDto);
+      await this.inventoryEntity.create(inventoryDto);
     }
   }
 

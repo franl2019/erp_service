@@ -1,7 +1,7 @@
-import {IFindOutboundDto} from "../../outbound/dto/find.dto";
+import {IOutboundFindDto} from "../../outbound/dto/outboundFind.dto";
 import {IsArray, IsInt, IsString} from "class-validator";
 
-export class FindSaleOutboundDto implements IFindOutboundDto{
+export class SaleOutboundFindDto implements IOutboundFindDto{
     @IsArray()
     warehouseids: number[];
     @IsArray()

@@ -33,7 +33,7 @@ export class PermissionsThemeService {
     public async delete_data(permissionsThemeId: number, userName: string) {
         return await this.mysqldbAls.sqlTransaction(async () => {
             const permissionsList = await this.permissionsService.findAll({
-                permissionsCode: 0,
+                permissionsCode: "",
                 createdAt: undefined,
                 creater: "",
                 del_uuid: 0,

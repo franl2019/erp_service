@@ -3,7 +3,7 @@ import {RolePermissionsMxEntity} from "./rolePermissionsMx.entity";
 import {RolePermissionsMxCreateDto} from "./dto/rolePermissionsMxCreate.dto";
 import {RolePermissionsMxDeleteDto} from "./dto/rolePermissionsMxDelete.dto";
 import {UpdateRolePermissionsDto} from "./dto/updateRolePermissions.dto";
-import {useVerifyParam} from "../../../utils/useVerifyParam";
+import {useVerifyParam} from "../../../utils/verifyParam/useVerifyParam";
 import {MysqldbAls} from "../../mysqldb/mysqldbAls";
 import {IState} from "../../../decorator/user.decorator";
 import {IRolePermissionsMx} from "./rolePermissionsMx";

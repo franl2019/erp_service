@@ -7,7 +7,7 @@ import {RolePermissionsMxFindAllDto} from "./dto/rolePermissionsMxFindAll.dto";
 
 export abstract class IRolePermissionMxJoinPermissions implements IRolePermissionsMx, IPermissions {
     permissionsId: number;
-    permissionsCode: number;
+    permissionsCode: string;
     permissionsName: string;
     roleId: number;
     can: number;
@@ -121,7 +121,7 @@ export class RolePermissionsMxEntity {
                         role_permissions_mx.permissionsId,
                         role_permissions_mx.updater,
                         role_permissions_mx.updatedAt
-                    ) VALUE ?`;
+                    ) VALUES ?`;
         const [res] = await conn.query<ResultSetHeader>(sql, [[[
             rolePermissionsMx.roleId,
             rolePermissionsMx.permissionsId,

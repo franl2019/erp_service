@@ -1,7 +1,6 @@
 import {Injectable} from "@nestjs/common";
 import {OutboundService} from "../outbound/outbound.service";
-import {FindSaleOutboundDto} from "./dto/findSaleOutbound.dto";
-import {SaleOutboundDto} from "./dto/saleOutbound.dto";
+import {SaleOutboundFindDto} from "./dto/saleOutboundFind.dto";
 import {CodeType} from "../autoCode/codeType";
 import * as mathjs from "mathjs";
 import {AccountCategoryType} from "../accountsVerifySheetMx/accountCategoryType";
@@ -9,6 +8,8 @@ import {AccountsReceivableService} from "../accountsReceivable/accountsReceivabl
 import {MysqldbAls} from "../mysqldb/mysqldbAls";
 import {IOutboundMx} from "../outboundMx/outboundMx";
 import {IState} from "../../decorator/user.decorator";
+import {SaleOutboundCreateDto} from "./dto/saleOutboundCreate.dto";
+import {SaleOutboundUpdateDto} from "./dto/saleOutboundUpdate.dto";
 
 const {chain, bignumber, round} = mathjs;
 
@@ -22,6 +23,7 @@ export class SaleOutboundService {
     ) {
     }
 
+    //计算应收账款
     private static calculateAccountsReceivable(outboundMxList: IOutboundMx[]): number {
         //单据应收金额
         let amounts: number = 0;
@@ -49,12 +51,19 @@ export class SaleOutboundService {
         return amounts
     }
 
-    public async find(findDto: FindSaleOutboundDto) {
+    private operateareaIdExistToUser(operateareaid: number, state: IState) {
+        const isExist = state.user.client_operateareaids.includes(operateareaid)
+        if (!isExist) {
+            return Promise.reject(new Error('没有客户数据范围权限'));
+        }
+    }
+
+    public async find(findDto: SaleOutboundFindDto) {
         findDto.outboundtype = CodeType.XS
         return await this.outboundService.find(findDto);
     }
 
-    public async findSheetState(findDto: FindSaleOutboundDto) {
+    public async findSheetState(findDto: SaleOutboundFindDto) {
         findDto.outboundtype = CodeType.XS;
         const outboundList = await this.outboundService.find(findDto);
         let completeL1Review = 0;
@@ -80,43 +89,52 @@ export class SaleOutboundService {
         }
     }
 
-    public async create(saleOutboundDto: SaleOutboundDto) {
+    public async create(saleOutboundDto: SaleOutboundCreateDto, state: IState) {
         saleOutboundDto.outboundtype = CodeType.XS;
-        const result = await this.outboundService.create(saleOutboundDto);
-        saleOutboundDto.outboundid = result.insertId;
+        await this.operateareaIdExistToUser(
+            saleOutboundDto.operateareaid,
+            state
+        );
+        const {insertId} = await this.outboundService.create(saleOutboundDto);
+        saleOutboundDto.outboundid = insertId;
         return {
             id: saleOutboundDto.outboundid,
             code: saleOutboundDto.outboundcode
         }
     }
 
-    public async create_l1Review(saleOutboundDto: SaleOutboundDto, username: string) {
+    public async createL1Review(saleOutboundDto: SaleOutboundCreateDto, state: IState) {
         return this.mysqldbAls.sqlTransaction(async () => {
-            saleOutboundDto.outboundtype = CodeType.XS;
-            const result = await this.outboundService.create(saleOutboundDto);
-            await this.outboundService.l1Review(result.insertId, username);
+            const {id: outboundid, code: outboundcode} = await this.create(saleOutboundDto, state)
+            await this.outboundService.l1Review(outboundid, state.user.username);
             return {
-                id: result.insertId,
-                code: saleOutboundDto.outboundcode
+                id: outboundid,
+                code: outboundcode
             }
         })
     }
 
-    public async update(saleOutboundDto: SaleOutboundDto, state: IState) {
+    public async update(saleOutboundDto: SaleOutboundUpdateDto, state: IState):Promise<boolean> {
         saleOutboundDto.outboundtype = CodeType.XS;
+        await this.operateareaIdExistToUser(
+            saleOutboundDto.operateareaid,
+            state
+        );
         return await this.outboundService.update(saleOutboundDto, state);
     }
 
-    public async updateAndL1Review(saleOutboundDto: SaleOutboundDto, state: IState) {
-        saleOutboundDto.outboundtype = CodeType.XS;
-        return await this.outboundService.updateAndL1Review(saleOutboundDto, state);
+    public async updateL1Review(saleOutboundDto: SaleOutboundUpdateDto, state: IState) {
+       return this.mysqldbAls.sqlTransaction(async ()=>{
+           await this.update(saleOutboundDto,state);
+           return await this.outboundService.l1Review(saleOutboundDto.outboundid, state.user.username);
+       })
     }
 
     public async delete_data(outboundId: number, state: IState) {
         return await this.outboundService.delete_data(outboundId, state);
     }
 
-    public async unDelete_data(outboundId: number) {
+    public async unDeleteData(outboundId: number) {
         return await this.outboundService.undelete_data(outboundId);
     }
 

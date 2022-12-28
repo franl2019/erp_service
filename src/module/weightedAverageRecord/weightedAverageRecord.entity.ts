@@ -125,7 +125,7 @@ export class WeightedAverageRecordEntity {
                          weighted_average_record.initDate,
                          weighted_average_record.version,
                          weighted_average_record.version_latest
-                     ) VALUE ?`;
+                     ) VALUES ?`;
         const [res] = await conn.query<ResultSetHeader>(sql, [[[
             weightedAverageRecord.inDate,
             weightedAverageRecord.level1Review,

@@ -2,7 +2,7 @@ import {Injectable} from "@nestjs/common";
 import {MysqldbAls} from "../mysqldb/mysqldbAls";
 import {TableColumnStateEntity} from "./tableColumnState.entity";
 import {CreateTableColumnStateMxDto} from "./dto/createTableColumnState.dto";
-import {useVerifyParam} from "../../utils/useVerifyParam";
+import {useVerifyParam} from "../../utils/verifyParam/useVerifyParam";
 import {ITableColumnState} from "./tableColumnState";
 
 @Injectable()

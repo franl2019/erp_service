@@ -1,7 +1,7 @@
 import {Injectable} from "@nestjs/common";
 import {MysqldbAls} from "../mysqldb/mysqldbAls";
 import {IOutbound} from "./outbound";
-import {IFindOutboundDto, IOutboundHead} from "./dto/find.dto";
+import {IOutboundFindDto, IOutboundHead} from "./dto/outboundFind.dto";
 import {ResultSetHeader} from "mysql2/promise";
 
 @Injectable()
@@ -13,13 +13,15 @@ export class OutboundEntity {
     }
 
     //出仓单单头 综合查询
-    public async find(findDto: IFindOutboundDto): Promise<IOutboundHead[]> {
+    public async find(findDto: IOutboundFindDto): Promise<IOutboundHead[]> {
         const conn = this.mysqlAls.getConnectionInAls();
-        let sql = `SELECT
+        let sql = `
+              SELECT
                 outbound.outboundid, 
                 outbound.outboundcode, 
                 outbound.outboundtype, 
                 outbound.outdate, 
+                outbound.deliveryDate,
                 outbound.moneytype, 
                 outbound.relatednumber, 
                 outbound.remark1, 
@@ -38,6 +40,7 @@ export class OutboundEntity {
                 outbound.createdAt, 
                 outbound.updater, 
                 outbound.updatedAt, 
+                outbound.operateareaid,
                 outbound.warehouseid,
                 outbound.clientid,
                 outbound.del_uuid, 
@@ -56,23 +59,21 @@ export class OutboundEntity {
                         outbound.outboundid = outbound_mx.outboundid
                 ) AS amt,
                 client.clientname,
-                client.ymrep,
-                warehouse.warehousename
+                client.ymrep
               FROM
                 outbound
-	              LEFT JOIN client ON outbound.clientid = client.clientid
-	              LEFT JOIN warehouse ON outbound.warehouseid = warehouse.warehouseid
+	            INNER JOIN client ON outbound.clientid = client.clientid
               WHERE 
                 outbound.del_uuid = 0`;
         let params = [];
 
-        //按仓库查询
-        if (findDto.warehouseids.length > 0) {
-            sql = sql + ` AND outbound.warehouseid IN (?)`;
-            params.push(findDto.warehouseids);
-        } else {
-            return Promise.reject(new Error("查询出仓单失败，缺少仓库权限ID"));
-        }
+        // //按仓库查询
+        // if (findDto.warehouseids.length > 0) {
+        //     sql = sql + ` AND outbound.warehouseid IN (?)`;
+        //     params.push(findDto.warehouseids);
+        // } else {
+        //     return Promise.reject(new Error("查询出仓单失败，缺少仓库权限ID"));
+        // }
 
         //按客户查询
         if (findDto.clientid !== 0) {
@@ -82,7 +83,7 @@ export class OutboundEntity {
 
         //按操作区域查询
         if (findDto.operateareaids.length > 0) {
-            sql = sql + ` AND client.operateareaid IN (?)`;
+            sql = sql + ` AND outbound.operateareaid IN (?)`;
             params.push(findDto.operateareaids);
         } else {
             return Promise.reject(new Error("查询出仓单失败，缺少操作区域权限ID"));
@@ -176,6 +177,7 @@ export class OutboundEntity {
         sql = sql + ` ORDER BY outbound.outboundid DESC`
 
         const [res] = await conn.query(sql, params);
+        console.dir(res)
         return res as IOutboundHead[];
     };
 
@@ -187,6 +189,7 @@ export class OutboundEntity {
                 outbound.outboundcode, 
                 outbound.outboundtype, 
                 outbound.outdate, 
+                outbound.deliveryDate,
                 outbound.moneytype, 
                 outbound.relatednumber, 
                 outbound.remark1, 
@@ -205,6 +208,7 @@ export class OutboundEntity {
                 outbound.createdAt, 
                 outbound.updater, 
                 outbound.updatedAt, 
+                outbound.operateareaid,
                 outbound.warehouseid,
                 outbound.clientid,
                 outbound.del_uuid, 
@@ -212,9 +216,10 @@ export class OutboundEntity {
                 outbound.deleter
               FROM
                 outbound
-	            WHERE
-	              outbound.outboundid = ?`;
+	          WHERE
+	            outbound.outboundid = ?`;
         const [res] = await conn.query(sql, [outboundid]);
+
         if ((res as IOutbound[]).length > 0) {
             return (res as IOutbound[])[0];
         } else {
@@ -228,6 +233,7 @@ export class OutboundEntity {
         const sql = `INSERT INTO outbound (
                       outbound.outboundcode, 
                       outbound.outboundtype, 
+                      outbound.deliveryDate,
                       outbound.outdate, 
                       outbound.moneytype, 
                       outbound.relatednumber, 
@@ -238,12 +244,16 @@ export class OutboundEntity {
                       outbound.remark5, 
                       outbound.creater, 
                       outbound.createdAt, 
+                      outbound.operateareaid,
                       outbound.warehouseid,
                       outbound.clientid
                       ) VALUES ?`;
+        console.log(outbound.deliveryDate);
+        console.log(outbound.outdate)
         const [res] = await conn.query<ResultSetHeader>(sql, [[[
             outbound.outboundcode,
             outbound.outboundtype,
+            String(outbound.deliveryDate).length === 0 ? null : outbound.deliveryDate,
             outbound.outdate,
             outbound.moneytype,
             outbound.relatednumber,
@@ -254,6 +264,7 @@ export class OutboundEntity {
             outbound.remark5,
             outbound.creater,
             outbound.createdAt,
+            outbound.operateareaid,
             outbound.warehouseid,
             outbound.clientid
         ]]]);
@@ -267,9 +278,11 @@ export class OutboundEntity {
     //修改出仓单单头
     public async update(outbound: IOutbound) {
         const conn = await this.mysqlAls.getConnectionInAls();
-        const sql = `UPDATE 
-                    outbound 
+        const sql = `
+                UPDATE 
+                  outbound 
                 SET
+                  outbound.deliveryDate = ?,
                   outbound.outdate = ?, 
                   outbound.moneytype = ?, 
                   outbound.relatednumber = ?, 
@@ -280,10 +293,12 @@ export class OutboundEntity {
                   outbound.remark5 = ?,
                   outbound.updater = ?, 
                   outbound.updatedAt = ?, 
+                  outbound.operateareaid = ?,
                   outbound.warehouseid = ?,
                   outbound.clientid = ?
                 WHERE outbound.del_uuid = 0 AND outbound.outboundid = ?`;
-        const [res] = await conn.query(sql, [
+        const [res] = await conn.query<ResultSetHeader>(sql, [
+            String(outbound.deliveryDate).length === 0 ? null : outbound.deliveryDate,
             outbound.outdate,
             outbound.moneytype,
             outbound.relatednumber,
@@ -294,12 +309,13 @@ export class OutboundEntity {
             outbound.remark5,
             outbound.updater,
             outbound.updatedAt,
+            outbound.operateareaid,
             outbound.warehouseid,
             outbound.clientid,
             outbound.outboundid
         ]);
-        if ((res as ResultSetHeader).affectedRows > 0) {
-            return (res as ResultSetHeader);
+        if (res.affectedRows > 0) {
+            return res;
         } else {
             return Promise.reject(new Error("修改出仓单的单头失败"));
         }
@@ -316,14 +332,14 @@ export class OutboundEntity {
                  WHERE 
                     outbound.del_uuid = 0 
                     AND outbound.outboundid = ?`;
-        const [res] = await conn.query(sql, [
+        const [res] = await conn.query<ResultSetHeader>(sql, [
             outboundid,
             new Date(),
             deleter,
             outboundid
         ]);
-        if ((res as ResultSetHeader).affectedRows > 0) {
-            return (res as ResultSetHeader);
+        if (res.affectedRows > 0) {
+            return res;
         } else {
             return Promise.reject(new Error("更新出仓单的删除标记失败"));
         }
@@ -340,11 +356,11 @@ export class OutboundEntity {
                  WHERE 
                     outbound.del_uuid = 0 
                     AND outbound.outboundid = ?`;
-        const [res] = await conn.query(sql, [
+        const [res] = await conn.query<ResultSetHeader>(sql, [
             outboundid
         ]);
-        if ((res as ResultSetHeader).affectedRows > 0) {
-            return (res as ResultSetHeader);
+        if (res.affectedRows > 0) {
+            return res;
         } else {
             return Promise.reject(new Error("更新出仓单的删除标记失败"));
         }
@@ -361,13 +377,13 @@ export class OutboundEntity {
                      WHERE 
                         outbound.del_uuid = 0 
                         AND outbound.outboundid = ?`;
-        const [res] = await conn.query(sql, [
+        const [res] = await conn.query<ResultSetHeader>(sql, [
             level1name,
             new Date(),
             outboundid
         ]);
-        if ((res as ResultSetHeader).affectedRows > 0) {
-            return (res as ResultSetHeader);
+        if (res.affectedRows > 0) {
+            return res;
         } else {
             return Promise.reject(new Error("更新出仓单审核标记失败"));
         }
@@ -384,11 +400,11 @@ export class OutboundEntity {
                      WHERE 
                         outbound.del_uuid = 0
                         AND outbound.outboundid = ?`;
-        const [res] = await conn.query(sql, [
+        const [res] = await conn.query<ResultSetHeader>(sql, [
             outboundid
         ]);
-        if ((res as ResultSetHeader).affectedRows > 0) {
-            return (res as ResultSetHeader);
+        if (res.affectedRows > 0) {
+            return res;
         } else {
             return Promise.reject(new Error("更新出仓单审核标记失败"));
         }
@@ -407,21 +423,21 @@ export class OutboundEntity {
                         AND outbound.level2review = 0
                         AND outbound.del_uuid = 0 
                         AND outbound.outboundid = ?`;
-        const [res] = await conn.query(sql, [
+        const [res] = await conn.query<ResultSetHeader>(sql, [
             level2name,
             new Date(),
             outboundid
         ]);
-        if ((res as ResultSetHeader).affectedRows > 0) {
-            return (res as ResultSetHeader);
+        if (res.affectedRows > 0) {
+            return res;
         } else {
             return Promise.reject(new Error("更新出仓单财务审核标记失败"));
         }
     }
 
-  public async unl2Review(outboundid: number) {
-    const conn = await this.mysqlAls.getConnectionInAls();
-    const sql = `UPDATE 
+    public async unl2Review(outboundid: number) {
+        const conn = await this.mysqlAls.getConnectionInAls();
+        const sql = `UPDATE 
                         outbound 
                      SET
                         outbound.level2review = 0, 
@@ -432,13 +448,13 @@ export class OutboundEntity {
                         AND outbound.level2review = 1
                         AND outbound.del_uuid = 0 
                         AND outbound.outboundid = ?`;
-    const [res] = await conn.query(sql, [
-      outboundid
-    ]);
-    if ((res as ResultSetHeader).affectedRows > 0) {
-      return (res as ResultSetHeader);
-    } else {
-      return Promise.reject(new Error("更新出仓单财务审核标记失败"));
+        const [res] = await conn.query<ResultSetHeader>(sql, [
+            outboundid
+        ]);
+        if (res.affectedRows > 0) {
+            return res;
+        } else {
+            return Promise.reject(new Error("更新出仓单财务审核标记失败"));
+        }
     }
-  }
 }
