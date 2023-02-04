@@ -9,6 +9,8 @@ export interface ISaleOrderMx {
     spec_d: string;
     //现用料
     materials_d: string;
+    //批货
+    batchNo:string;
     //明细备注
     remarkmx: string;
     //备注
@@ -49,4 +51,6 @@ export interface ISaleOrderMx {
     openQty: number;
     //出货数量
     saleQty: number;
+
+
 }

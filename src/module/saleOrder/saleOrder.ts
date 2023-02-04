@@ -21,7 +21,7 @@ export interface ISaleOrder {
     address: string;
     //联系人
     contact: string;
-    //订金
+    //$订金
     deposit: number;
     //打印次数
     printCount: number;
