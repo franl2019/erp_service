@@ -94,7 +94,6 @@ export class AccountsReceivableService {
     //创建应收账款凭证
     public async createAccountsReceivableSubject(accountsReceivableSubjectMx: IAccountsReceivableSubjectMx) {
 
-        console.log('创建应收账款凭证subject')
         return await this.mysqldbAls.sqlTransaction(async () => {
             //新增应收账款科目明细
             await this.accountsReceivableSubjectMxService.create(accountsReceivableSubjectMx);
@@ -167,7 +166,6 @@ export class AccountsReceivableService {
 
     //新增应收账款明细
     private async createAccountsReceivableMx(accountsReceivableSubjectMx: IAccountsReceivableSubjectMx) {
-        console.log('创建应收账款明细mx')
 
         const accountsReceivableMx: IAccountsReceivableMx = {
             accountReceivableMxId: 0,
@@ -221,7 +219,6 @@ export class AccountsReceivableService {
                 }
                 break;
             default:
-                console.log('default')
                 break
         }
         await this.accountsReceivableMxService.create(accountsReceivableMx);
@@ -229,7 +226,6 @@ export class AccountsReceivableService {
 
     //重新计算应收账款核销金额
     private async recalculateAccountsReceivable(accountsReceivableId: number) {
-        console.log('重新计算应收账款核销金额')
         const accountsReceivable = await this.findById(accountsReceivableId);
         const accountsReceivableSubjectMxList = await this.accountsReceivableSubjectMxService.findById(accountsReceivableId);
 

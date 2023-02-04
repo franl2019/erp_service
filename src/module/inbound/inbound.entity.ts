@@ -176,8 +176,6 @@ export class InboundEntity {
             params.push(`%${findDto.buyname}%`);
         }
 
-        console.log(findDto.moneytype)
-
         //按结算方式查询
         if (findDto.moneytype.length > 0) {
             sql = sql + ` AND inbound.moneytype LIKE ?`;

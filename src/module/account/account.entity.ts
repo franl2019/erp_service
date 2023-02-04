@@ -7,26 +7,32 @@ import {ResultSetHeader} from "mysql2/promise";
 @Injectable()
 export class AccountEntity {
 
-    constructor(private readonly mysqldbAls: MysqldbAls) {
+    constructor(
+        private readonly mysqldbAls: MysqldbAls,
+    ) {
+    }
+
+    private getEntitySql(){
+        return `account.accountId,
+                account.currencyid,
+                account.accountCode,
+                account.accountName,
+                account.accountType,
+                account.companyFlag,
+                account.creater,
+                account.createdAt,
+                account.updater,
+                account.updatedAt,
+                account.useFlag,
+                account.del_uuid,
+                account.deleter,
+                account.deletedAt`;
     }
 
     public async findOne(accountId: number) {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `SELECT
-                        account.accountId,
-                        account.currencyid,
-                        account.accountCode,
-                        account.accountName,
-                        account.accountType,
-                        account.companyFlag,
-                        account.creater,
-                        account.createdAt,
-                        account.updater,
-                        account.updatedAt,
-                        account.useFlag,
-                        account.del_uuid,
-                        account.deleter,
-                        account.deletedAt
+                        ${this.getEntitySql()}
                      FROM
                         account
                      WHERE account.accountId = ?`
@@ -41,17 +47,7 @@ export class AccountEntity {
     public async find(findDto: IFindAccountDto) {
         const conn = await this.mysqldbAls.getConnectionInAls();
         let sql = `SELECT
-                        account.accountId,
-                        account.currencyid,
-                        account.accountCode,
-                        account.accountName,
-                        account.accountType,
-                        account.companyFlag,
-                        account.creater,
-                        account.createdAt,
-                        account.updater,
-                        account.updatedAt,
-                        account.useFlag,
+                        ${this.getEntitySql()},
                         currency.currencyname
                     FROM
                         account
@@ -90,20 +86,7 @@ export class AccountEntity {
     public async findAuthByUserId(userid:number){
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `SELECT
-                        account.currencyid,
-                        account.accountCode,
-                        account.accountName,
-                        account.accountType,
-                        account.companyFlag,
-                        account.creater,
-                        account.createdAt,
-                        account.updater,
-                        account.updatedAt,
-                        account.useFlag,
-                        account.del_uuid,
-                        account.deleter,
-                        account.deletedAt,
-                        account.accountId
+                        ${this.getEntitySql()}
                      FROM
                         account
                         INNER JOIN user_account_mx ON account.accountId = user_account_mx.accountId

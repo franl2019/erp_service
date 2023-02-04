@@ -430,19 +430,16 @@ export class AccountsVerifySheetService {
                 for (let i = 0; i < accountsVerifySheetMxList.length; i++) {
                     const accountsVerifySheetMx = accountsVerifySheetMxList[i];
                     //账款类型
-                    console.log(accountsVerifySheetMx.correlationType)
                     switch (accountsVerifySheetMx.correlationType) {
                         //[1]应收账款 | [2]预收账款 |  [3]其他应收
                         case AccountCategoryType.accountsReceivable1:
                         case AccountCategoryType.advancePayment2:
                         case AccountCategoryType.otherReceivables3:
-                            console.log('haveAccountReceivable')
                             haveAccountReceivable = true;
                             break
                         case AccountCategoryType.accountsPayable4:
                         case AccountCategoryType.prepayments5:
                         case AccountCategoryType.otherPayable6:
-                            console.log('accountsPayable')
                             haveAccountsPayable = true;
                             break
                         default:
@@ -455,15 +452,11 @@ export class AccountsVerifySheetService {
                 haveAccountReceivable = true;
                 //[5]应付转应付 冲供应商A 供应商B生成
             } else if (accountsVerifySheet.sheetType === AccountsVerifySheetType.accountsPayable_accountsPayable_5) {
-                // await this.accountsPayableService.deleteByCorrelation(accountsVerifySheet.accountsVerifySheetId, CodeType.HXD);
                 haveAccountsPayable = true;
-            } else {
-                console.log(123)
             }
 
 
             if (haveAccountReceivable) {
-                console.log('haveAccountReceivable')
                 //删除应收账款明细，自动重新计算应收账款
                 await this.accountsReceivableService.deleteMxByCorrelation(accountsVerifySheetId, CodeType.HXD);
             }

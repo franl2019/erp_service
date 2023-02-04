@@ -161,7 +161,6 @@ export class OutboundEntity {
             params.push(`%${findDto.remark5}%`);
         }
 
-
         //按业务员查询
         if (findDto.ymrep.length > 0) {
             sql = sql + ` AND client.ymrep LIKE ?`;
@@ -177,7 +176,6 @@ export class OutboundEntity {
         sql = sql + ` ORDER BY outbound.outboundid DESC`
 
         const [res] = await conn.query(sql, params);
-        console.dir(res)
         return res as IOutboundHead[];
     };
 
@@ -248,8 +246,6 @@ export class OutboundEntity {
                       outbound.warehouseid,
                       outbound.clientid
                       ) VALUES ?`;
-        console.log(outbound.deliveryDate);
-        console.log(outbound.outdate)
         const [res] = await conn.query<ResultSetHeader>(sql, [[[
             outbound.outboundcode,
             outbound.outboundtype,

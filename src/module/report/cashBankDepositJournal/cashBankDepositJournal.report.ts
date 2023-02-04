@@ -158,9 +158,6 @@ export class CashBankDepositJournalReport {
                         bankReport.printid ASC,
                         bankReport.indate ASC
         `;
-
-        console.log(sql)
-
         const [res] = await conn.query(sql);
         return res;
     }

@@ -239,7 +239,6 @@ export class WeightedAverageRecordMxEntity {
                         PsiMonthReport.productid ASC
                         
         `;
-        console.log(sql)
         const [res] = await conn.query(sql);
         for (let i = 0; i < (res as IWeightedAverageRecordMx[]).length; i++) {
             (res as IWeightedAverageRecordMx[])[i].weightedAverageRecordId = weightedAverageRecord.weightedAverageRecordId

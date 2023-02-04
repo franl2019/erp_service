@@ -191,8 +191,6 @@ export class AccountsReceivableMxReport {
                     WHERE
                         client.del_uuid = 0
                     `;
-
-        console.log(sql)
         const [res] = await conn.query(sql);
         return res as IAccountsReceivableMxReport[]
     }

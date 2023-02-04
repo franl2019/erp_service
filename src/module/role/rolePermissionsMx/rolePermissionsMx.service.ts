@@ -92,7 +92,6 @@ export class RolePermissionsMxService {
         for (let i = 0; i < userIdList.length; i++) {
             const userId = userIdList[i];
             await this.cacheManager.del(String(userId));
-            console.log(`清除${userId}权限`)
         }
     }
 

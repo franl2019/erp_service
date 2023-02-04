@@ -26,7 +26,7 @@ export interface IAccount {
     deleter: string;
 }
 
-export class Account implements IAccount {
+export class Account implements IAccount  {
     //出纳账户Id
     accountId: number;
     //币种Id
@@ -52,4 +52,24 @@ export class Account implements IAccount {
     del_uuid: number;
     deletedAt: Date;
     deleter: string;
+
+
+    constructor() {
+        this.accountId = null;
+        this.currencyid = null;
+        this.accountCode = null;
+        this.accountName = null;
+        this.accountType = null;
+        this.companyFlag = null;
+        this.creater = null;
+        this.createdAt = null;
+        this.updater = null;
+        this.updatedAt = null;
+        this.useFlag = null;
+        this.del_uuid = null;
+        this.deletedAt = null;
+        this.deleter = null;
+    }
+
+
 }

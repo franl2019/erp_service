@@ -211,7 +211,6 @@ export class PsiMonthReport {
                         PsiMonthReport.productid ASC
                         
         `;
-        console.log(sql)
         const [res] = await conn.query(sql);
         return res as IPsiMonthReport[]
     }

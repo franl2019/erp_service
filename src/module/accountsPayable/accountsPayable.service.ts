@@ -94,7 +94,6 @@ export class AccountsPayableService {
     }
 
     public async deleteByCorrelation(correlationId: number, correlationType: number) {
-        console.log('应付账款deleteByCorrelation')
         const accountsPayableList = await this.find({
             correlationCode: "",
             amounts: 0, checkedAmounts: 0, notCheckAmounts: 0,
@@ -120,7 +119,6 @@ export class AccountsPayableService {
     }
 
     public async deleteMxByCorrelation(correlationId: number, correlationType: number) {
-        console.log('应付账款deleteMxByCorrelation')
         return this.mysqldbAls.sqlTransaction(async () => {
             //删除Mx
             await this.accountsPayableMxService.deleteByCorrelationId(correlationId, correlationType);
@@ -175,7 +173,6 @@ export class AccountsPayableService {
         switch (accountsPayable.accountsPayableType) {
             //应付账款
             case AccountCategoryType.accountsPayable4:
-                console.log("应付账款")
                 //负债类 贷方增加
                 if (accountsPayableSubjectMx.credit > 0) {
                     //贷方正数 应付款 增加
@@ -195,7 +192,6 @@ export class AccountsPayableService {
                 }
                 break;
             case AccountCategoryType.otherPayable6:
-                console.log("其他应付")
                 //负债类 贷方增加
                 if (accountsPayableSubjectMx.credit > 0) {
                     //贷方正数 应付款 增加
@@ -215,7 +211,6 @@ export class AccountsPayableService {
                 }
                 break;
             case AccountCategoryType.prepayments5:
-                console.log("预付账款")
                 //资产类 借方增加
                 if (accountsPayableSubjectMx.debit > 0) {
                     accountsPayableMx.advancesPayment = accountsPayableSubjectMx.debit;
@@ -230,7 +225,6 @@ export class AccountsPayableService {
                 }
                 break;
             default:
-                console.log('default')
                 break;
         }
         await this.accountsPayableMxService.create(accountsPayableMx);
@@ -238,7 +232,6 @@ export class AccountsPayableService {
 
     //重新计算应付账款
     private async recalculateAccountPayable(accountsPayableId: number) {
-        console.log("重新计算应付账款")
         const accountsPayable = await this.findById(accountsPayableId);
         const accountsPayableSubjectMxList = await this.accountsPayableSubjectMxService.findById(accountsPayableId);
 

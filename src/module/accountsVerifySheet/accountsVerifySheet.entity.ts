@@ -150,7 +150,6 @@ export class AccountsVerifySheetEntity {
     }
 
     public async create(accountsVerifySheet: IAccountsVerifySheet) {
-        console.log(accountsVerifySheet)
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `INSERT INTO accounts_verify_sheet (
                         accounts_verify_sheet.accountsVerifySheetCode,

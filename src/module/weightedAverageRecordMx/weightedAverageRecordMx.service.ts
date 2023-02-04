@@ -39,7 +39,6 @@ export class WeightedAverageRecordMxService {
         return await this.mysqldbAls.sqlTransaction(async () => {
             //查询本期
             const weightedAverageRecord = await this.weightedAverageRecordService.findByInDate(inDate);
-            console.log(weightedAverageRecord)
             //已结转核算成本
             if (weightedAverageRecord.level1Review === 1) {
                 return true

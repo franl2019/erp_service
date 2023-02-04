@@ -186,7 +186,6 @@ export class AccountPayableMxReport {
                     WHERE
                         buy.del_uuid = 0
         `
-        console.log(sql)
         const [res] = await conn.query(sql);
         return res as IAccountPayableMxReport[];
     }

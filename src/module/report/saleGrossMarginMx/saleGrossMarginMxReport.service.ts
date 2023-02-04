@@ -95,7 +95,6 @@ export class SaleGrossMarginMxReportService {
                          ${findDto.remarkmx ? ` AND outbound_mx.remarkmx LIKE ${conn.escape(findDto.remarkmx + '%' )}`:``}
                          `;
 
-        console.log(sql)
         const [res] = await conn.query(sql);
         return res as ISaleGrossMarginMx[]
     }

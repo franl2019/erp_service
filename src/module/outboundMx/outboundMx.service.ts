@@ -61,7 +61,13 @@ export class OutboundMxService {
 
         switch (outboundMx.pricetype) {
             case 0:
-                outboundMx.priceqty = outboundMx.outqty;
+                outboundMx.priceqty = round(
+                    Number(
+                        chain(bignumber(outboundMx.outqty))
+                            .multiply(bignumber(outboundMx.otherUnitConversionRate))
+                            .done()
+                    )
+                    , 4);
                 outboundMx.netprice = round(
                     Number(
                         chain(bignumber(outboundMx.price))
@@ -77,7 +83,13 @@ export class OutboundMxService {
 
                 break;
             case 1:
-                outboundMx.priceqty = outboundMx.bzqty;
+                outboundMx.priceqty = round(
+                    Number(
+                        chain(bignumber(outboundMx.bzqty))
+                            .multiply(bignumber(outboundMx.otherUnitConversionRate))
+                            .done()
+                    )
+                    , 4);
                 outboundMx.netprice = round(
                     Number(
                         chain(bignumber(outboundMx.bzprice))

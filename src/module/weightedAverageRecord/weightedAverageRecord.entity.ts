@@ -73,7 +73,6 @@ export class WeightedAverageRecordEntity {
                         weighted_average_record.version_latest = ${conn.escape(version_latest)}
                      WHERE
                         weighted_average_record.inDate LIKE ${conn.escape(inDate+'%')}`;
-        console.log(sql)
         const [res] = await conn.query<ResultSetHeader>(sql);
         if (res.affectedRows > 0) {
             return res;
@@ -155,7 +154,6 @@ export class WeightedAverageRecordEntity {
                         weighted_average_record.version = ${conn.escape(version)}
                      WHERE
                         weighted_average_record.inDate LIKE ${conn.escape(inDate+'%')}`;
-        console.log(sql)
         const [res] = await conn.query<ResultSetHeader>(sql);
         if(res.affectedRows>0){
             return res;

@@ -61,9 +61,6 @@ export class AccountsReceivableSumReport {
                                 1 = 1
                                 ${findDto.clientid?` AND client.clientid = ${conn.escape(findDto.clientid)}`:''}
         `;
-
-
-        console.log(sql)
         const [res] = await conn.query(sql);
         return res as IAccountsReceivableSumReport[];
     }

@@ -75,7 +75,6 @@ export class TableColumnStateEntity {
             table_column_state.parentId,
             table_column_state.isGroup
         ])
-        console.log(values)
         const [res] = await conn.query<ResultSetHeader>(sql,
             [values]);
         if (res.affectedRows > 0) {
