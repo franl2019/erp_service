@@ -3,12 +3,16 @@ import {IsArray, IsDateString, IsInt, IsNumber, IsString} from "class-validator"
 export class SaleOrderFindDto {
     @IsInt()
     saleOrderId:number;
+
+    @IsString()
+    saleOrderCode:string;
+
     @IsDateString()
     startDate:string;
     @IsDateString()
     endDate:string;
 
-    @IsDateString()
+    @IsString()
     deliveryDate:string;
     @IsArray()
     warehouseids:number[];

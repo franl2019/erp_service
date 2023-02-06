@@ -34,9 +34,9 @@ export interface ISaleOrderMx {
     floatprice2: number;
     floatprice3: number;
     //折扣
+    agio: number;
     agio1: number;
     agio2: number;
-    agio3: number;
     //汇率
     exchangeRate: number;
     //税率
@@ -51,6 +51,23 @@ export interface ISaleOrderMx {
     openQty: number;
     //出货数量
     saleQty: number;
+
+
+    warehouseid:number
+    otherUnit:string;
+    otherUnitConversionRate:number;
+    kz_productCode:string;
+    kz_productName:string;
+    kz_spec:string;
+    kz_materials:string;
+    kz_remark:string;
+    kz_spec_d:string;
+    kz_materials_d:string;
+    remark1:string;
+    remark2:string;
+    remark3:string;
+    remark4:string;
+    remark5:string;
 
 
 }

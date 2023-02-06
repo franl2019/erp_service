@@ -117,11 +117,11 @@ export class SaleOrderEntity {
                         1 = 1
                         ${ findDto.saleOrderId           ? ` AND sale_order.saleOrderId = ${conn.escape(findDto.saleOrderId)}` :`` }
                         ${ findDto.saleOrderState        ? ` AND sale_order.saleOrderState = ${conn.escape(findDto.saleOrderState)}` :`` }
-                        ${ findDto.warehouseids          ? ` AND sale_order.warehouseid IN ${conn.escape(findDto.warehouseids)}` :`` }
+                        ${ findDto.warehouseids          ? ` AND sale_order.warehouseid IN (${conn.escape(findDto.warehouseids)})` :`` }
                         ${ findDto.clientid              ? ` AND sale_order.clientid = ${conn.escape(findDto.clientid)}` :`` }
                         
-                        ${ findDto.clientname.length>0   ? ` AND sale_order.clientname LIKE ${conn.escape(findDto.clientname+'%')}` :`` }
-                        ${ findDto.ymrep.length>0        ? ` AND sale_order.ymrep = ${conn.escape(findDto.ymrep)}` :`` }
+                        ${ findDto.clientname.length>0   ? ` AND client.clientname LIKE ${conn.escape(findDto.clientname+'%')}` :`` }
+                        ${ findDto.ymrep.length>0        ? ` AND client.ymrep = ${conn.escape(findDto.ymrep)}` :`` }
                         ${ findDto.moneytype.length>0    ? ` AND sale_order.moneytype = ${conn.escape(findDto.moneytype)}` :`` }
                         ${ findDto.relatednumber.length>0? ` AND sale_order.relatednumber = ${conn.escape(findDto.relatednumber)}` :`` }
                         
@@ -136,8 +136,9 @@ export class SaleOrderEntity {
                         ${findDto.startDate.length>0 && findDto.endDate.length>0 ? 
                           ` AND DATE(sale_order.orderDate) BETWEEN  ${conn.escape(findDto.startDate)} AND ${conn.escape(findDto.endDate)}`:
                           ``}
-                        ${ findDto.deliveryDate          ? ` AND DATE(sale_order.deliveryDate) = ${conn.escape(findDto.deliveryDate)}` :`` }
+                        ${ findDto.deliveryDate.length>0 ? ` AND DATE(sale_order.deliveryDate) = ${conn.escape(findDto.deliveryDate)}` :`` }
         `;
+        console.log(sql)
         const [res] = await conn.query(sql);
         return res as ISaleOrder[]
     }

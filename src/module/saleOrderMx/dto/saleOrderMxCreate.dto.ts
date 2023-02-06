@@ -1,7 +1,7 @@
 import {ISaleOrderMx} from "../saleOrderMx";
 import {IsInt, IsNumber, IsString, NotEquals} from "class-validator";
 
-export class SaleOrderMxCreateDto implements ISaleOrderMx{
+export class SaleOrderMxCreateDto implements ISaleOrderMx {
     //销售订单头id
     @IsInt()
     @NotEquals(0)
@@ -9,6 +9,10 @@ export class SaleOrderMxCreateDto implements ISaleOrderMx{
     //明细顺序
     @IsInt()
     printid: number;
+    //仓库id
+    @IsInt()
+    @NotEquals(0)
+    warehouseid: number;
     //产品id
     @IsInt()
     @NotEquals(0)
@@ -19,6 +23,8 @@ export class SaleOrderMxCreateDto implements ISaleOrderMx{
     //现用料
     @IsString()
     materials_d: string;
+    @IsString()
+    batchNo: string;
     //明细备注
     @IsString()
     remarkmx: string;
@@ -50,11 +56,11 @@ export class SaleOrderMxCreateDto implements ISaleOrderMx{
     floatprice3: number;
     //折扣
     @IsNumber()
+    agio: number;
+    @IsNumber()
     agio1: number;
     @IsNumber()
     agio2: number;
-    @IsNumber()
-    agio3: number;
     //汇率
     @IsNumber()
     exchangeRate: number;
@@ -74,14 +80,45 @@ export class SaleOrderMxCreateDto implements ISaleOrderMx{
     openQty: number;
     //出货数量
     saleQty: number;
+    @IsString()
+    kz_materials: string;
+    @IsString()
+    kz_materials_d: string;
+    @IsString()
+    kz_productCode: string;
+    @IsString()
+    kz_productName: string;
+    @IsString()
+    kz_remark: string;
+    @IsString()
+    kz_spec: string;
+    @IsString()
+    kz_spec_d: string;
+    @IsString()
+    otherUnit: string;
+    @IsNumber()
+    @NotEquals(0)
+    otherUnitConversionRate: number;
+    @IsString()
+    remark1: string;
+    @IsString()
+    remark2: string;
+    @IsString()
+    remark3: string;
+    @IsString()
+    remark4: string;
+    @IsString()
+    remark5: string;
 
 
     constructor(saleOrderMx:ISaleOrderMx) {
         this.saleOrderId = saleOrderMx.saleOrderId;
         this.printid = saleOrderMx.printid;
+        this.warehouseid = saleOrderMx.warehouseid;
         this.productid = saleOrderMx.productid;
         this.spec_d = saleOrderMx.spec_d;
         this.materials_d = saleOrderMx.materials_d;
+        this.batchNo = saleOrderMx.batchNo;
         this.remarkmx = saleOrderMx.remarkmx;
         this.remark = saleOrderMx.remark;
         this.outqty = saleOrderMx.outqty;
@@ -93,9 +130,9 @@ export class SaleOrderMxCreateDto implements ISaleOrderMx{
         this.floatprice1 = saleOrderMx.floatprice1;
         this.floatprice2 = saleOrderMx.floatprice2;
         this.floatprice3 = saleOrderMx.floatprice3;
+        this.agio = saleOrderMx.agio;
         this.agio1 = saleOrderMx.agio1;
         this.agio2 = saleOrderMx.agio2;
-        this.agio3 = saleOrderMx.agio3;
         this.exchangeRate = saleOrderMx.exchangeRate;
         this.rate = saleOrderMx.rate;
         this.ratePrice = saleOrderMx.ratePrice;
@@ -104,5 +141,19 @@ export class SaleOrderMxCreateDto implements ISaleOrderMx{
         this.stopQty = saleOrderMx.stopQty;
         this.openQty = saleOrderMx.openQty;
         this.saleQty = saleOrderMx.saleQty;
+        this.kz_materials = saleOrderMx.kz_materials;
+        this.kz_materials_d = saleOrderMx.kz_materials_d;
+        this.kz_productCode = saleOrderMx.kz_productCode;
+        this.kz_productName = saleOrderMx.kz_productName;
+        this.kz_remark = saleOrderMx.kz_remark;
+        this.kz_spec = saleOrderMx.kz_spec;
+        this.kz_spec_d = saleOrderMx.kz_spec_d;
+        this.otherUnit = saleOrderMx.otherUnit;
+        this.otherUnitConversionRate = saleOrderMx.otherUnitConversionRate;
+        this.remark1 = saleOrderMx.remark1;
+        this.remark2 = saleOrderMx.remark2;
+        this.remark3 = saleOrderMx.remark3;
+        this.remark4 = saleOrderMx.remark4;
+        this.remark5 = saleOrderMx.remark5;
     }
 }
