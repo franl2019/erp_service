@@ -35,7 +35,7 @@ export class SaleOrderController {
         return {
             code: 200,
             msg: '新增成功',
-            createResult
+            data:[createResult]
         }
     }
 
@@ -47,7 +47,7 @@ export class SaleOrderController {
         return {
             code: 200,
             msg: '新增成功',
-            createResult
+            data:[createResult]
         }
     }
 

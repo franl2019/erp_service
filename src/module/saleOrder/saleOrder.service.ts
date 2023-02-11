@@ -46,10 +46,7 @@ export class SaleOrderService {
 
             await this.saleOrderMxService.create(saleOrderCreateSheet.saleOrderMx);
 
-            return {
-                id: saleOrderId,
-                code: saleOrderCreateSheet.saleOrderCode
-            }
+            return saleOrderCreateSheet
         })
     }
 
