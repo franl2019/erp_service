@@ -50,7 +50,12 @@ export class SaleOrderEntity {
                         sale_order.creater,
                         sale_order.createdAt,
                         sale_order.updater,
-                        sale_order.updatedAt
+                        sale_order.updatedAt,
+                        sale_order.remark1,
+                        sale_order.remark2,
+                        sale_order.remark3,
+                        sale_order.remark4,
+                        sale_order.remark5
                     FROM
                         sale_order
                     WHERE
@@ -104,20 +109,21 @@ export class SaleOrderEntity {
                         sale_order.createdAt,
                         sale_order.updater,
                         sale_order.updatedAt,
+                        sale_order.remark1,
+                        sale_order.remark2,
+                        sale_order.remark3,
+                        sale_order.remark4,
+                        sale_order.remark5,
                         client.clientcode,
                         client.clientname,
-                        client.ymrep,
-                        warehouse.warehousecode,
-                        warehouse.warehousename
+                        client.ymrep
                     FROM
                         sale_order
                         INNER JOIN client ON client.clientid = sale_order.clientid
-                        LEFT JOIN warehouse ON warehouse.warehouseid = sale_order.warehouseid
                     WHERE
                         1 = 1
                         ${ findDto.saleOrderId           ? ` AND sale_order.saleOrderId = ${conn.escape(findDto.saleOrderId)}` :`` }
                         ${ findDto.saleOrderState        ? ` AND sale_order.saleOrderState = ${conn.escape(findDto.saleOrderState)}` :`` }
-                        ${ findDto.warehouseids          ? ` AND sale_order.warehouseid IN (${conn.escape(findDto.warehouseids)})` :`` }
                         ${ findDto.clientid              ? ` AND sale_order.clientid = ${conn.escape(findDto.clientid)}` :`` }
                         
                         ${ findDto.clientname.length>0   ? ` AND client.clientname LIKE ${conn.escape(findDto.clientname+'%')}` :`` }
@@ -132,7 +138,11 @@ export class SaleOrderEntity {
                         ${ findDto.urgentReview          ? ` AND sale_order.urgentReview = ${conn.escape(findDto.urgentReview)}` :`` }
                         ${ findDto.level1Review          ? ` AND sale_order.level1Review = ${conn.escape(findDto.level1Review)}` :`` }
                         ${ findDto.level2Review          ? ` AND sale_order.level2Review = ${conn.escape(findDto.level2Review)}` :`` }
-                        
+                        ${ findDto.remark1.length>0          ? ` AND sale_order.remark1 = ${conn.escape(findDto.remark1)}` :`` }
+                        ${ findDto.remark2.length>0          ? ` AND sale_order.remark2 = ${conn.escape(findDto.remark2)}` :`` }
+                        ${ findDto.remark3.length>0          ? ` AND sale_order.remark3 = ${conn.escape(findDto.remark3)}` :`` }
+                        ${ findDto.remark4.length>0          ? ` AND sale_order.remark4 = ${conn.escape(findDto.remark4)}` :`` }
+                        ${ findDto.remark5.length>0          ? ` AND sale_order.remark5 = ${conn.escape(findDto.remark5)}` :`` }
                         ${findDto.startDate.length>0 && findDto.endDate.length>0 ? 
                           ` AND DATE(sale_order.orderDate) BETWEEN  ${conn.escape(findDto.startDate)} AND ${conn.escape(findDto.endDate)}`:
                           ``}
@@ -157,12 +167,17 @@ export class SaleOrderEntity {
                         sale_order.contact,
                         sale_order.deposit,
                         sale_order.creater,
-                        sale_order.createdAt
+                        sale_order.createdAt,
+                        sale_order.remark1,
+                        sale_order.remark2,
+                        sale_order.remark3,
+                        sale_order.remark4,
+                        sale_order.remark5
                       ) VALUES ?`;
         const [res] = await conn.query<ResultSetHeader>(sql, [[[
             saleOrder.saleOrderCode,
             saleOrder.orderDate,
-            saleOrder.deliveryDate,
+            saleOrder.deliveryDate || null,
             saleOrder.clientid,
             saleOrder.warehouseid,
             saleOrder.moneytype,
@@ -171,7 +186,12 @@ export class SaleOrderEntity {
             saleOrder.contact,
             saleOrder.deposit,
             saleOrder.creater,
-            saleOrder.createdAt
+            saleOrder.createdAt,
+            saleOrder.remark1,
+            saleOrder.remark2,
+            saleOrder.remark3,
+            saleOrder.remark4,
+            saleOrder.remark5,
         ]]]);
 
         if (res.affectedRows > 0) {
@@ -196,12 +216,17 @@ export class SaleOrderEntity {
                         sale_order.contact = ?,
                         sale_order.deposit = ?,
                         sale_order.updater = ?,
-                        sale_order.updatedAt = ?
+                        sale_order.updatedAt = ?,
+                        sale_order.remark1 = ?,
+                        sale_order.remark2 = ?,
+                        sale_order.remark3 = ?,
+                        sale_order.remark4 = ?,
+                        sale_order.remark5 = ?
                      WHERE
                         sale_order.saleOrder = ?`;
         const [res] = await conn.query<ResultSetHeader>(sql, [
             saleOrder.orderDate,
-            saleOrder.deliveryDate,
+            saleOrder.deliveryDate || null,
             saleOrder.clientid,
             saleOrder.warehouseid,
             saleOrder.moneytype,
@@ -211,7 +236,12 @@ export class SaleOrderEntity {
             saleOrder.deposit,
             saleOrder.updater,
             saleOrder.updatedAt,
-            saleOrder.saleOrderId
+            saleOrder.saleOrderId,
+            saleOrder.remark1,
+            saleOrder.remark2,
+            saleOrder.remark3,
+            saleOrder.remark4,
+            saleOrder.remark5,
         ]);
 
         if(res.affectedRows > 0){

@@ -38,13 +38,16 @@ export class SaleOrderService {
             saleOrderCreateSheet.saleOrderCode = await this.autoCodeMxService.getSheetAutoCode(CodeType.saleOrder)
 
             const createSheetHeadResult = await this.create(saleOrderCreateSheet);
-            const saleOrderId = createSheetHeadResult.insertId;
-            //set saleOrderId
-            for (let i = 0; i < saleOrderCreateSheet.saleOrderMx.length; i++) {
-                saleOrderCreateSheet.saleOrderMx[i].saleOrderId = saleOrderId;
-            }
 
-            await this.saleOrderMxService.create(saleOrderCreateSheet.saleOrderMx);
+            if(saleOrderCreateSheet.saleOrderMx.length>0){
+                const saleOrderId = createSheetHeadResult.insertId;
+                //set saleOrderId
+                for (let i = 0; i < saleOrderCreateSheet.saleOrderMx.length; i++) {
+                    saleOrderCreateSheet.saleOrderMx[i].saleOrderId = saleOrderId;
+                }
+
+                await this.saleOrderMxService.create(saleOrderCreateSheet.saleOrderMx);
+            }
 
             return saleOrderCreateSheet
         })

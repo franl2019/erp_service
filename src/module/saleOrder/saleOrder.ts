@@ -8,7 +8,7 @@ export interface ISaleOrder {
     //订货日期
     orderDate: Date;
     //出货日期
-    deliveryDate: Date;
+    deliveryDate: Date | null;
     //客户id
     clientid: number;
     //仓库id
@@ -28,31 +28,37 @@ export interface ISaleOrder {
     //终止审核
     stopReview: number;
     stopName: string;
-    stopDate: Date;
+    stopDate: Date | null;
     //手动完成审核
     manualFinishReview: number;
     manualFinishName: string;
-    manualFinishDate: Date;
+    manualFinishDate: Date | null;
     //加急审核
     urgentReview: number;
     urgentName: string;
-    urgentDate: Date;
+    urgentDate: Date | null;
     //销售审核
     level1Review: number;
     level1Name: string;
-    level1Date: Date;
+    level1Date: Date | null;
     //财务审核
     level2Review: number;
     level2Name: string;
-    level2Date: Date;
+    level2Date: Date | null;
     //删除标记
     del_uuid: number;
     deleter: string;
-    deletedAt: Date;
+    deletedAt: Date | null;
 
     creater:string;
     createdAt:Date | null
 
     updater:string
     updatedAt:Date | null
+
+    remark1: string;
+    remark2: string;
+    remark3: string;
+    remark4: string;
+    remark5: string;
 }

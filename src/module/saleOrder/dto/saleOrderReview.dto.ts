@@ -1,6 +1,6 @@
 import {IsInt} from "class-validator";
 
-export class SaleReviewDto {
+export class SaleOrderReviewDto {
     @IsInt()
     saleOrderId:number;
 }

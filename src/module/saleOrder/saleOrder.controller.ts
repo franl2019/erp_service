@@ -4,7 +4,7 @@ import {SaleOrderFindDto} from "./dto/saleOrderFind.dto";
 import {IState, ReqState} from "../../decorator/user.decorator";
 import {SaleOrderCreateDto} from "./dto/saleOrderCreate.dto";
 import {SaleOrderUpdateDto} from "./dto/saleOrderUpdate.dto";
-import {SaleReviewDto} from "./dto/saleReview.dto";
+import {SaleOrderReviewDto} from "./dto/saleOrderReview.dto";
 
 @Controller('erp/saleOrder')
 export class SaleOrderController {
@@ -63,7 +63,7 @@ export class SaleOrderController {
     }
 
     @Post('l1Review')
-    public async l1Review(@Body() reviewDto: SaleReviewDto, @ReqState() state: IState) {
+    public async l1Review(@Body() reviewDto: SaleOrderReviewDto, @ReqState() state: IState) {
         await this.saleOrderService.l1Review(reviewDto.saleOrderId, state.user.username);
         return {
             code: 200,
@@ -72,7 +72,7 @@ export class SaleOrderController {
     }
 
     @Post('unl1Review')
-    public async unl1Review(@Body() reviewDto: SaleReviewDto) {
+    public async unl1Review(@Body() reviewDto: SaleOrderReviewDto) {
         await this.saleOrderService.unl1Review(reviewDto.saleOrderId);
         return {
             code: 200,
@@ -81,7 +81,7 @@ export class SaleOrderController {
     }
 
     @Post('l2Review')
-    public async l2Review(@Body() reviewDto: SaleReviewDto, @ReqState() state: IState) {
+    public async l2Review(@Body() reviewDto: SaleOrderReviewDto, @ReqState() state: IState) {
         await this.saleOrderService.l2Review(reviewDto.saleOrderId, state.user.username);
         return {
             code: 200,
@@ -90,7 +90,7 @@ export class SaleOrderController {
     }
 
     @Post('unl2Review')
-    public async unl2Review(@Body() reviewDto: SaleReviewDto) {
+    public async unl2Review(@Body() reviewDto: SaleOrderReviewDto) {
         await this.saleOrderService.unl2Review(reviewDto.saleOrderId);
         return {
             code: 200,
@@ -99,7 +99,7 @@ export class SaleOrderController {
     }
 
     @Post('stopReview')
-    public async stopReview(@Body() reviewDto: SaleReviewDto, @ReqState() state: IState) {
+    public async stopReview(@Body() reviewDto: SaleOrderReviewDto, @ReqState() state: IState) {
         await this.saleOrderService.stopReview(reviewDto.saleOrderId, state.user.username);
         return {
             code: 200,
@@ -108,7 +108,7 @@ export class SaleOrderController {
     }
 
     @Post('unStopReview')
-    public async unStopReview(@Body() reviewDto: SaleReviewDto) {
+    public async unStopReview(@Body() reviewDto: SaleOrderReviewDto) {
         await this.saleOrderService.unStopReview(reviewDto.saleOrderId);
         return {
             code: 200,
@@ -117,7 +117,7 @@ export class SaleOrderController {
     }
 
     @Post('manualFinishReview')
-    public async manualFinishReview(@Body() reviewDto: SaleReviewDto, @ReqState() state: IState) {
+    public async manualFinishReview(@Body() reviewDto: SaleOrderReviewDto, @ReqState() state: IState) {
         await this.saleOrderService.manualFinishReview(reviewDto.saleOrderId, state.user.username);
         return {
             code: 200,
@@ -126,7 +126,7 @@ export class SaleOrderController {
     }
 
     @Post('unManualFinishReview')
-    public async unManualFinishReview(@Body() reviewDto: SaleReviewDto) {
+    public async unManualFinishReview(@Body() reviewDto: SaleOrderReviewDto) {
         await this.saleOrderService.unManualFinishReview(reviewDto.saleOrderId);
         return {
             code: 200,
@@ -135,7 +135,7 @@ export class SaleOrderController {
     }
 
     @Post('urgentReview')
-    public async urgentReview(@Body() reviewDto: SaleReviewDto, @ReqState() state: IState) {
+    public async urgentReview(@Body() reviewDto: SaleOrderReviewDto, @ReqState() state: IState) {
         await this.saleOrderService.urgentReview(reviewDto.saleOrderId, state.user.username);
         return {
             code: 200,
@@ -144,7 +144,7 @@ export class SaleOrderController {
     }
 
     @Post('unUrgentReview')
-    public async unUrgentReview(@Body() reviewDto: SaleReviewDto) {
+    public async unUrgentReview(@Body() reviewDto: SaleOrderReviewDto) {
         await this.saleOrderService.unUrgentReview(reviewDto.saleOrderId);
         return {
             code: 200,
@@ -153,7 +153,7 @@ export class SaleOrderController {
     }
 
     @Post('delete_data')
-    public async delete_data(@Body() reviewDto: SaleReviewDto, @ReqState() state: IState) {
+    public async delete_data(@Body() reviewDto: SaleOrderReviewDto, @ReqState() state: IState) {
         await this.saleOrderService.delete_data(reviewDto.saleOrderId, state.user.username);
         return {
             code: 200,
