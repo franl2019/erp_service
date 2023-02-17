@@ -22,7 +22,7 @@ export class MysqldbAls {
     }
   }
 
-  public async sqlTransaction(callback: () => Promise<any>) {
+  public async sqlTransaction<T = any>(callback: () => Promise<T>):Promise<T> {
     //获取Als中的事务conn
     const conn = this.asyncLocalStorage.getStore();
     if (conn) {

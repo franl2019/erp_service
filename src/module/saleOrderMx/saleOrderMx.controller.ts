@@ -1,5 +1,5 @@
 import {SaleOrderMxService} from "./saleOrderMx.service";
-import {Controller, Post} from "@nestjs/common";
+import {Body, Controller, Post} from "@nestjs/common";
 import {SaleOrderMxFindDto} from "./dto/saleOrderMxFind.dto";
 
 @Controller('erp/saleOrderMx')
@@ -11,7 +11,7 @@ export class SaleOrderMxController {
     }
 
     @Post('find')
-    public async find(findDto: SaleOrderMxFindDto) {
+    public async find(@Body() findDto: SaleOrderMxFindDto) {
         const data = await this.saleOrderMxService.find(findDto.saleOrderId);
         return {
             code: 200,

@@ -56,9 +56,22 @@ export class SaleOrderMxEntity {
                            sale_order_mx.remark2,
                            sale_order_mx.remark3,
                            sale_order_mx.remark4,
-                           sale_order_mx.remark5
+                           sale_order_mx.remark5,
+                           product.productid,
+                           product.productcode,
+                           product.productname,
+                           product.materials,
+                           product.spec,
+                           product.unit,
+                           product.packunit,
+                           product.packqty,
+                           product.m3,
+                           product.length,
+                           product.width,
+                           product.height
                     from 
                         sale_order_mx
+                        INNER JOIN product on product.productid = sale_order_mx.productid
                     WHERE
                         sale_order_mx.saleOrderId = ?
         `;

@@ -121,7 +121,7 @@ export class SaleOrderEntity {
                         sale_order
                         INNER JOIN client ON client.clientid = sale_order.clientid
                     WHERE
-                        1 = 1
+                        sale_order.del_uuid = 0
                         ${ findDto.saleOrderId           ? ` AND sale_order.saleOrderId = ${conn.escape(findDto.saleOrderId)}` :`` }
                         ${ findDto.saleOrderState        ? ` AND sale_order.saleOrderState = ${conn.escape(findDto.saleOrderState)}` :`` }
                         ${ findDto.clientid              ? ` AND sale_order.clientid = ${conn.escape(findDto.clientid)}` :`` }
@@ -223,7 +223,7 @@ export class SaleOrderEntity {
                         sale_order.remark4 = ?,
                         sale_order.remark5 = ?
                      WHERE
-                        sale_order.saleOrder = ?`;
+                        sale_order.saleOrderId = ?`;
         const [res] = await conn.query<ResultSetHeader>(sql, [
             saleOrder.orderDate,
             saleOrder.deliveryDate || null,
@@ -236,12 +236,12 @@ export class SaleOrderEntity {
             saleOrder.deposit,
             saleOrder.updater,
             saleOrder.updatedAt,
-            saleOrder.saleOrderId,
             saleOrder.remark1,
             saleOrder.remark2,
             saleOrder.remark3,
             saleOrder.remark4,
             saleOrder.remark5,
+            saleOrder.saleOrderId
         ]);
 
         if(res.affectedRows > 0){
@@ -282,7 +282,7 @@ export class SaleOrderEntity {
                    SET
                         sale_order.level1Review = 0,
                         sale_order.level1Name = '',
-                        sale_order.level1Date = ''
+                        sale_order.level1Date = null
                    WHERE
                         sale_order.saleOrderId = ?`;
         const [res] = await conn.query<ResultSetHeader>(sql,[
@@ -326,7 +326,7 @@ export class SaleOrderEntity {
                    SET
                         sale_order.level2Review = 0,
                         sale_order.level2Name = '',
-                        sale_order.level2Date = ''
+                        sale_order.level2Date = null
                    WHERE
                         sale_order.saleOrderId = ?`;
         const [res] = await conn.query<ResultSetHeader>(sql,[
@@ -371,7 +371,7 @@ export class SaleOrderEntity {
                    SET
                         sale_order.stopReview = 0,
                         sale_order.stopName = '',
-                        sale_order.stopDate = ''
+                        sale_order.stopDate = null
                    WHERE
                         sale_order.saleOrderId = ?`;
         const [res] = await conn.query<ResultSetHeader>(sql,[
@@ -416,7 +416,7 @@ export class SaleOrderEntity {
                    SET
                         sale_order.manualFinishReview = 0,
                         sale_order.manualFinishName = '',
-                        sale_order.manualFinishDate = ''
+                        sale_order.manualFinishDate = null
                    WHERE
                         sale_order.saleOrderId = ?`;
         const [res] = await conn.query<ResultSetHeader>(sql,[
@@ -461,7 +461,7 @@ export class SaleOrderEntity {
                    SET
                         sale_order.urgentReview = 0,
                         sale_order.urgentName = '',
-                        sale_order.urgentDate = ''
+                        sale_order.urgentDate = null
                    WHERE
                         sale_order.saleOrderId = ?`;
         const [res] = await conn.query<ResultSetHeader>(sql,[
@@ -474,7 +474,7 @@ export class SaleOrderEntity {
         }
     }
 
-    //加急
+    //删除
     public async delete_data(saleOrderId:number,username:string){
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `

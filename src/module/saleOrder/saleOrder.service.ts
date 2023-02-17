@@ -3,11 +3,11 @@ import {Injectable} from "@nestjs/common";
 import {SaleOrderFindDto} from "./dto/saleOrderFind.dto";
 import {ISaleOrder} from "./saleOrder";
 import {SaleOrderMxService} from "../saleOrderMx/saleOrderMx.service";
-import {ISaleOrderCreateSheetDto} from "./dto/saleOrderCreate.dto";
+import {SaleOrderCreateDto} from "./dto/saleOrderCreate.dto";
 import {AutoCodeMxService} from "../autoCodeMx/autoCodeMx.service";
 import {CodeType} from "../autoCode/codeType";
 import {MysqldbAls} from "../mysqldb/mysqldbAls";
-import {ISaleOrderUpdateSheetDto} from "./dto/saleOrderUpdate.dto";
+import {SaleOrderUpdateDto} from "./dto/saleOrderUpdate.dto";
 
 @Injectable()
 export class SaleOrderService {
@@ -32,14 +32,19 @@ export class SaleOrderService {
         return await this.saleOrderEntity.create(saleOrder)
     }
 
-    public async createSheet(saleOrderCreateSheet: ISaleOrderCreateSheetDto):Promise<{id:number,code:string}> {
-        return await this.mysqldbAls.sqlTransaction(async () => {
+    private async update(saleOrder: ISaleOrder) {
+        return await this.saleOrderEntity.update(saleOrder);
+    }
+
+    public async createSheet(saleOrderCreateSheet: SaleOrderCreateDto) {
+        return await this.mysqldbAls.sqlTransaction<SaleOrderCreateDto>(async () => {
             //创建单号
             saleOrderCreateSheet.saleOrderCode = await this.autoCodeMxService.getSheetAutoCode(CodeType.saleOrder)
 
             const createSheetHeadResult = await this.create(saleOrderCreateSheet);
+            saleOrderCreateSheet.saleOrderId = createSheetHeadResult.insertId;
 
-            if(saleOrderCreateSheet.saleOrderMx.length>0){
+            if (saleOrderCreateSheet.saleOrderMx.length > 0) {
                 const saleOrderId = createSheetHeadResult.insertId;
                 //set saleOrderId
                 for (let i = 0; i < saleOrderCreateSheet.saleOrderMx.length; i++) {
@@ -53,34 +58,28 @@ export class SaleOrderService {
         })
     }
 
-    public async createSheetAndL1Review(saleOrderCreateSheet: ISaleOrderCreateSheetDto) {
-        return await this.mysqldbAls.sqlTransaction(async () => {
-            const createResult = await this.createSheet(saleOrderCreateSheet);
-            await this.l1Review(createResult.id,saleOrderCreateSheet.creater);
-
-            return createResult
+    public async createSheetAndL1Review(saleOrderCreateSheet: SaleOrderCreateDto) {
+        return await this.mysqldbAls.sqlTransaction<SaleOrderCreateDto>(async () => {
+            await this.createSheet(saleOrderCreateSheet);
+            await this.l1Review(saleOrderCreateSheet.saleOrderId, saleOrderCreateSheet.creater);
+            return saleOrderCreateSheet
         })
     }
 
-    private async update(saleOrder: ISaleOrder) {
-        return await this.saleOrderEntity.update(saleOrder);
-    }
-
-    public async updateSheetAndL1Review(saleOrderCreateSheet: ISaleOrderCreateSheetDto) {
-        return await this.mysqldbAls.sqlTransaction(async () => {
-            await this.update(saleOrderCreateSheet);
-            await this.l1Review(saleOrderCreateSheet.saleOrderId,saleOrderCreateSheet.updater);
+    public async updateSheet(saleOrderUpdateDto: SaleOrderUpdateDto) {
+        return await this.mysqldbAls.sqlTransaction<SaleOrderUpdateDto>(async () => {
+            await this.update(saleOrderUpdateDto);
+            await this.saleOrderMxService.delete_data(saleOrderUpdateDto.saleOrderId);
+            await this.saleOrderMxService.create(saleOrderUpdateDto.saleOrderMx);
+            return saleOrderUpdateDto
         })
     }
 
-    public async updateSheet(saleOrderUpdateSheetDto: ISaleOrderUpdateSheetDto) {
-        return await this.mysqldbAls.sqlTransaction(async () => {
-
-            await this.update(saleOrderUpdateSheetDto);
-            await this.saleOrderMxService.delete_data(saleOrderUpdateSheetDto.saleOrderId);
-            await this.saleOrderMxService.create(saleOrderUpdateSheetDto.saleOrderMx);
-
-            return true
+    public async updateSheetAndL1Review(saleOrderUpdateDto: SaleOrderUpdateDto) {
+        return await this.mysqldbAls.sqlTransaction<SaleOrderUpdateDto>(async () => {
+            await this.updateSheet(saleOrderUpdateDto);
+            await this.l1Review(saleOrderUpdateDto.saleOrderId, saleOrderUpdateDto.updater);
+            return saleOrderUpdateDto
         })
     }
 

@@ -11,7 +11,6 @@ export class SaleOrderMxCreateDto implements ISaleOrderMx {
     printid: number;
     //仓库id
     @IsInt()
-    @NotEquals(0)
     warehouseid: number;
     //产品id
     @IsInt()
