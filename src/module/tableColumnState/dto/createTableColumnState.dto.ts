@@ -1,4 +1,4 @@
-import {IsArray, IsBoolean, IsInt, IsNumber, IsString} from "class-validator";
+import {IsArray, IsBoolean, IsInt, IsNumber, IsString, ValidateIf} from "class-validator";
 import {ITableColumnState} from "../tableColumnState";
 
 export class CreateTableColumnStateMxDto implements ITableColumnState {
@@ -24,6 +24,7 @@ export class CreateTableColumnStateMxDto implements ITableColumnState {
     @IsString()
     parentId: string;
 
+    @ValidateIf((_object, value) => value === null)
     @IsString()
     pinned: string;
 
@@ -50,7 +51,6 @@ export class CreateTableColumnStateMxDto implements ITableColumnState {
 
     @IsNumber()
     width: number;
-
 
     constructor(tableColumnState:ITableColumnState) {
         this.colId = tableColumnState.colId;
