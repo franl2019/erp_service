@@ -116,7 +116,19 @@ export class SaleOrderEntity {
                         sale_order.remark5,
                         client.clientcode,
                         client.clientname,
-                        client.ymrep
+                        client.ymrep,
+                        (
+                            SELECT
+                                round(
+                                    SUM(
+                                        sale_order_mx.priceqty * sale_order_mx.netprice
+                                    ),2
+                                )
+                            FROM
+                                sale_order_mx
+                            WHERE
+                                sale_order.saleOrderId = sale_order_mx.saleOrderId
+                        ) AS amt
                     FROM
                         sale_order
                         INNER JOIN client ON client.clientid = sale_order.clientid
