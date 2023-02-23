@@ -8,12 +8,19 @@ import {useVerifyParam} from "../../utils/verifyParam/useVerifyParam";
 export class SaleOrderMxService {
 
     constructor(
-        private readonly saleOrderMxEntity:SaleOrderMxEntity
+        private readonly saleOrderMxEntity:SaleOrderMxEntity,
     ) {
     }
 
     public async find(saleOrderId:number){
         return await this.saleOrderMxEntity.find(saleOrderId);
+    }
+
+    public async findOne(saleOrderId:number,saleOrderMxId:number){
+        return await this.saleOrderMxEntity.findOne(
+            saleOrderId,
+            saleOrderMxId
+        );
     }
 
     public async create(saleOrderMxList:ISaleOrderMx[]){
@@ -26,5 +33,25 @@ export class SaleOrderMxService {
 
     public async delete_data(saleOrderId:number){
         return await this.saleOrderMxEntity.delete_data(saleOrderId);
+    }
+
+    public async salesOrderSale(saleOrderId: number,saleOrderMxId: number, saleQty:number){
+        await this.saleOrderMxEntity.salesOrderSale(
+            saleOrderId,
+            saleOrderMxId,
+            saleQty
+        )
+    }
+
+    public async salesOrderStopSale(saleOrderId: number,saleOrderMxId: number, stopQty:number){
+        await this.saleOrderMxEntity.salesOrderStopSale(
+            saleOrderId,
+            saleOrderMxId,
+            stopQty
+        )
+    }
+
+    public async lineClose(saleOrderId: number,saleOrderMxId: number,lineClose:boolean){
+        await this.saleOrderMxEntity.lineClose(saleOrderId,saleOrderMxId,lineClose)
     }
 }

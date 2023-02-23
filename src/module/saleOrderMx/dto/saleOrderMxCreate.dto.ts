@@ -108,6 +108,8 @@ export class SaleOrderMxCreateDto implements ISaleOrderMx {
     remark4: string;
     @IsString()
     remark5: string;
+    @IsInt()
+    lineClose: number;
 
 
     constructor(saleOrderMx:ISaleOrderMx) {
@@ -154,5 +156,7 @@ export class SaleOrderMxCreateDto implements ISaleOrderMx {
         this.remark3 = saleOrderMx.remark3;
         this.remark4 = saleOrderMx.remark4;
         this.remark5 = saleOrderMx.remark5;
+        this.lineClose = saleOrderMx.lineClose;
     }
+
 }

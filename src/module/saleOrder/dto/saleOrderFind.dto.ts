@@ -21,6 +21,8 @@ export class SaleOrderFindDto {
     @IsString()
     clientname:string;
     @IsString()
+    salesman:string;
+    @IsString()
     ymrep:string;
     @IsInt()
     saleOrderState:number;

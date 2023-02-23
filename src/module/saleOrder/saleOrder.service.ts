@@ -8,6 +8,7 @@ import {AutoCodeMxService} from "../autoCodeMx/autoCodeMx.service";
 import {CodeType} from "../autoCode/codeType";
 import {MysqldbAls} from "../mysqldb/mysqldbAls";
 import {SaleOrderUpdateDto} from "./dto/saleOrderUpdate.dto";
+import {bignumber, chain, round} from "mathjs";
 
 @Injectable()
 export class SaleOrderService {
@@ -125,5 +126,38 @@ export class SaleOrderService {
 
     public async delete_data(saleOrderId: number, username: string) {
         return await this.saleOrderEntity.delete_data(saleOrderId, username)
+    }
+
+    public async salesOrderSale(saleOrderId: number,saleOrderMxId: number,saleQty:number){
+        const saleOrderMx = await this.saleOrderMxService.findOne(saleOrderId,saleOrderMxId);
+        const canSaleQty = round(
+            Number(
+                chain(bignumber(saleOrderMx.openQty))
+                    .subtract(bignumber(saleQty))
+                    .done()
+            ), 4);
+        if(canSaleQty < 0 ||  saleQty <= saleOrderMx.openQty){
+            return Promise.reject(new Error("数量有误"))
+        }
+        await this.saleOrderMxService.salesOrderSale(saleOrderId,saleOrderMxId,saleQty)
+    }
+
+    public async salesOrderStopSale(saleOrderId: number,saleOrderMxId: number,stopQty:number){
+        const saleOrderMx = await this.saleOrderMxService.findOne(saleOrderId,saleOrderMxId);
+        const canStopSaleQty = round(
+            Number(
+                chain(bignumber(saleOrderMx.outqty))
+                    .subtract(bignumber(saleOrderMx.openQty))
+                    .subtract(bignumber(stopQty))
+                    .done()
+            ), 4);
+        if(canStopSaleQty < 0 || stopQty < 0){
+            return Promise.reject(new Error("数量有误"))
+        }
+        await this.saleOrderMxService.salesOrderStopSale(saleOrderId,saleOrderMxId,stopQty)
+    }
+
+    public async lineClose(saleOrderId: number,saleOrderMxId: number,lineClose:boolean){
+        await this.saleOrderMxService.lineClose(saleOrderId,saleOrderMxId,lineClose)
     }
 }

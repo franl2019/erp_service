@@ -51,8 +51,8 @@ export interface ISaleOrderMx {
     openQty: number;
     //出货数量
     saleQty: number;
-
-
+    //整行关闭
+    lineClose:number;
     warehouseid:number
     otherUnit:string;
     otherUnitConversionRate:number;

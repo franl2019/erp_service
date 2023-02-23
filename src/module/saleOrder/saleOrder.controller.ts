@@ -5,6 +5,8 @@ import {IState, ReqState} from "../../decorator/user.decorator";
 import {SaleOrderCreateDto} from "./dto/saleOrderCreate.dto";
 import {SaleOrderUpdateDto} from "./dto/saleOrderUpdate.dto";
 import {SaleOrderReviewDto} from "./dto/saleOrderReview.dto";
+import {SaleOrderStopSaleQtyDto} from "./dto/saleOrderStopSaleQty.dto";
+import {SaleOrderLineCloseDto} from "./dto/saleOrderLineClose.dto";
 
 @Controller('erp/saleOrder')
 export class SaleOrderController {
@@ -168,6 +170,24 @@ export class SaleOrderController {
     @Post('delete_data')
     public async delete_data(@Body() reviewDto: SaleOrderReviewDto, @ReqState() state: IState) {
         await this.saleOrderService.delete_data(reviewDto.saleOrderId, state.user.username);
+        return {
+            code: 200,
+            msg: '销售订单删除成功'
+        }
+    }
+
+    @Post('stopMx')
+    public async stopMx(@Body() stopMxDto: SaleOrderStopSaleQtyDto, @ReqState() state: IState) {
+        await this.saleOrderService.salesOrderStopSale(stopMxDto.saleOrderId, stopMxDto.saleOrderMxId,stopMxDto.stopQty);
+        return {
+            code: 200,
+            msg: '销售订单删除成功'
+        }
+    }
+
+    @Post('lineClose')
+    public async lineClose(@Body() lineCloseDto: SaleOrderLineCloseDto, @ReqState() state: IState) {
+        await this.saleOrderService.lineClose(lineCloseDto.saleOrderId, lineCloseDto.saleOrderMxId,lineCloseDto.lineClose);
         return {
             code: 200,
             msg: '销售订单删除成功'

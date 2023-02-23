@@ -90,4 +90,6 @@ export class SaleOrderCreateDto implements ISaleOrderCreateSheetDto{
 
     @IsArray()
     saleOrderMx: ISaleOrderMx[];
+    @IsString()
+    salesman: string;
 }

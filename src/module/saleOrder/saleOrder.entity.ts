@@ -137,7 +137,7 @@ export class SaleOrderEntity {
                         ${ findDto.saleOrderId           ? ` AND sale_order.saleOrderId = ${conn.escape(findDto.saleOrderId)}` :`` }
                         ${ findDto.saleOrderState        ? ` AND sale_order.saleOrderState = ${conn.escape(findDto.saleOrderState)}` :`` }
                         ${ findDto.clientid              ? ` AND sale_order.clientid = ${conn.escape(findDto.clientid)}` :`` }
-                        
+                        ${ findDto.salesman              ? ` AND sale_order.salesman = ${conn.escape(findDto.salesman)}` :`` }
                         ${ findDto.clientname.length>0   ? ` AND client.clientname LIKE ${conn.escape(findDto.clientname+'%')}` :`` }
                         ${ findDto.ymrep.length>0        ? ` AND client.ymrep = ${conn.escape(findDto.ymrep)}` :`` }
                         ${ findDto.moneytype.length>0    ? ` AND sale_order.moneytype = ${conn.escape(findDto.moneytype)}` :`` }
@@ -184,7 +184,8 @@ export class SaleOrderEntity {
                         sale_order.remark2,
                         sale_order.remark3,
                         sale_order.remark4,
-                        sale_order.remark5
+                        sale_order.remark5,
+                        sale_order.salesman
                       ) VALUES ?`;
         const [res] = await conn.query<ResultSetHeader>(sql, [[[
             saleOrder.saleOrderCode,
@@ -204,6 +205,7 @@ export class SaleOrderEntity {
             saleOrder.remark3,
             saleOrder.remark4,
             saleOrder.remark5,
+            saleOrder.salesman
         ]]]);
 
         if (res.affectedRows > 0) {
@@ -233,7 +235,8 @@ export class SaleOrderEntity {
                         sale_order.remark2 = ?,
                         sale_order.remark3 = ?,
                         sale_order.remark4 = ?,
-                        sale_order.remark5 = ?
+                        sale_order.remark5 = ?,
+                        sale_order.salesman = ?
                      WHERE
                         sale_order.saleOrderId = ?`;
         const [res] = await conn.query<ResultSetHeader>(sql, [
@@ -253,6 +256,7 @@ export class SaleOrderEntity {
             saleOrder.remark3,
             saleOrder.remark4,
             saleOrder.remark5,
+            saleOrder.salesman,
             saleOrder.saleOrderId
         ]);
 
