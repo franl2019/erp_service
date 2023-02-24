@@ -4,6 +4,64 @@ import {SaleOrderFindDto} from "./dto/saleOrderFind.dto";
 import {ResultSetHeader} from "mysql2/promise";
 import {Injectable} from "@nestjs/common";
 
+export const saleOrderEntityColSql:string = `
+    sale_order.saleOrderId,
+    sale_order.saleOrderCode,
+    sale_order.saleOrderState,
+    sale_order.orderDate,
+    sale_order.deliveryDate,
+    sale_order.clientid,
+    sale_order.warehouseid,
+    sale_order.moneytype,
+    sale_order.relatednumber,
+    sale_order.address,
+    sale_order.contact,
+    sale_order.deposit,
+    sale_order.printCount,
+    sale_order.stopReview,
+    sale_order.stopName,
+    sale_order.stopDate,
+    sale_order.manualFinishReview,
+    sale_order.manualFinishName,
+    sale_order.manualFinishDate,
+    sale_order.urgentReview,
+    sale_order.urgentName,
+    sale_order.urgentDate,
+    sale_order.level1Review,
+    sale_order.level1Name,
+    sale_order.level1Date,
+    sale_order.level2Review,
+    sale_order.level2Name,
+    sale_order.level2Date,
+    sale_order.del_uuid,
+    sale_order.deleter,
+    sale_order.deletedAt,
+    sale_order.creater,
+    sale_order.createdAt,
+    sale_order.updater,
+    sale_order.updatedAt,
+    sale_order.remark1,
+    sale_order.remark2,
+    sale_order.remark3,
+    sale_order.remark4,
+    sale_order.remark5
+`;
+
+export const saleOrderAmtColSql:string = `
+    (
+        SELECT
+            round(
+                SUM(
+                    sale_order_mx.priceqty * sale_order_mx.netprice
+                ),2
+            )
+        FROM
+            sale_order_mx
+        WHERE
+            sale_order.saleOrderId = sale_order_mx.saleOrderId
+    ) AS amt
+    `;
+
 @Injectable()
 export class SaleOrderEntity {
 
@@ -16,46 +74,7 @@ export class SaleOrderEntity {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `
                     SELECT
-                        sale_order.saleOrderId,
-                        sale_order.saleOrderCode,
-                        sale_order.saleOrderState,
-                        sale_order.orderDate,
-                        sale_order.deliveryDate,
-                        sale_order.clientid,
-                        sale_order.warehouseid,
-                        sale_order.moneytype,
-                        sale_order.relatednumber,
-                        sale_order.address,
-                        sale_order.contact,
-                        sale_order.deposit,
-                        sale_order.printCount,
-                        sale_order.stopReview,
-                        sale_order.stopName,
-                        sale_order.stopDate,
-                        sale_order.manualFinishReview,
-                        sale_order.manualFinishName,
-                        sale_order.manualFinishDate,
-                        sale_order.urgentReview,
-                        sale_order.urgentName,
-                        sale_order.urgentDate,
-                        sale_order.level1Review,
-                        sale_order.level1Name,
-                        sale_order.level1Date,
-                        sale_order.level2Review,
-                        sale_order.level2Name,
-                        sale_order.level2Date,
-                        sale_order.del_uuid,
-                        sale_order.deleter,
-                        sale_order.deletedAt,
-                        sale_order.creater,
-                        sale_order.createdAt,
-                        sale_order.updater,
-                        sale_order.updatedAt,
-                        sale_order.remark1,
-                        sale_order.remark2,
-                        sale_order.remark3,
-                        sale_order.remark4,
-                        sale_order.remark5
+                        ${saleOrderEntityColSql}
                     FROM
                         sale_order
                     WHERE
@@ -74,61 +93,11 @@ export class SaleOrderEntity {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql = `
                     SELECT
-                        sale_order.saleOrderId,
-                        sale_order.saleOrderCode,
-                        sale_order.saleOrderState,
-                        sale_order.orderDate,
-                        sale_order.deliveryDate,
-                        sale_order.clientid,
-                        sale_order.warehouseid,
-                        sale_order.moneytype,
-                        sale_order.relatednumber,
-                        sale_order.address,
-                        sale_order.contact,
-                        sale_order.deposit,
-                        sale_order.printCount,
-                        sale_order.stopReview,
-                        sale_order.stopName,
-                        sale_order.stopDate,
-                        sale_order.manualFinishReview,
-                        sale_order.manualFinishName,
-                        sale_order.manualFinishDate,
-                        sale_order.urgentReview,
-                        sale_order.urgentName,
-                        sale_order.urgentDate,
-                        sale_order.level1Review,
-                        sale_order.level1Name,
-                        sale_order.level1Date,
-                        sale_order.level2Review,
-                        sale_order.level2Name,
-                        sale_order.level2Date,
-                        sale_order.del_uuid,
-                        sale_order.deleter,
-                        sale_order.deletedAt,
-                        sale_order.creater,
-                        sale_order.createdAt,
-                        sale_order.updater,
-                        sale_order.updatedAt,
-                        sale_order.remark1,
-                        sale_order.remark2,
-                        sale_order.remark3,
-                        sale_order.remark4,
-                        sale_order.remark5,
+                        ${saleOrderEntityColSql},
                         client.clientcode,
                         client.clientname,
                         client.ymrep,
-                        (
-                            SELECT
-                                round(
-                                    SUM(
-                                        sale_order_mx.priceqty * sale_order_mx.netprice
-                                    ),2
-                                )
-                            FROM
-                                sale_order_mx
-                            WHERE
-                                sale_order.saleOrderId = sale_order_mx.saleOrderId
-                        ) AS amt
+                        ${saleOrderAmtColSql}
                     FROM
                         sale_order
                         INNER JOIN client ON client.clientid = sale_order.clientid
@@ -160,7 +129,6 @@ export class SaleOrderEntity {
                           ``}
                         ${ findDto.deliveryDate.length>0 ? ` AND DATE(sale_order.deliveryDate) = ${conn.escape(findDto.deliveryDate)}` :`` }
         `;
-        console.log(sql)
         const [res] = await conn.query(sql);
         return res as ISaleOrder[]
     }

@@ -21,6 +21,8 @@ import {SaleGrossMarginMxReportController} from "./saleGrossMarginMx/saleGrossMa
 import {SaleGrossMarginMxReportService} from "./saleGrossMarginMx/saleGrossMarginMxReport.service";
 import {SaleGrossMarginSumReportController} from "./saleGrossMarginSum/saleGrossMarginSumReport.controller";
 import {SaleGrossMarginSumReportService} from "./saleGrossMarginSum/saleGrossMarginSumReport.service";
+import {SaleOrderMxReportController} from "./saleOrderMx/saleOrderMxReport.controller";
+import {SaleOrderMxReport} from "./saleOrderMx/saleOrderMx.report";
 
 @Module({
     imports: [
@@ -34,10 +36,13 @@ import {SaleGrossMarginSumReportService} from "./saleGrossMarginSum/saleGrossMar
         AccountPayableController,
         PsiMonthReportController,
         SaleGrossMarginMxReportController,
-        SaleGrossMarginSumReportController
+        SaleGrossMarginSumReportController,
+        SaleOrderMxReportController,
     ],
     providers: [
         CashBankDepositJournalReport,
+        //销售订单
+        SaleOrderMxReport,
         //销售单
         SaleOutboundMxReport,
         SaleOutboundProductSummaryReport,
