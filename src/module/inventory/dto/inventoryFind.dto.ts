@@ -1,4 +1,5 @@
 import { IsArray, IsInt, IsString } from "class-validator";
+import {IOutboundMx} from "../../outboundMx/outboundMx";
 
 export class InventoryFindDto {
   @IsArray()
@@ -51,4 +52,5 @@ export class InventoryFindDto {
 
   @IsInt()
   pagesize: number;
+
 }

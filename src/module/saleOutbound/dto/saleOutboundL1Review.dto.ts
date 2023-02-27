@@ -1,6 +1,4 @@
-import {IsInt} from "class-validator";
+import {OutboundL1ReviewDto} from "../../outbound/dto/outboundL1Review.dto";
 
-export class SaleOutboundL1ReviewDto {
-    @IsInt()
-    outboundid:number;
+export class SaleOutboundL1ReviewDto extends OutboundL1ReviewDto{
 }

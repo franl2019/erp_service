@@ -1,8 +1,8 @@
 import {Injectable} from "@nestjs/common";
 import {MysqldbAls} from "../mysqldb/mysqldbAls";
-import {IOutbound} from "./outbound";
-import {IOutboundFindDto, IOutboundHead} from "./dto/outboundFind.dto";
+import {IOutbound, IOutboundHaveAmtOrClient} from "./outbound";
 import {ResultSetHeader} from "mysql2/promise";
+import {OutboundFindDto} from "./dto/outboundFind.dto";
 
 @Injectable()
 export class OutboundEntity {
@@ -13,7 +13,7 @@ export class OutboundEntity {
     }
 
     //出仓单单头 综合查询
-    public async find(findDto: IOutboundFindDto): Promise<IOutboundHead[]> {
+    public async find(findDto: OutboundFindDto): Promise<IOutboundHaveAmtOrClient[]> {
         const conn = this.mysqlAls.getConnectionInAls();
         let sql = `
               SELECT
@@ -176,7 +176,7 @@ export class OutboundEntity {
         sql = sql + ` ORDER BY outbound.outboundid DESC`
 
         const [res] = await conn.query(sql, params);
-        return res as IOutboundHead[];
+        return res as IOutboundHaveAmtOrClient[];
     };
 
     //查询单个进仓单头
@@ -249,7 +249,7 @@ export class OutboundEntity {
         const [res] = await conn.query<ResultSetHeader>(sql, [[[
             outbound.outboundcode,
             outbound.outboundtype,
-            String(outbound.deliveryDate).length === 0 ? null : outbound.deliveryDate,
+            outbound.deliveryDate,
             outbound.outdate,
             outbound.moneytype,
             outbound.relatednumber,
@@ -292,9 +292,11 @@ export class OutboundEntity {
                   outbound.operateareaid = ?,
                   outbound.warehouseid = ?,
                   outbound.clientid = ?
-                WHERE outbound.del_uuid = 0 AND outbound.outboundid = ?`;
+                WHERE 
+                  outbound.del_uuid = 0 
+                  AND outbound.outboundid = ?`;
         const [res] = await conn.query<ResultSetHeader>(sql, [
-            String(outbound.deliveryDate).length === 0 ? null : outbound.deliveryDate,
+            outbound.deliveryDate,
             outbound.outdate,
             outbound.moneytype,
             outbound.relatednumber,
@@ -319,7 +321,8 @@ export class OutboundEntity {
 
     public async delete_data(outboundid: number, deleter: string) {
         const conn = await this.mysqlAls.getConnectionInAls();
-        const sql = `UPDATE 
+        const sql = `
+                 UPDATE 
                     outbound 
                  SET
                     outbound.del_uuid = ?, 
@@ -343,7 +346,8 @@ export class OutboundEntity {
 
     public async undelete_data(outboundid: number) {
         const conn = await this.mysqlAls.getConnectionInAls();
-        const sql = `UPDATE 
+        const sql = `
+                 UPDATE 
                     outbound 
                  SET
                     outbound.del_uuid = 0, 

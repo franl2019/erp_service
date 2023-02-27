@@ -9,6 +9,8 @@ import {IAccountsReceivableMx} from "../accountsReceivableMx/accountsReceivableM
 import {IAccountsReceivableSubjectMx} from "../accountsReceivableSubjectMx/accountsReceivableSubjectMx";
 import {AccountsReceivableSubjectMxService} from "../accountsReceivableSubjectMx/accountsReceivableSubjectMx.service";
 import {Injectable} from "@nestjs/common";
+import {OutboundSheet} from "../outbound/outbound";
+import {CodeType} from "../autoCode/codeType";
 
 @Injectable()
 export class AccountsReceivableService {
@@ -283,4 +285,29 @@ export class AccountsReceivableService {
         await this.accountsReceivableEntity.update(accountsReceivable);
     }
 
+    public async outboundSheetCreateAccountsReceivable(outboundSheet:OutboundSheet){
+        const amounts = outboundSheet.calculateAccountsReceivable()
+        await this.createAccountsReceivable({
+            accountsReceivableId: 0,
+            accountsReceivableType: AccountCategoryType.accountsReceivable1,
+            amounts: amounts,
+            checkedAmounts: 0,
+            notCheckAmounts: amounts,
+            clientid: outboundSheet.clientid,
+            correlationId: outboundSheet.outboundid,
+            correlationType: outboundSheet.outboundtype,
+            inDate: outboundSheet.outdate,
+            creater: outboundSheet.level2name,
+            createdAt: outboundSheet.level2date,
+            updater: "",
+            updatedAt: null,
+            del_uuid: 0,
+            deletedAt: null,
+            deleter: ""
+        })
+    }
+
+    public async outboundSheetDeleteAccountsReceivable(outboundId:number){
+        await this.deleteByCorrelation(outboundId, CodeType.XS);
+    }
 }

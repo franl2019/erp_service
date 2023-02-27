@@ -15,7 +15,7 @@ import {WeightedAverageRecordModule} from "../weightedAverageRecord/weightedAver
         InventoryModule,
         AccountsReceivableMxModule,
         AccountsReceivableModule,
-        WeightedAverageRecordModule
+        WeightedAverageRecordModule,
     ],
     providers: [OutboundService, OutboundEntity],
     exports: [OutboundService]

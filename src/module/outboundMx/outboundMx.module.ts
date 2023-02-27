@@ -10,7 +10,7 @@ import {ClientModule} from "../client/client.module";
   imports:[
     WarehouseModule,
     ProductModule,
-    ClientModule
+    ClientModule,
   ],
   controllers: [OutboundMxController],
   providers: [OutboundMxService, OutboundMxEntity],

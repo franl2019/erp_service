@@ -1,6 +1,6 @@
 import {Body, Controller, Post, UseGuards} from "@nestjs/common";
 import {SaleOutboundService} from "./saleOutbound.service";
-import {ReqState, IState} from "../../decorator/user.decorator";
+import {IState, ReqState} from "../../decorator/user.decorator";
 import {SaleOutboundL1ReviewDto} from "./dto/saleOutboundL1Review.dto";
 import {SaleOutboundL2ReviewDto} from "./dto/saleOutboundL2Review.dto";
 import {SaleOutboundCreateDto} from "./dto/saleOutboundCreate.dto";
@@ -46,50 +46,59 @@ export class SaleOutboundController {
         return {
             code: 200,
             msg: "查询成功",
-            sheetCompleteState
+            data: [sheetCompleteState]
         };
     }
 
     @Post("create")
     public async create(@Body() saleOutboundCreateDto: SaleOutboundCreateDto, @ReqState() state: IState) {
-        saleOutboundCreateDto.creater = state.user.username;
-        saleOutboundCreateDto.createdAt = new Date();
-        const createResult = await this.saleOutboundService.create(saleOutboundCreateDto,state);
+        const outbound = await this.saleOutboundService.create(
+            saleOutboundCreateDto,
+            state.user.username,
+            state.user.client_operateareaids
+        );
         return {
             code: 200,
             msg: "保存成功",
-            createResult
+            data: [outbound]
         };
     }
 
     @Post("create_l1Review")
     public async create_l1Review(@Body() saleOutboundCreateDto: SaleOutboundCreateDto, @ReqState() state: IState) {
-        saleOutboundCreateDto.creater = state.user.username;
-        saleOutboundCreateDto.createdAt = new Date();
-        const createResult = await this.saleOutboundService.createL1Review(saleOutboundCreateDto, state);
+        const outbound = await this.saleOutboundService.createL1Review(
+            saleOutboundCreateDto,
+            state.user.username,
+            state.user.client_operateareaids
+        );
         return {
             code: 200,
             msg: "保存成功",
-            createResult
+            data: [outbound]
         };
     }
 
     @Post("update")
     public async update(@Body() saleOutboundUpdateDto: SaleOutboundUpdateDto, @ReqState() state: IState) {
-        saleOutboundUpdateDto.updater = state.user.username;
-        saleOutboundUpdateDto.updatedAt = new Date();
-        await this.saleOutboundService.update(saleOutboundUpdateDto, state);
+        const outbound = await this.saleOutboundService.update(
+            saleOutboundUpdateDto,
+            state.user.username,
+            state.user.client_operateareaids
+        );
         return {
             code: 200,
-            msg: "更新成功"
+            msg: "更新成功",
+            data: [outbound]
         };
     }
 
     @Post("updateAndL1Review")
     public async updateAndL1Review(@Body() saleOutboundUpdateDto: SaleOutboundUpdateDto, @ReqState() state: IState) {
-        saleOutboundUpdateDto.updater = state.user.username;
-        saleOutboundUpdateDto.updatedAt = new Date();
-        await this.saleOutboundService.updateL1Review(saleOutboundUpdateDto, state);
+        await this.saleOutboundService.updateL1Review(
+            saleOutboundUpdateDto,
+            state.user.username,
+            state.user.client_operateareaids
+        );
         return {
             code: 200,
             msg: "更新加审核成功"
@@ -98,7 +107,10 @@ export class SaleOutboundController {
 
     @Post("delete_data")
     public async delete_data(@Body() deleteDto: SaleOutboundDeleteDto, @ReqState() state: IState) {
-        await this.saleOutboundService.delete_data(deleteDto.outboundid, state);
+        await this.saleOutboundService.delete_data(
+            deleteDto.outboundid,
+            state.user.username,
+        );
         return {
             code: 200,
             msg: "删除成功"
@@ -116,7 +128,10 @@ export class SaleOutboundController {
 
     @Post("l1Review")
     public async level1Review(@Body() level1ReviewSaleOutboundDto: SaleOutboundL1ReviewDto, @ReqState() state: IState) {
-        await this.saleOutboundService.level1Review(level1ReviewSaleOutboundDto.outboundid, state.user.username);
+        await this.saleOutboundService.level1Review(
+            level1ReviewSaleOutboundDto.outboundid,
+            state.user.username
+        );
         return {
             code: 200,
             msg: "审核成功"
@@ -125,7 +140,10 @@ export class SaleOutboundController {
 
     @Post("unL1Review")
     public async unLevel1Review(@Body() level1ReviewSaleOutboundDto: SaleOutboundL1ReviewDto, @ReqState() state: IState) {
-        await this.saleOutboundService.unLevel1Review(level1ReviewSaleOutboundDto.outboundid, state);
+        await this.saleOutboundService.unLevel1Review(
+            level1ReviewSaleOutboundDto.outboundid,
+            state.user.username
+        );
         return {
             code: 200,
             msg: "撤审成功"
@@ -134,7 +152,10 @@ export class SaleOutboundController {
 
     @Post("l2Review")
     public async level2Review(@Body() level2ReviewSaleOutboundDto: SaleOutboundL2ReviewDto, @ReqState() state: IState) {
-        await this.saleOutboundService.level2Review(level2ReviewSaleOutboundDto.outboundid, state.user.username);
+        await this.saleOutboundService.level2Review(
+            level2ReviewSaleOutboundDto.outboundid,
+            state.user.username
+        );
         return {
             code: 200,
             msg: "审核成功"
@@ -143,7 +164,9 @@ export class SaleOutboundController {
 
     @Post("unL2Review")
     public async unLevel2Review(@Body() level2ReviewSaleOutboundDto: SaleOutboundL2ReviewDto, @ReqState() state: IState) {
-        await this.saleOutboundService.unLevel2Review(level2ReviewSaleOutboundDto.outboundid);
+        await this.saleOutboundService.unLevel2Review(
+            level2ReviewSaleOutboundDto.outboundid
+        );
         return {
             code: 200,
             msg: "撤审成功"

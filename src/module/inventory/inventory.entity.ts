@@ -3,7 +3,7 @@ import {MysqldbAls} from "../mysqldb/mysqldbAls";
 import {Injectable} from "@nestjs/common";
 import {InventoryFindDto} from "./dto/inventoryFind.dto";
 import {ResultSetHeader} from "mysql2/promise";
-import {IFindInventory, IInventory} from "./inventory";
+import {IFindInventory, IInventory, Inventory} from "./inventory";
 import {InventoryEditDto} from "./dto/inventoryEdit.dto";
 import {ClientService} from "../client/client.service";
 import {ProductAreaService} from "../productArea/productArea.service";
@@ -19,7 +19,7 @@ export class InventoryEntity {
     }
 
     //查询单个
-    public async findOne(findOneDto: InventoryFindOneDto): Promise<IInventory> {
+    public async findOne(findOneDto: InventoryFindOneDto): Promise<Inventory> {
         const conn = await this.mysqldbAls.getConnectionInAls();
         let sql = `SELECT 
                   inventory.inventoryid,
@@ -58,8 +58,8 @@ export class InventoryEntity {
             findOneDto.batchNo
         ];
         const [res] = await conn.query(sql, param);
-        if ((res as IInventory[]).length > 0) {
-            return (res as IInventory[])[0];
+        if ((res as Inventory[]).length > 0) {
+            return (res as Inventory[])[0];
         } else {
             return null;
         }
@@ -235,7 +235,7 @@ export class InventoryEntity {
             inventory.remark,
             inventory.remarkmx,
             inventory.qty,
-            inventory.updatedAt,
+            new Date(),
             inventory.updater,
             inventory.latest_sale_price,
             inventory.clientid,
@@ -278,7 +278,7 @@ export class InventoryEntity {
             inventory.remark,
             inventory.remarkmx,
             inventory.qty,
-            inventory.updatedAt,
+            new Date(),
             inventory.updater,
             inventory.latest_sale_price,
             inventory.clientid,

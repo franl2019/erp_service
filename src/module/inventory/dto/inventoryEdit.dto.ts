@@ -1,7 +1,9 @@
 import {IsDate, IsInt, IsNumber, IsString, NotEquals} from "class-validator";
-import {IInventory} from "../inventory";
+import {IInventory, Inventory} from "../inventory";
+import {IOutboundMx} from "../../outboundMx/outboundMx";
+import {useVerifyParam} from "../../../utils/verifyParam/useVerifyParam";
 
-export class InventoryEditDto implements IInventory{
+export class InventoryEditDto extends Inventory{
   @IsString()
   spec_d: string;
 
@@ -20,7 +22,6 @@ export class InventoryEditDto implements IInventory{
   @IsNumber()
   qty: number;
 
-  @IsDate()
   updatedAt: Date;
 
   @IsString()
@@ -41,4 +42,14 @@ export class InventoryEditDto implements IInventory{
   warehouseid: number;
 
   inventoryid: number;
+
+  constructor() {
+    super();
+  }
+
+  async setValue(inventory: Inventory): Promise<this> {
+     await super.setValue(inventory);
+     await useVerifyParam(this)
+     return this
+  }
 }

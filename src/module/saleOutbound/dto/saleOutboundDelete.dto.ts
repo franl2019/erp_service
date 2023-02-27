@@ -1,7 +1,4 @@
-import {IOutboundDeleteDto} from "../../outbound/dto/outboundDelete.dto";
-import {IsInt} from "class-validator";
+import {OutboundDeleteDto} from "../../outbound/dto/outboundDelete.dto";
 
-export class SaleOutboundDeleteDto implements IOutboundDeleteDto{
-    @IsInt()
-    outboundid: number;
+export class SaleOutboundDeleteDto extends OutboundDeleteDto{
 }

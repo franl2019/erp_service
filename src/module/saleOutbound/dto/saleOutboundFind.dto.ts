@@ -1,46 +1,9 @@
-import {IOutboundFindDto} from "../../outbound/dto/outboundFind.dto";
-import {IsArray, IsInt, IsString} from "class-validator";
+import {OutboundFindDto} from "../../outbound/dto/outboundFind.dto";
+import {CodeType} from "../../autoCode/codeType";
 
-export class SaleOutboundFindDto implements IOutboundFindDto{
-    @IsArray()
-    warehouseids: number[];
-    @IsArray()
-    operateareaids: number[];
-
-    @IsInt()
-    clientid: number;
-
-    @IsString()
-    startDate: string;
-    @IsString()
-    endDate: string;
-    @IsInt()
-    outboundid: number;
-    @IsString()
-    outboundcode: string;
-    @IsInt()
-    outboundtype: number;
-    @IsString()
-    relatednumber: string;
-    @IsInt()
-    page: number;
-    @IsInt()
-    pagesize: number;
-    @IsString()
-    ymrep: string;
-
-    @IsString()
-    clientname: string;
-    @IsString()
-    moneytype: string;
-    @IsString()
-    remark1: string;
-    @IsString()
-    remark2: string
-    @IsString()
-    remark3: string;
-    @IsString()
-    remark4: string;
-    @IsString()
-    remark5: string;
+export class SaleOutboundFindDto extends OutboundFindDto {
+    constructor() {
+        super();
+        this.outboundtype = CodeType.XS
+    }
 }

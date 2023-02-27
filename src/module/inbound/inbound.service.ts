@@ -12,6 +12,7 @@ import {InboundMxDto} from "../inboundMx/dto/inboundMx.dto";
 import {ClientService} from "../client/client.service";
 import * as moment from "moment";
 import { WeightedAverageRecordService } from "../weightedAverageRecord/weightedAverageRecord.service";
+import {InventoryFindOneDto} from "../inventory/dto/inventoryFindOne.dto";
 
 @Injectable()
 export class InboundService {
@@ -183,26 +184,14 @@ export class InboundService {
             const inboundMxList = await this.inboundMxService.findById(inboundid);
             for (let i = 0; i < inboundMxList.length; i++) {
                 const inboundMx = inboundMxList[i];
-                const inventory = new InventoryEditDto();
-                inventory.productid = inboundMx.productid;
-                inventory.spec_d = inboundMx.spec_d;
-                inventory.materials_d = inboundMx.materials_d;
-                inventory.remark = inboundMx.remark;
-                inventory.remarkmx = inboundMx.remarkmx;
-                inventory.qty = inboundMx.inqty;
-                inventory.updatedAt = new Date();
-                inventory.updater = userName
-                inventory.latest_sale_price = inboundMx.netprice;
-                inventory.clientid = inboundMx.clientid;
-                inventory.batchNo = "";
-
-                if (inventory.clientid === 0) {
-                    inventory.clientid = inbound.clientid;
-                }
-                inventory.warehouseid = inbound.warehouseid;
+                const inventoryFindOneDto = new InventoryFindOneDto().useInboundMxFindInventory(inboundMx);
 
                 //进仓每个明细
-                await this.inventoryService.addInventory(inventory);
+                await this.inventoryService.addInventory(
+                    inventoryFindOneDto,
+                    inboundMx.inqty,
+                    userName
+                );
             }
         });
     }
@@ -221,27 +210,11 @@ export class InboundService {
             //获取需要扣减的明细
             const inboundmxList = await this.inboundMxService.findById(inboundid);
             for (let i = 0; i < inboundmxList.length; i++) {
-                const inboundmx = inboundmxList[i];
-                const inventory = new InventoryEditDto();
-                inventory.productid = inboundmx.productid;
-                inventory.spec_d = inboundmx.spec_d;
-                inventory.materials_d = inboundmx.materials_d;
-                inventory.remark = inboundmx.remark;
-                inventory.remarkmx = inboundmx.remarkmx;
-                inventory.qty = inboundmx.inqty
-                inventory.updatedAt = new Date();
-                inventory.updater = userName;
-                inventory.latest_sale_price = inboundmx.netprice;
-                inventory.clientid = inboundmx.clientid;
-                inventory.batchNo = "";
-
-                if (inboundmx.clientid === 0) {
-                    inventory.clientid = inbound.clientid;
-                }
-                inventory.warehouseid = inbound.warehouseid;
+                const inboundMx = inboundmxList[i];
+                const inventoryFindOneDto = new InventoryFindOneDto().useInboundMxFindInventory(inboundMx);
 
                 //出仓每个明细
-                await this.inventoryService.subtractInventory(inventory);
+                await this.inventoryService.subtractInventory(inventoryFindOneDto,inboundMx.inqty,userName);
             }
         });
     }
