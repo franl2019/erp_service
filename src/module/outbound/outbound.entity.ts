@@ -249,7 +249,7 @@ export class OutboundEntity {
         const [res] = await conn.query<ResultSetHeader>(sql, [[[
             outbound.outboundcode,
             outbound.outboundtype,
-            outbound.deliveryDate,
+            outbound.deliveryDate ? outbound.deliveryDate : null,
             outbound.outdate,
             outbound.moneytype,
             outbound.relatednumber,

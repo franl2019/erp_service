@@ -11,6 +11,7 @@ import {OutboundCreateDto} from "./dto/outboundCreate.dto";
 import {IOutbound, OutboundSheet} from "./outbound";
 import {OutboundUpdateDto} from "./dto/outboundUpdate.dto";
 import {AccountsReceivableService} from "../accountsReceivable/accountsReceivable.service";
+import {isExistAuth} from "../../utils/useAuth";
 
 @Injectable()
 export class OutboundService {
@@ -42,7 +43,7 @@ export class OutboundService {
     //创建出仓单
     public async create(outboundCreateDto: OutboundCreateDto, userName: string, clientOperateareaids: number[]): Promise<IOutbound> {
         //验证是否有客户操作区域
-        if (!outboundCreateDto.isExistAuth(
+        if (!isExistAuth(
             outboundCreateDto.operateareaid,
             clientOperateareaids
         )) return
@@ -69,7 +70,7 @@ export class OutboundService {
     //修改出仓单
     public async update(outboundUpdateDto: OutboundUpdateDto, userName: string, clientOperateareaids: number[]): Promise<IOutbound> {
         //验证是否有客户操作区域
-        if (!outboundUpdateDto.isExistAuth(
+        if (!isExistAuth(
             outboundUpdateDto.operateareaid,
             clientOperateareaids
         )) return
@@ -105,7 +106,7 @@ export class OutboundService {
 
     public async createL1Review(outboundCreateDto: OutboundCreateDto, userName: string, clientOperateareaids: number[]) {
         //验证是否有客户操作区域
-        if (!outboundCreateDto.isExistAuth(
+        if (!isExistAuth(
             outboundCreateDto.operateareaid,
             clientOperateareaids
         )) return
@@ -119,7 +120,7 @@ export class OutboundService {
 
     public async updateL1Review(outboundUpdateDto: OutboundUpdateDto, userName: string, clientOperateareaids: number[]) {
         //验证是否有客户操作区域
-        if (!outboundUpdateDto.isExistAuth(
+        if (!isExistAuth(
             outboundUpdateDto.operateareaid,
             clientOperateareaids
         )) return
@@ -181,7 +182,7 @@ export class OutboundService {
                 return Promise.reject(new Error("审核失败,审核标记有误"));
             }
             await this.outboundEntity.l1Review(outboundSheet.outboundid, userName);
-            await this.inventoryService.outboundSheetAddInventory(
+            await this.inventoryService.outboundSheetSubtractInventory(
                 outboundSheet,
                 userName
             );
@@ -199,7 +200,7 @@ export class OutboundService {
             await this.outboundEntity.unl1Review(outboundSheet.outboundid);
 
             //扣减库存
-            await this.inventoryService.outboundSheetSubtractInventory(
+            await this.inventoryService.outboundSheetAddInventory(
                 outboundSheet,
                 userName
             );
@@ -220,7 +221,7 @@ export class OutboundService {
             //更新出仓单审核状态
             await this.outboundEntity.l2Review(outboundSheet.outboundid, userName);
             //增加应收账款
-            await this.accountsReceivableService.outboundSheetCreateAccountsReceivable(outboundSheet);
+            await this.accountsReceivableService.outboundSheetCreateAccountsReceivable(outboundSheet,userName);
             await this.weightedAverageRecordService.addVersionLatest(moment(outboundSheet.outdate).format('YYYY-MM'));
         })
     }

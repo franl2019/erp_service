@@ -83,10 +83,6 @@ export class OutboundSheet implements IOutboundSheet {
     constructor() {
     }
 
-    private isNullOutboundMx() {
-        return this.outboundMx.length === 0
-    }
-
     //计算应收账款
     public calculateAccountsReceivable(): number {
         //单据应收金额
@@ -114,14 +110,10 @@ export class OutboundSheet implements IOutboundSheet {
         return amounts
     }
 
-    //验证用户权限
-    public isExistAuth(id: number, authIdList: number[]) {
-        return authIdList.includes(id)
-    }
-
     public setOutboundValue(outbound: IOutbound) {
         this.outboundid = outbound.outboundid;
         this.outboundcode = outbound.outboundcode;
+        this.outboundtype = outbound.outboundtype;
         this.outdate = outbound.outdate;
         this.deliveryDate = outbound.deliveryDate;
         this.moneytype = outbound.moneytype;

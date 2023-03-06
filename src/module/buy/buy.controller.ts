@@ -1,4 +1,4 @@
-import {Body, Controller, Post, UseGuards} from "@nestjs/common";
+import {Body, Controller, Post} from "@nestjs/common";
 import {AddBuyDto} from "./dto/addBuy.dto";
 import {UpdateBuyDto} from "./dto/updateBuy.dto";
 import {DeleteBuyDto} from "./dto/deleteBuy.dto";
@@ -8,7 +8,6 @@ import {SelectBuyDto} from "./dto/selectBuy.dto";
 import {L1reviewBuyDto} from "./dto/l1reviewBuy.dto";
 import {L2reviewDto} from "./dto/l2review.dto";
 import {FindOneBuyDto} from "./dto/findOneBuy.dto";
-import {systemConfigFactoryGuard} from "../../guard/systemConfigFactory.guard";
 
 @Controller("erp/buy")
 export class BuyController {
@@ -29,7 +28,7 @@ export class BuyController {
     }
 
     @Post("find")
-    @UseGuards(systemConfigFactoryGuard(1,1))
+    // @UseGuards(systemConfigFactoryGuard(1,1))
     async find(@Body() selectBuyDto: SelectBuyDto, @ReqState() state: IState) {
         const data = await this.buyService.find(selectBuyDto, state);
         return {

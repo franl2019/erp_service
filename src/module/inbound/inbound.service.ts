@@ -4,7 +4,6 @@ import {Injectable} from "@nestjs/common";
 import {IInboundDto} from "./dto/Inbound.dto";
 import {MysqldbAls} from "../mysqldb/mysqldbAls";
 import {InventoryService} from "../inventory/inventory.service";
-import {InventoryEditDto} from "../inventory/dto/inventoryEdit.dto";
 import {InboundMxService} from "../inboundMx/inboundMx.service";
 import {Inbound} from "./inbound";
 import {AutoCodeMxService} from "../autoCodeMx/autoCodeMx.service";
@@ -187,7 +186,7 @@ export class InboundService {
                 const inventoryFindOneDto = new InventoryFindOneDto().useInboundMxFindInventory(inboundMx);
 
                 //进仓每个明细
-                await this.inventoryService.addInventory(
+                await this.inventoryService.updateInventory(
                     inventoryFindOneDto,
                     inboundMx.inqty,
                     userName
@@ -201,20 +200,20 @@ export class InboundService {
             //获取需要撤审的单头
             const inbound = await this.findById(inboundid);
 
-            if ((inbound.level1review + inbound.level2review) !== 1) {
-                return Promise.reject(new Error("单据已审核"));
+            if (inbound.level1review !== 1 || inbound.level2review !== 0) {
+                return Promise.reject(new Error("单据状态异常"));
             }
 
             await this.inboundEntity.unl1Review(inbound.inboundid);
 
             //获取需要扣减的明细
-            const inboundmxList = await this.inboundMxService.findById(inboundid);
-            for (let i = 0; i < inboundmxList.length; i++) {
-                const inboundMx = inboundmxList[i];
+            const inboundMxList = await this.inboundMxService.findById(inboundid);
+            for (let i = 0; i < inboundMxList.length; i++) {
+                const inboundMx = inboundMxList[i];
                 const inventoryFindOneDto = new InventoryFindOneDto().useInboundMxFindInventory(inboundMx);
 
                 //出仓每个明细
-                await this.inventoryService.subtractInventory(inventoryFindOneDto,inboundMx.inqty,userName);
+                await this.inventoryService.updateInventory(inventoryFindOneDto,inboundMx.inqty,userName);
             }
         });
     }

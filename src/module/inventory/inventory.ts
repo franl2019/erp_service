@@ -1,5 +1,4 @@
 import {bignumber, chain} from 'mathjs';
-import {IOutboundMx} from "../outboundMx/outboundMx";
 
 export interface IInventory {
     inventoryid: number;
@@ -56,6 +55,7 @@ export class Inventory implements IInventory {
                 .add(bignumber(qty))
         );
         this.updater = userName;
+        return this
     }
 
     public async subtract(qty: number,userName:string) {
@@ -67,7 +67,7 @@ export class Inventory implements IInventory {
         this.updater = userName;
     }
 
-    public  async setValue(inventory:Inventory){
+    public  async setValue(inventory:IInventory){
         this.inventoryid = inventory.inventoryid;
         this.spec_d = inventory.spec_d;
         this.materials_d = inventory.materials_d;

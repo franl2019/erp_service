@@ -285,7 +285,7 @@ export class AccountsReceivableService {
         await this.accountsReceivableEntity.update(accountsReceivable);
     }
 
-    public async outboundSheetCreateAccountsReceivable(outboundSheet:OutboundSheet){
+    public async outboundSheetCreateAccountsReceivable(outboundSheet:OutboundSheet,userName:string){
         const amounts = outboundSheet.calculateAccountsReceivable()
         await this.createAccountsReceivable({
             accountsReceivableId: 0,
@@ -297,8 +297,8 @@ export class AccountsReceivableService {
             correlationId: outboundSheet.outboundid,
             correlationType: outboundSheet.outboundtype,
             inDate: outboundSheet.outdate,
-            creater: outboundSheet.level2name,
-            createdAt: outboundSheet.level2date,
+            creater: userName,
+            createdAt: new Date(),
             updater: "",
             updatedAt: null,
             del_uuid: 0,

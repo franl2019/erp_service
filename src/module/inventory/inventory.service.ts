@@ -5,6 +5,7 @@ import {InventoryFindDto} from "./dto/inventoryFind.dto";
 import {InventoryEditDto} from "./dto/inventoryEdit.dto";
 import {OutboundSheet} from "../outbound/outbound";
 import {InventoryFindOneDto} from "./dto/inventoryFindOne.dto";
+import {InventoryCreateDto} from "./dto/inventoryCreate.dto";
 
 @Injectable()
 export class InventoryService {
@@ -20,29 +21,18 @@ export class InventoryService {
     }
 
     //增加库存
-    public async addInventory(inventoryFindOneDto: InventoryFindOneDto, qty: number, userName: string) {
-        const editInventory = await new InventoryEditDto().setValue(
-            await this.inventoryEntity.findOne(inventoryFindOneDto)
-        )
+    public async updateInventory(inventoryFindOneDto: InventoryFindOneDto, qty: number, userName: string) {
+        const inventory = await this.inventoryEntity.findOne(inventoryFindOneDto)
 
-        await editInventory.add(qty, userName);
-        if (editInventory && editInventory.inventoryid !== 0) {
+        if (inventory) {
+            const editInventory = await new InventoryEditDto().setValue(inventory)
+            await editInventory.add(qty, userName);
             await this.inventoryEntity.update(editInventory);
         } else {
-            await this.inventoryEntity.create(editInventory);
-        }
-    }
-
-    //减少库存
-    public async subtractInventory(inventoryFindOneDto: InventoryFindOneDto, qty: number, userName: string) {
-        const editInventory = await new InventoryEditDto().setValue(
-            await this.inventoryEntity.findOne(inventoryFindOneDto)
-        )
-        await editInventory.subtract(qty, userName);
-        if (editInventory && editInventory.inventoryid !== 0) {
-            await this.inventoryEntity.update(editInventory);
-        } else {
-            await this.inventoryEntity.create(editInventory);
+            const createInventory = await new InventoryCreateDto(
+                inventoryFindOneDto
+            ).setQty(qty, userName);
+            await this.inventoryEntity.create(createInventory)
         }
     }
 
@@ -53,7 +43,7 @@ export class InventoryService {
         for (let i = 0; i < outboundMxList.length; i++) {
             const outboundMx = outboundMxList[i];
             const inventoryFindDto = new InventoryFindOneDto().useOutboundMxFindInventory(outboundMx);
-            await this.subtractInventory(inventoryFindDto,outboundMx.outqty,userName);
+            await this.updateInventory(inventoryFindDto, -outboundMx.outqty, userName);
         }
     }
 
@@ -64,7 +54,7 @@ export class InventoryService {
         for (let i = 0; i < outboundMxList.length; i++) {
             const outboundMx = outboundMxList[i];
             const inventoryFindDto = new InventoryFindOneDto().useOutboundMxFindInventory(outboundMx);
-            await this.addInventory(inventoryFindDto,outboundMx.outqty,userName);
+            await this.updateInventory(inventoryFindDto, outboundMx.outqty, userName);
         }
     }
 }

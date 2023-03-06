@@ -34,6 +34,7 @@ export class OutboundCreateDto extends OutboundSheet{
   @NotEquals(0)
   clientid: number;
   printcount: number;
+  @IsInt()
   outboundtype: number;
   level1review: number;
   level1name: string;

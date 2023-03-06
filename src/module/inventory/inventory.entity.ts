@@ -3,10 +3,11 @@ import {MysqldbAls} from "../mysqldb/mysqldbAls";
 import {Injectable} from "@nestjs/common";
 import {InventoryFindDto} from "./dto/inventoryFind.dto";
 import {ResultSetHeader} from "mysql2/promise";
-import {IFindInventory, IInventory, Inventory} from "./inventory";
+import {IFindInventory, Inventory} from "./inventory";
 import {InventoryEditDto} from "./dto/inventoryEdit.dto";
 import {ClientService} from "../client/client.service";
 import {ProductAreaService} from "../productArea/productArea.service";
+import {InventoryCreateDto} from "./dto/inventoryCreate.dto";
 
 @Injectable()
 export class InventoryEntity {
@@ -204,7 +205,7 @@ export class InventoryEntity {
             sql = sql + ` LIMIT ?,?`;
             param.push(selectDto.page, selectDto.pagesize);
         }
-
+        console.log(sql,param)
         const [res] = await conn.query(sql, param);
         if ((res as IFindInventory[]).length > 0) {
             return (res as IFindInventory[]);
@@ -213,7 +214,7 @@ export class InventoryEntity {
         }
     }
 
-    public async create(inventory: InventoryEditDto) {
+    public async create(inventory: InventoryCreateDto) {
         const conn = await this.mysqldbAls.getConnectionInAls();
         const sql: string = `INSERT INTO inventory (
                 inventory.spec_d,

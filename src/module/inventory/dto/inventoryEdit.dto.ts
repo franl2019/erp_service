@@ -1,55 +1,54 @@
-import {IsDate, IsInt, IsNumber, IsString, NotEquals} from "class-validator";
+import {IsInt, IsNumber, IsString, NotEquals} from "class-validator";
 import {IInventory, Inventory} from "../inventory";
-import {IOutboundMx} from "../../outboundMx/outboundMx";
 import {useVerifyParam} from "../../../utils/verifyParam/useVerifyParam";
 
-export class InventoryEditDto extends Inventory{
-  @IsString()
-  spec_d: string;
+export class InventoryEditDto extends Inventory {
+    @IsString()
+    spec_d: string;
 
-  @IsString()
-  materials_d: string;
+    @IsString()
+    materials_d: string;
 
-  @IsString()
-  remark: string;
+    @IsString()
+    remark: string;
 
-  @IsString()
-  remarkmx: string;
+    @IsString()
+    remarkmx: string;
 
-  @IsString()
-  batchNo: string;
+    @IsString()
+    batchNo: string;
 
-  @IsNumber()
-  qty: number;
+    @IsNumber()
+    qty: number;
 
-  updatedAt: Date;
+    updatedAt: Date;
 
-  @IsString()
-  updater: string;
+    @IsString()
+    updater: string;
 
-  @IsNumber()
-  latest_sale_price: number;
+    @IsNumber()
+    latest_sale_price: number;
 
-  @IsInt()
-  @NotEquals(0)
-  productid: number;
+    @IsInt()
+    @NotEquals(0)
+    productid: number;
 
-  @IsInt()
-  @NotEquals(0)
-  clientid: number;
+    @IsInt()
+    @NotEquals(0)
+    clientid: number;
 
-  @IsInt()
-  warehouseid: number;
+    @IsInt()
+    warehouseid: number;
 
-  inventoryid: number;
+    inventoryid: number;
 
-  constructor() {
-    super();
-  }
+    constructor() {
+        super();
+    }
 
-  async setValue(inventory: Inventory): Promise<this> {
-     await super.setValue(inventory);
-     await useVerifyParam(this)
-     return this
-  }
+    async setValue(inventory: IInventory): Promise<this> {
+        await super.setValue(inventory);
+        await useVerifyParam(this)
+        return this
+    }
 }
